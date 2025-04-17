@@ -61,16 +61,23 @@ class POSPanelProvider extends PanelProvider
             ->spa()
             ->navigationGroups([
                 // NavigationGroup::make()
-                //      ->label('Company Management')
+                //      ->label('Inventory Management')
                 //      ->icon('heroicon-o-shopping-cart'),
                 // NavigationGroup::make()
-                //     ->label('Blog')
+                //     ->label('Branch Management')
                 //     ->icon('heroicon-o-pencil'),
                 // NavigationGroup::make()
                 //     ->label(fn (): string => __('navigation.settings'))
                 //     ->icon('heroicon-o-cog-6-tooth')
                 //     ->collapsed(),
             ])
+            ->navigationGroups([
+                'Inventory',
+                'Supply Management',
+                'Branch Management',
+                'Settings',
+            ])
+            ->databaseNotifications()
             ->topNavigation();
     }
 }

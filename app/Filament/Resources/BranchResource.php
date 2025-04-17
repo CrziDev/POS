@@ -40,8 +40,6 @@ class BranchResource extends Resource
                         ->from('md'),
                         Forms\Components\Textarea::make('address')
                             ->columnSpanFull(),
-
-
                     ])
             ]);
     }

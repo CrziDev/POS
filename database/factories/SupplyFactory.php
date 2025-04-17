@@ -17,7 +17,8 @@ class SupplyFactory extends Factory
     public function definition(): array
     {
         return [
-            //
+            'name' => fake()->words(3, true),
+            'item_code' => fake()->unique()->bothify('ITEM-####'),
         ];
     }
 }

@@ -14,6 +14,7 @@ return new class extends Migration
         Schema::create('supply_categories', function (Blueprint $table) {
             $table->id();
             $table->string('name',100);
+            $table->text('description')->nullable();
             $table->timestamps();
         });
 
@@ -21,7 +22,7 @@ return new class extends Migration
             $table->id();
             $table->string('name')->unique();
             $table->foreignId('category_id')->nullable()->constrained('supply_categories');
-            $table->unsignedInteger('item_code')->nullable();
+            $table->string('item_code')->nullable();
             $table->timestamps();
         });
     }
