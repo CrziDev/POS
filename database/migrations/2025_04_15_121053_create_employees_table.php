@@ -22,7 +22,7 @@ return new class extends Migration
             $table->string('email',155);
             $table->string('contact_no',155);
             $table->string('address',155);
-            $table->string('status',55)->default(EmployeeStatusEnum::Active);
+            $table->string('status',55)->default(EmployeeStatusEnum::ACTIVE->value);
             $table->timestamps();
         });
     }

@@ -7,6 +7,7 @@ use App\Models\Employee;
 use App\Models\User;
 // use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
+use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Hash;
 
 class DatabaseSeeder extends Seeder
@@ -16,6 +17,7 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
+        $this->call(RolesSeeder::class);
 
         for ($i = 0; $i < 10; $i++) {
             $employeeData = Employee::factory()->make(); 
@@ -27,10 +29,15 @@ class DatabaseSeeder extends Seeder
             ]);
         
             $user->employee()->create($employeeData->toArray()); 
+
+            $randomRole = Arr::random(['sales-clerk', 'cashier']);
+            $user->assignRole($randomRole);
         }
 
         Branch::factory(2)
             ->create();
+
+        $this->call(AdminSeeder::class);
 
     }
 }

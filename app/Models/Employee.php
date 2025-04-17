@@ -20,18 +20,31 @@ class Employee extends Model
 
     public static function getOptionsArray($notDeployed = false): array
     {
-        $query = self::query();
+        $query = self::query()->with('user.roles');
 
         if($notDeployed)
         {
             $query->doesntHave('branch');
         }
 
-        return [];
+        return $query->get()->mapWithKeys(fn($item) =>
+            [
+                $item->id => 
+                    "<span> <b>Employee:</b> " . $item->fullName . "</span>". "<br>".
+                    "<small>" .
+                        "<span>Role: " . $item->user->roles[0]->name  . "</span>" .
+                    "</small>"
+            ]
+        )->all();
     }
 
     public function branch()
     {
         return $this->hasOne(BranchEmployee::class,'employee_id');
+    }
+
+    public function user()
+    {
+        return $this->belongsTo(User::class);
     }
 }

@@ -25,7 +25,7 @@ return new class extends Migration
             $table->id();
             $table->foreignId('branch_id')->constrained('branches');
             $table->foreignId('employee_id')->constrained('employees');
-            $table->string('position');
+            $table->string('position')->nullable();
             $table->string('status',55)->default(EmployeePositionStatusEnum::Active);
             $table->timestamps();
         });

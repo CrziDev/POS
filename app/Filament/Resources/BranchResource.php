@@ -55,10 +55,10 @@ class BranchResource extends Resource
                 Tables\Columns\TextColumn::make('address')
                     ->label('Location'),
                 // Tables\Columns\TextColumn::make('contact_no'),
-                Tables\Columns\ImageColumn::make('employees.employee_avatar')
+                Tables\Columns\ImageColumn::make('branchEmployees.employee.employee_avatar')
+                    ->label('Employees')
                     ->circular()
                     ->stacked()
-                    // ->defaultImageUrl(url('/images/default-profile.png'))
                     ->limit(5)
                     ->limitedRemainingText()
             ])
@@ -67,8 +67,9 @@ class BranchResource extends Resource
             ])
             ->actions([
                 Tables\Actions\ActionGroup::make([
-                    Tables\Actions\EditAction::make('Edit'),
-                    Tables\Actions\DeleteAction::make('Remove')
+                    Tables\Actions\EditAction::make(),
+                    Tables\Actions\DeleteAction::make()
+                        ->label('Remove')
                         ->requiresConfirmation(),
                 ])
             ])

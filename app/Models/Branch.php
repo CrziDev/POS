@@ -11,7 +11,7 @@ class Branch extends Model
     
     protected $guarded =[];
 
-    public function employees(){
+    public function branchEmployees(){
         return $this->hasMany(BranchEmployee::class,'branch_id');
     }
 }

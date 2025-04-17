@@ -2,6 +2,8 @@
 
 namespace App\Filament\Resources\BranchResource\RelationManagers;
 
+use App\Enums\EmployeeStatusEnum;
+use App\Models\Employee;
 use Filament\Forms;
 use Filament\Forms\Form;
 use Filament\Resources\RelationManagers\RelationManager;
@@ -12,16 +14,20 @@ use Illuminate\Database\Eloquent\SoftDeletingScope;
 
 class EmployeesRelationManager extends RelationManager
 {
-    protected static string $relationship = 'employees';
+    protected static string $relationship = 'branchEmployees';
     protected static ?string $title = 'Branch Employees';
 
     public function form(Form $form): Form
     {
         return $form
             ->schema([
-                Forms\Components\TextInput::make('name')
+                Forms\Components\Select::make('employee_id')
                     ->required()
-                    ->maxLength(255),
+                    ->allowHtml()
+                    ->searchable()
+                    ->options(fn () => Employee::getOptionsArray(true))
+                    ->live()
+                    ->columnSpanFull()
             ]);
     }
 
@@ -30,12 +36,18 @@ class EmployeesRelationManager extends RelationManager
         return $table
             ->recordTitleAttribute('name')
             ->columns([
-                Tables\Columns\ImageColumn::make('employees.avatar')
+                Tables\Columns\ImageColumn::make('employee.employee_avatar')
+                    ->label('')
+                    ->defaultImageUrl(url('/images/default-profile.png'))
                     ->circular(),
-                Tables\Columns\TextColumn::make('status'),
                 Tables\Columns\TextColumn::make('employee.full_name'),
-                Tables\Columns\TextColumn::make('position')
-                    ->label('Location'),
+                Tables\Columns\TextColumn::make('employee.user.roles.name')
+                    ->formatStateUsing(strFormat()),
+                Tables\Columns\TextColumn::make('status')
+                    ->formatStateUsing(strFormat())
+                    ->color(statusColor(EmployeeStatusEnum::class))
+                    ->badge(),
+
             ])
             ->filters([
               
@@ -45,12 +57,19 @@ class EmployeesRelationManager extends RelationManager
                     ->label('Add Employee'),
             ])
             ->actions([
-                Tables\Actions\EditAction::make(),
-                Tables\Actions\DeleteAction::make(),
+                Tables\Actions\ActionGroup::make([
+                    Tables\Actions\Action::make('view_detail')
+                        ->icon('heroicon-m-eye')
+                        ->label('View Detail'),
+                    Tables\Actions\DeleteAction::make('Remove')
+                        ->label('Remove')
+                        ->requiresConfirmation(),
+                ])
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
-                    Tables\Actions\DeleteBulkAction::make(),
+                    Tables\Actions\DeleteBulkAction::make()
+                        ->requiresConfirmation(),
                 ]),
             ]);
     }

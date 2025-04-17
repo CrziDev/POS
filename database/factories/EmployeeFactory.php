@@ -20,6 +20,7 @@ class EmployeeFactory extends Factory
             'first_name' => fake()->firstName,
             'last_name' => fake()->lastName,
             'contact_no' => fake()->phoneNumber,
+            'employee_avatar' => 'employee-profile-image/default-profile.png',
             'email' => fake()->email,
             'address' => fake()->address,
             'status' => 'active',

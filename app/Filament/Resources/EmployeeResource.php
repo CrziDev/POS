@@ -3,7 +3,6 @@
 namespace App\Filament\Resources;
 
 use App\Filament\Resources\EmployeeResource\Pages;
-use App\Filament\Resources\EmployeeResource\RelationManagers;
 use App\Models\Employee;
 use Filament\Forms;
 use Filament\Forms\Form;
@@ -16,6 +15,7 @@ use Filament\Tables\Columns\Layout\Split;
 use Filament\Tables\Columns\Layout\Stack;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
+use Illuminate\Support\Str;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 
@@ -67,15 +67,25 @@ class EmployeeResource extends Resource
         return $table
             ->columns([
                 Split::make([
-                        ImageColumn::make('employee_avatar')
-                            ->circular()
-                            ->defaultImageUrl(url('/images/default-profile.png'))
-                            ->size(50)
-                            ->grow(false),
-                        TextColumn::make('full_name')
-                            ->weight(FontWeight::Bold)
-                            ->searchable()
-                            ->default('-'),
+                    ImageColumn::make('employee_avatar')
+                        ->circular()
+                        ->defaultImageUrl(url('/images/default-profile.png'))
+                        ->size(50)
+                        ->grow(false),
+                    TextColumn::make('full_name')
+                        ->description('Name')
+                        ->weight(FontWeight::Bold)
+                        ->searchable()
+                        ->default('-'),
+                    TextColumn::make('branch.branch.name')
+                        ->description('Branch')
+                        ->weight(FontWeight::Bold)
+                        ->searchable()
+                        ->default('-'),
+                    TextColumn::make('user.roles.name')
+                        ->formatStateUsing(strFormat())
+                        ->listWithLineBreaks()
+                        ->bulleted(),
                     Stack::make([
                         TextColumn::make('contact_no')
                             ->icon('heroicon-m-phone'),
