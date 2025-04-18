@@ -32,9 +32,8 @@ class SupplyResource extends Resource
     {
         return $form
             ->schema([
-                Forms\Components\TextInput::make('item_code')
-                    ->hint("Auto Generated")
-                    ->default(Supply::generateUniqueItemCode()),
+                Forms\Components\TextInput::make('sku')
+                    ->unique(),
                 Forms\Components\Split::make([
                     Forms\Components\TextInput::make('name'),
                     Forms\Components\Select::make('category_id')
@@ -50,13 +49,13 @@ class SupplyResource extends Resource
             ->columns([
                 TextColumn::make('id')
                     ->label('Supply #'),
-                TextInputColumn::make('item_code')
-                    ->label('Item Code')
+                TextInputColumn::make('sku')
+                    ->label('Sku')
                     ->searchable()
                     ->default('-')
                     ->extraAttributes(['style'=>'max-width:100px']),
                 TextColumn::make('name')
-                    ->label('Supply')
+                    ->label('Item')
                     ->weight(FontWeight::Bold)
                     ->searchable()
                     ->formatStateUsing(strFormat())
@@ -67,7 +66,6 @@ class SupplyResource extends Resource
                     ->searchable()
             ])
             ->filters([
-                //
             ])
             ->actions([
                 Tables\Actions\ActionGroup::make([

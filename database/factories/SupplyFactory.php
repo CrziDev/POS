@@ -18,7 +18,7 @@ class SupplyFactory extends Factory
     {
         return [
             'name' => fake()->words(3, true),
-            'item_code' => fake()->unique()->bothify('ITEM-####'),
+            'sku' => fake()->unique()->bothify('ITEM-####'),
         ];
     }
 }

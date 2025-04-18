@@ -28,9 +28,6 @@ class BranchResource extends Resource
                 Forms\Components\Section::make()
                     ->schema([
                         Forms\Components\Split::make([              
-                            // Forms\Components\FileUpload::make('avatar')
-                            //     ->hiddenLabel()
-                            //     ->avatar(),
                             Forms\Components\TextInput::make('name'),
                             Forms\Components\TextInput::make('contact_no'),
                             Forms\Components\DatePicker::make('date_establish')

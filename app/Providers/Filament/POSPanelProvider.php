@@ -59,10 +59,11 @@ class POSPanelProvider extends PanelProvider
                 Authenticate::class,
             ])
             ->spa()
+            ->viteTheme('resources/css/filament/admin/theme.css')
             ->navigationGroups([
                 // NavigationGroup::make()
                 //      ->label('Inventory Management')
-                //      ->icon('heroicon-o-shopping-cart'),
+                //      ->icon('heroicon-o-shopping-cart'), 
                 // NavigationGroup::make()
                 //     ->label('Branch Management')
                 //     ->icon('heroicon-o-pencil'),

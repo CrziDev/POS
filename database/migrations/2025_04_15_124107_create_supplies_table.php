@@ -22,7 +22,7 @@ return new class extends Migration
             $table->id();
             $table->string('name')->unique();
             $table->foreignId('category_id')->nullable()->constrained('supply_categories');
-            $table->string('item_code')->nullable();
+            $table->string('sku')->nullable();
             $table->timestamps();
         });
     }
