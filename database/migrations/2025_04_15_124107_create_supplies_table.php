@@ -20,9 +20,11 @@ return new class extends Migration
 
         Schema::create('supplies', function (Blueprint $table) {
             $table->id();
-            $table->string('name')->unique();
             $table->foreignId('category_id')->nullable()->constrained('supply_categories');
+            $table->string('name')->unique();
+            $table->string('item_image')->nullable();
             $table->string('sku')->nullable();
+            $table->decimal('cost')->default(0);
             $table->timestamps();
         });
     }

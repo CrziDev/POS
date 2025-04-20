@@ -14,11 +14,7 @@ class ListSupplies extends ListRecords
 {
     protected static string $resource = SupplyResource::class;
 
-    #[On('post-created')] 
-    public function updatePostList($title)
-    {
-        // ...
-    }
+    
     protected function getHeaderActions(): array
     {
         return [

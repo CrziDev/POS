@@ -38,7 +38,7 @@ class DatabaseSeeder extends Seeder
         Branch::factory(2)
             ->create();
 
-        Supply::factory(10)
+        Supply::factory(100)
             ->create();
 
         $this->call(AdminSeeder::class);

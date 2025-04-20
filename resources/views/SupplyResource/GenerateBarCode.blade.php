@@ -6,6 +6,7 @@
         </div>
     @endforeach
 </div>
+
 @script
 <script>
     $wire.on('post-created', () => {
