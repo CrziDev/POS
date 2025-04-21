@@ -27,4 +27,8 @@ class Supply extends Model
         return $barCodes;
     }
 
+    public function category(){
+        return $this->belongsTo(SupplyCategory::class,'category_id');
+    }
+
 }

@@ -43,6 +43,8 @@ class DatabaseSeeder extends Seeder
 
         $this->call(AdminSeeder::class);
         $this->call(SupplyCategorySeeder::class);
+        $this->call(StockSeeder::class);
+
 
     }
 }

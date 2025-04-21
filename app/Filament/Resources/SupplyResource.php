@@ -15,6 +15,7 @@ use Filament\Tables;
 use Filament\Tables\Columns\SelectColumn;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Columns\TextInputColumn;
+use Filament\Tables\Enums\ActionsPosition;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
@@ -47,19 +48,17 @@ class SupplyResource extends Resource
     {
         return $table
             ->columns([
-                TextColumn::make('id')
-                    ->label('Supply #'),
-                TextInputColumn::make('sku')
-                    ->label('Sku')
-                    ->searchable()
-                    ->default('-')
-                    ->extraAttributes(['style'=>'max-width:100px']),
                 TextColumn::make('name')
                     ->label('Item')
                     ->weight(FontWeight::Bold)
                     ->searchable()
                     ->formatStateUsing(strFormat())
                     ->default('-'),
+                TextInputColumn::make('sku')
+                    ->label('SKU')
+                    ->searchable()
+                    ->default('-')
+                    ->extraAttributes(['style'=>'max-width:100px']),
                 SelectColumn::make('category_id')
                     ->label('Category')
                     ->options(SupplyCategory::all()->pluck('name','id'))
@@ -71,7 +70,7 @@ class SupplyResource extends Resource
                 Tables\Actions\ActionGroup::make([
                     Tables\Actions\EditAction::make(),
                 ])
-            ])
+            ],ActionsPosition   ::BeforeColumns)
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
                     Tables\Actions\DeleteBulkAction::make(),

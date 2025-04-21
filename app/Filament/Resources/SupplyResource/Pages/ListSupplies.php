@@ -27,7 +27,9 @@ class ListSupplies extends ListRecords
                 })
                 ->modalSubmitActionLabel('Generate')
                 ->action(fn () =>$this->dispatch('post-created')),
-            
+            Actions\Action::make('export-stocks')
+                ->label('Export')
+                ->color('info'),
             Actions\CreateAction::make()
                 ->label('New Supply'),
         ];
