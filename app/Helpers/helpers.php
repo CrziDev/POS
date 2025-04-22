@@ -1,5 +1,6 @@
 <?php
 
+use Filament\Notifications\Notification;
 use Illuminate\Support\Str;
 
 if (! function_exists('strFormat')) {
@@ -13,3 +14,25 @@ if (! function_exists('statusColor')) {
         return fn($state) => $enum::getColor($state);
     }
 }
+
+if (!function_exists('moneyToNumber')) {
+    function moneyToNumber($moneyString): float
+    {
+        $numericValue = filter_var($moneyString, FILTER_SANITIZE_NUMBER_FLOAT, FILTER_FLAG_ALLOW_FRACTION);
+
+        // Convert to float for further calculations
+        $numericValue = floatval($numericValue);
+
+        return $numericValue;
+    }
+}
+
+if (!function_exists('moneyToNumber')) {
+    function notification($message)
+    {
+        return Notification::make()
+                ->title($message)
+                ->send();
+    }
+}
+

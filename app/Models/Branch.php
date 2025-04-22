@@ -14,4 +14,16 @@ class Branch extends Model
     public function branchEmployees(){
         return $this->hasMany(BranchEmployee::class,'branch_id');
     }
+
+    public static function getOptionsArray(): array
+    {
+        $query = self::query();
+
+        return $query->get()->mapWithKeys(fn($item) =>
+            [
+                $item->id => 
+                    "<span> <b>Branch:</b> " . $item->name . "</span>". "<br>"
+            ]
+        )->all();
+    }
 }

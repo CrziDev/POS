@@ -19,6 +19,22 @@ class User extends Authenticatable
     }
 
 
+    public static function getOptionsArray(): array
+    {
+        $query = self::query()->with('roles');
+
+        return $query->get()->mapWithKeys(fn($item) =>
+            [
+                $item->id => 
+                    "<span> <b>Name:</b> " . $item->name . "</span>". "<br>".
+                    "<small>" .
+                        "<span>Role: " . $item->roles()->first()?->name  . "</span>" .
+                    "</small>"
+            ]
+        )->all();
+    }
+
+
 
     /**
      * The attributes that are mass assignable.

@@ -27,6 +27,21 @@ class Supply extends Model
         return $barCodes;
     }
 
+    public static function getOptionsArray(): array
+    {
+        $query = self::query()->with('category');
+
+        return $query->get()->mapWithKeys(fn($item) =>
+            [
+                $item->id => 
+                    "<span> <b>Supply:</b> " . $item->name . "</span>". "<br>".
+                    "<small>" .
+                        "<span> Category:".$item->category?->name."<span>" .
+                    "<small>" 
+            ]
+        )->all();
+    }
+
     public function category(){
         return $this->belongsTo(SupplyCategory::class,'category_id');
     }

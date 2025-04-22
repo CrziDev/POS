@@ -8,5 +8,6 @@ enum PurchaseOrderStatusEnums: string
     case APPROVED = 'approved';
     case FORDELIVERY = 'for-delivery';
     case DELIVERED = 'delivered';
-
+    case DELIVERYINPROGRESS = 'delivery-in-progress';
+    
 }
