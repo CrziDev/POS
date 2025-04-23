@@ -4,19 +4,20 @@ namespace App\Filament\Resources;
 
 use App\Enums\PurchaseOrderStatusEnums;
 use App\Filament\Resources\PurchaseOrderResource\Pages;
+use App\Filament\Resources\PurchaseOrdersResource\RelationManagers\DeliveredItemsRelationManager;
 use App\Filament\Resources\PurchaseOrdersResource\RelationManagers\OrderedItemsRelationManager;
 use App\Models\Branch;
 use App\Models\PurchaseOrder;
 use App\Models\Supplier;
 use App\Models\User;
 use Filament\Forms;
-use Filament\Forms\Components\TextInput;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
 use Filament\Support\Enums\MaxWidth;
 use Filament\Tables;
 use Filament\Tables\Table;
 use Filament\Tables\Enums\ActionsPosition;
+use Filament\Tables\Filters\SelectFilter;
 use Illuminate\Database\Eloquent\Model;
 
 class PurchaseOrderResource extends Resource
@@ -30,10 +31,8 @@ class PurchaseOrderResource extends Resource
     public static function form(Form $form): Form
     {
         return $form->schema([
-
             Forms\Components\Section::make()
                 ->schema([
-
                     Forms\Components\Select::make('branch_id')
                         ->label('Branch')
                         ->required()
@@ -48,17 +47,16 @@ class PurchaseOrderResource extends Resource
                         ->searchable()
                         ->allowHtml()
                         ->columnSpanFull()
-                        ->hint("Click the Plus Icon to Add new Supplier")
+                        ->hint("Click the Plus Icon to add a new Supplier")
                         ->createOptionForm([
-                            Forms\Components\Split::make([    
-                                Forms\Components\TextInput::make('name')
-                                    ->required(),
-                                Forms\Components\Select::make('contact_no')
+                            Forms\Components\Split::make([
+                                Forms\Components\TextInput::make('name')->required(),
+                                Forms\Components\TextInput::make('contact_no'),
                             ]),
-                            Forms\Components\Textarea::make('adrress')
+                            Forms\Components\Textarea::make('address'),
                         ])
                         ->options(Supplier::getOptionsArray()),
-        
+
                     Forms\Components\Select::make('prepared_by')
                         ->label('Prepared By')
                         ->required()
@@ -69,12 +67,11 @@ class PurchaseOrderResource extends Resource
                         ->disabled()
                         ->dehydrated()
                         ->columnSpanFull(),
-        
+
                     Forms\Components\Textarea::make('remarks')
                         ->label('Remarks')
                         ->columnSpanFull(),
                 ])
-
         ]);
     }
 
@@ -84,7 +81,7 @@ class PurchaseOrderResource extends Resource
             ->columns([
                 Tables\Columns\TextColumn::make('id')
                     ->label('PO Number')
-                    ->formatStateUsing(fn($state)=>"#". $state)
+                    ->formatStateUsing(fn ($state) => "#" . $state)
                     ->sortable()
                     ->searchable(),
 
@@ -97,7 +94,7 @@ class PurchaseOrderResource extends Resource
                     ->label('Supplier')
                     ->sortable()
                     ->searchable(),
-                    
+
                 Tables\Columns\TextColumn::make('total_amount')
                     ->label('Total Amount')
                     ->money('PHP', true)
@@ -108,7 +105,7 @@ class PurchaseOrderResource extends Resource
                     ->sortable()
                     ->formatStateUsing(strFormat())
                     ->searchable(),
-                    
+
                 Tables\Columns\TextColumn::make('status')
                     ->label('Status')
                     ->formatStateUsing(strFormat())
@@ -135,27 +132,36 @@ class PurchaseOrderResource extends Resource
                     ->toggleable(isToggledHiddenByDefault: true),
             ])
             ->filters([
+                SelectFilter::make('branch_id')
+                    ->label('Branch')
+                    ->options(Branch::getOptionsArray(false)),
+
+                SelectFilter::make('supplier_id')
+                    ->label('Supplier')
+                    ->options(Supplier::getOptionsArray(false)),
+
+                SelectFilter::make('status')
+                    ->label('Status')
+                    ->options(PurchaseOrderStatusEnums::options()),
             ])
             ->actions([
                 Tables\Actions\ActionGroup::make([
-
                     Tables\Actions\EditAction::make()
                         ->label('Edit Purchase Order')
                         ->icon('heroicon-o-pencil-square')
                         ->color('warning')
-                        ->visible(fn ($record) => !in_array($record->status,
-                                        [PurchaseOrderStatusEnums::DELIVERED->value,
-                                       ]
-                        )),
+                        ->visible(fn ($record) =>
+                            !in_array($record->status, [PurchaseOrderStatusEnums::DELIVERED->value,PurchaseOrderStatusEnums::DELIVERYINPROGRESS->value])
+                        ),
 
                     Tables\Actions\ViewAction::make()
-                        ->label('View Purchase Oorder')
+                        ->label('View Purchase Order')
                         ->icon('heroicon-o-eye')
                         ->color('info')
-                        ->visible(fn ($record) => in_array($record->status,
-                                        [PurchaseOrderStatusEnums::DELIVERED->value,
-                                       ]
-                        )),
+                        ->visible(fn ($record) =>
+                            in_array($record->status, [PurchaseOrderStatusEnums::DELIVERED->value])
+                        ),
+
                     Tables\Actions\Action::make('approve-delivery')
                         ->label('Approve Purchase Order')
                         ->icon('heroicon-o-check-circle')
@@ -168,8 +174,10 @@ class PurchaseOrderResource extends Resource
                             $record->approvePurchaseOrder();
                             notification('The purchase order has been successfully approved.');
                         })
-                        ->visible(fn ($record) => $record->status == PurchaseOrderStatusEnums::PENDING->value),
-                    
+                        ->visible(fn ($record) =>
+                            $record->status === PurchaseOrderStatusEnums::PENDING->value
+                        ),
+
                     Tables\Actions\Action::make('create-delivery')
                         ->label('Initiate Delivery Process')
                         ->icon('heroicon-o-truck')
@@ -182,8 +190,10 @@ class PurchaseOrderResource extends Resource
                             $record->initiateDelivery();
                             notification('Delivery has been initiated for this purchase order.');
                         })
-                        ->visible(fn ($record) => $record->status == PurchaseOrderStatusEnums::APPROVED->value),
-                    
+                        ->visible(fn ($record) =>
+                            $record->status === PurchaseOrderStatusEnums::APPROVED->value
+                        ),
+
                     Tables\Actions\Action::make('accept-delivery')
                         ->label('Confirm Delivery')
                         ->icon('heroicon-o-check-badge')
@@ -191,17 +201,14 @@ class PurchaseOrderResource extends Resource
                         ->modalWidth(MaxWidth::SevenExtraLarge)
                         ->requiresConfirmation()
                         ->modalHeading('Confirm Delivery')
-                        ->modalDescription('You Will be redirected to View Page to Confirm The delivery')
+                        ->modalDescription('You will be redirected to the View Page to confirm the delivery.')
                         ->modalSubmitActionLabel('Yes, Continue')
                         ->action(function (Model $record) {
-                            // $record->acceptDelivery();
-                            // notification('The delivery has been successfully confirmed.');
-                            return redirect(route('filament.admin.resources.purchase-orders.view', [
-                                'record' => $record,
-                            ]));
+                            return redirect(route('filament.admin.resources.purchase-orders.edit', ['record' => $record]));
                         })
-                        ->visible(fn ($record) => $record->status == PurchaseOrderStatusEnums::DELIVERYINPROGRESS->value),
-                    
+                        ->visible(fn ($record) =>
+                            $record->status === PurchaseOrderStatusEnums::DELIVERYINPROGRESS->value
+                        ),
                 ])
             ], ActionsPosition::BeforeColumns)
             ->bulkActions([
@@ -215,6 +222,8 @@ class PurchaseOrderResource extends Resource
     {
         return [
             OrderedItemsRelationManager::class,
+            DeliveredItemsRelationManager::class,
+
         ];
     }
 

@@ -23,9 +23,30 @@ class PurchaseOrder extends Model
     {
         $this->update(['status'=>PurchaseOrderStatusEnums::DELIVERED->value]);
     }
+
+    public function addPendingDeliveryItems()
+    {
+        $this->orderedItems()->each(function($item){
+            DeliveredItem::create(
+                [
+                    'purchase_order_id' => $this->id,
+                    'supply_id'         => $item->supply_id,
+                    'quantity'          => $item->quantity,
+                    'price'             => $item->price,
+                    'total_amount'      => $item->total_amount,
+                    'status'            => 'pending'
+                ]
+            );
+        });
+    }
+    
     
     public function orderedItems(){
         return $this->hasMany(PurchaseOrderItem::class,'purchase_order_id');
+    }
+
+    public function deliveredItems(){
+        return $this->hasMany(DeliveredItem::class,'purchase_order_id');
     }
 
     public function branch(){

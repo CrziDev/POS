@@ -9,7 +9,14 @@ enum PurchaseOrderStatusEnums: string
     case FORDELIVERY = 'for-delivery';
     case DELIVERED = 'delivered';
     case DELIVERYINPROGRESS = 'delivery-in-progress';
-    
+
+    public static function options(): array
+    {
+        return array_combine(
+            array_map(fn($case) => $case->value, self::cases()),
+            array_map(fn($case) => $case->value, self::cases())
+        );
+    }
 
     public static function getColor($state): string
     {

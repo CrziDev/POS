@@ -11,7 +11,7 @@ class Stock extends Model
     
     public static function purchaseOrderRestock($purchaseOrder){
 
-        $purchaseOrder->orderedItems()->each(function($item) use ($purchaseOrder){
+        $purchaseOrder->deliveredItems()->each(function($item) use ($purchaseOrder){
             $stock = Stock::firstOrNew(
                 ['supply_id' => $item->supply_id,'branch_id'=>$purchaseOrder->branch_id]
             );
@@ -19,6 +19,11 @@ class Stock extends Model
             $stock->update([
                 'quantity' => $stock->quantity + $item->quantity,
             ]);
+
+            $item->update([
+                'status' => 'Delivered',
+            ]);
+            
         });
 
     }

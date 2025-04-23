@@ -93,12 +93,19 @@ class OrderedItemsRelationManager extends RelationManager
                     ->falseColor('gray')
                     ->trueColor('success'),
 
-                Tables\Columns\TextInputColumn::make('quantity')
+                Tables\Columns\TextColumn::make('quantity')
                     ->label('Qty')
                     ->extraAttributes(['class'=>'max-w-[200px]']),
 
-                Tables\Columns\TextInputColumn::make('price')
+                Tables\Columns\TextColumn::make('price')
                     ->label('Unit Price')
+                    ->sortable()
+                    ->formatStateUsing(function ($record) {
+                        if($record->is_price_set && ($record->price == 0)){
+                            return '-';
+                        }
+                        return '₱' . number_format($record->total_amount, 2);
+                    })
                     ->extraAttributes(['class'=>'max-w-[200px]']),
                 
                 Tables\Columns\TextColumn::make('total_amount')
@@ -133,6 +140,9 @@ class OrderedItemsRelationManager extends RelationManager
                         ->label('Remove Ordered Item')
                         ->icon('heroicon-o-trash')
                         ->color('danger')
+                        ->hidden(function (): bool {
+                            return ($this->getOwnerRecord()->status == PurchaseOrderStatusEnums::DELIVERYINPROGRESS->value)?true:false;
+                        })
                         ->requiresConfirmation(),
                 ]),
             ], ActionsPosition::BeforeColumns)

@@ -43,6 +43,8 @@ class EditPurchaseOrder extends EditRecord
                 ->modalSubmitActionLabel('Yes, Proceed')
                 ->action(function (Model $record) {
                     $record->initiateDelivery();
+                    $record->addPendingDeliveryItems();
+
                     notification('Delivery has been initiated for this purchase order.');
                 })
                 ->visible(fn ($record) => $record->status == PurchaseOrderStatusEnums::APPROVED->value),
@@ -50,13 +52,13 @@ class EditPurchaseOrder extends EditRecord
                 Action::make('accept-delivery')
                 ->label('Confirm Delivery')
                 ->icon('heroicon-o-check-badge')
-                ->color('primary')
+                ->color('success')
                 ->requiresConfirmation()
                 ->modalHeading('Confirm Delivery Receipt')
                 ->modalDescription('Please confirm that all items in this purchase order have been delivered and priced correctly.')
                 ->modalSubmitActionLabel('Confirm Delivery')
                 ->before(function ($record, $action) {
-                    $hasUnpricedItems = $record->orderedItems()->where('price', 0)->exists();
+                    $hasUnpricedItems = $record->deliveredItems()->where('price', 0)->exists();
             
                     if ($hasUnpricedItems) {
                         Notification::make()

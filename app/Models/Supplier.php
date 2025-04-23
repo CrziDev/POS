@@ -11,10 +11,15 @@ class Supplier extends Model
     
     protected $guarded = [];
 
-    public static function getOptionsArray(): array
+    public static function getOptionsArray($html = true): array
     {
         $query = self::query();
 
+
+        if(!$html){
+            return $query->pluck('name', 'id')->toArray();
+        }
+        
         return $query->get()->mapWithKeys(fn($item) =>
             [
                 $item->id => 

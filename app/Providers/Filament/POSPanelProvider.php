@@ -30,7 +30,6 @@ class POSPanelProvider extends PanelProvider
             ->login()
             ->colors([
                 'primary' => Color::Indigo,
-                // 'primary' => Color::Amber,
             ])
             ->sidebarFullyCollapsibleOnDesktop(false)
             ->maxContentWidth(MaxWidth::Full)
