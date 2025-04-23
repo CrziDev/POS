@@ -6,7 +6,6 @@ use Filament\Http\Middleware\Authenticate;
 use Filament\Http\Middleware\AuthenticateSession;
 use Filament\Http\Middleware\DisableBladeIconComponents;
 use Filament\Http\Middleware\DispatchServingFilamentEvent;
-use Filament\Navigation\NavigationGroup;
 use Filament\Pages;
 use Filament\Panel;
 use Filament\PanelProvider;
@@ -30,7 +29,8 @@ class POSPanelProvider extends PanelProvider
             ->path('')
             ->login()
             ->colors([
-                'primary' => Color::Amber,
+                'primary' => Color::Indigo,
+                // 'primary' => Color::Amber,
             ])
             ->sidebarFullyCollapsibleOnDesktop(false)
             ->maxContentWidth(MaxWidth::Full)

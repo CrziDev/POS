@@ -27,11 +27,13 @@ if (!function_exists('moneyToNumber')) {
     }
 }
 
-if (!function_exists('moneyToNumber')) {
+if (!function_exists('notification')) {
     function notification($message)
     {
         return Notification::make()
                 ->title($message)
+                ->icon('heroicon-o-document-text')
+                ->iconColor('success')
                 ->send();
     }
 }

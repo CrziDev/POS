@@ -16,6 +16,7 @@ return new class extends Migration
             $table->id();
             $table->foreignId('branch_id')->constrained('branches');
             $table->foreignId('prepared_by')->constrained('users');
+            $table->foreignId('supplier_id')->constrained('suppliers');
             $table->decimal('total_amount',16,2)->default();
             $table->string('status')->default(PurchaseOrderStatusEnums::PENDING->value);
             $table->string('remarks')->nullable();
@@ -26,7 +27,6 @@ return new class extends Migration
             $table->id();
             $table->foreignId('purchase_order_id')->constrained('purchase_orders');
             $table->foreignId('supply_id')->constrained('supplies');
-            $table->foreignId('supplier_id')->constrained('suppliers');
             $table->boolean('is_price_set')->nullable();
             $table->integer('quantity')->default(0);
             $table->decimal('price',16,2)->default(0);

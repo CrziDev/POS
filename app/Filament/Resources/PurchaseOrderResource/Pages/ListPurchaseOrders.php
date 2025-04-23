@@ -15,6 +15,9 @@ class ListPurchaseOrders extends ListRecords
     {
         return [
             Actions\CreateAction::make()
+                ->icon('heroicon-o-plus')
+                ->label('Create Purchase Order')
+                ->successNotificationTitle('Created Purchase Order Successfully')
                 ->successRedirectUrl(fn (Model $record): string => route('filament.admin.resources.purchase-orders.edit', [
                     'record' => $record,
                 ]))

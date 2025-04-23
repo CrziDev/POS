@@ -10,4 +10,14 @@ enum PurchaseOrderStatusEnums: string
     case DELIVERED = 'delivered';
     case DELIVERYINPROGRESS = 'delivery-in-progress';
     
+
+    public static function getColor($state): string
+    {
+        return match ($state) {
+            self::PENDING->value => 'gray',
+            self::APPROVED->value => 'info',
+            self::DELIVERED->value => 'success',
+            self::DELIVERYINPROGRESS->value => 'warning',
+        };
+    }
 }

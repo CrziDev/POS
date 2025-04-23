@@ -14,3 +14,8 @@ display: none;
     scrollbar-width: none;  /* Firefox */
 }
 
+.fi-sidebar-nav{
+    -ms-overflow-style: none;  /* IE and Edge */
+    scrollbar-width: none;  /* Firefox */
+}
+

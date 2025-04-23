@@ -2,12 +2,28 @@
 
 namespace App\Models;
 
+use App\Enums\PurchaseOrderStatusEnums;
 use Illuminate\Database\Eloquent\Model;
 
 class PurchaseOrder extends Model
 {
     protected $guarded = [];
 
+    public function approvePurchaseOrder()
+    {
+        $this->update(['status'=>PurchaseOrderStatusEnums::APPROVED->value]);
+    }
+    
+    public function initiateDelivery()
+    {
+        $this->update(['status'=>PurchaseOrderStatusEnums::DELIVERYINPROGRESS->value]);
+    }
+
+    public function acceptDelivery()
+    {
+        $this->update(['status'=>PurchaseOrderStatusEnums::DELIVERED->value]);
+    }
+    
     public function orderedItems(){
         return $this->hasMany(PurchaseOrderItem::class,'purchase_order_id');
     }
@@ -18,6 +34,10 @@ class PurchaseOrder extends Model
     
     public function preparedBy(){
         return $this->belongsTo(User::class,'prepared_by');
+    }
+
+    public function supplier(){
+        return $this->belongsTo(Supplier::class,'supplier_id');
     }
 
 }

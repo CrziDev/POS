@@ -2,10 +2,13 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
 class Supplier extends Model
 {
+    use HasFactory;
+    
     protected $guarded = [];
 
     public static function getOptionsArray(): array
@@ -16,7 +19,7 @@ class Supplier extends Model
             [
                 $item->id => 
                     "<span> 
-                        <b>Supplier:</b> " . $item->name . 
+                        <b>Name:</b> " . $item->name . 
                     "</span>"
             ]
         )->all();

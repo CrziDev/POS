@@ -22,7 +22,7 @@ class Branch extends Model
         return $query->get()->mapWithKeys(fn($item) =>
             [
                 $item->id => 
-                    "<span> <b>Branch:</b> " . $item->name . "</span>". "<br>"
+                    "<span> <b>Name:</b> " . $item->name . "</span>". "<br>"
             ]
         )->all();
     }

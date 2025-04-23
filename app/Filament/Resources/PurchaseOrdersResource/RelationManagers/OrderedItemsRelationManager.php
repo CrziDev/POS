@@ -2,13 +2,14 @@
 
 namespace App\Filament\Resources\PurchaseOrdersResource\RelationManagers;
 
-use App\Models\Supplier;
+use App\Enums\PurchaseOrderStatusEnums;
 use App\Models\Supply;
 use Filament\Forms;
 use Filament\Forms\Form;
 use Filament\Resources\RelationManagers\RelationManager;
 use Filament\Support\RawJs;
 use Filament\Tables;
+use Filament\Tables\Enums\ActionsPosition;
 use Filament\Tables\Table;
 
 class OrderedItemsRelationManager extends RelationManager
@@ -26,47 +27,52 @@ class OrderedItemsRelationManager extends RelationManager
                 ->columnSpanFull()
                 ->options(Supply::getOptionsArray()),
 
-            Forms\Components\Select::make('supplier_id')
-                ->label('Supplier')
-                ->required()
-                ->searchable()
-                ->allowHtml()
-                ->columnSpanFull()
-                ->options(Supplier::getOptionsArray()),
-
             Forms\Components\Toggle::make('is_price_set')
-                ->label('Specify product price at delivery'),
-
-            Forms\Components\TextInput::make('quantity')
-                ->label('Quantity')
-                ->required()
-                ->numeric()
                 ->live()
-                ->afterStateUpdated(function ($get, $set) {
-                    $totalAmount = moneyToNumber($get('quantity')) * moneyToNumber($get('price'));
-                    $set('total_amount', number_format($totalAmount, 2));
-                }),
+                ->label('Specify price at delivery')
+                ->helperText('Toggle if the price will be specified upon delivery.')
+                ->columnSpanFull(),
 
-            Forms\Components\TextInput::make('price')
-                ->label('Item Price')
-                ->hint('Specify the product price')
-                ->mask(RawJs::make('$money($input)'))
-                ->stripCharacters(',')
-                ->minValue(1)
-                ->numeric()
-                ->live()
-                ->inputMode('decimal')
-                ->afterStateUpdated(function ($get, $set) {
-                    $totalAmount = moneyToNumber($get('quantity')) * moneyToNumber($get('price'));
-                    $set('total_amount', number_format($totalAmount, 2));
-                }),
+            Forms\Components\Split::make([
+                Forms\Components\TextInput::make('price')
+                    ->label('Unit Price')
+                    ->mask(RawJs::make('$money($input)'))
+                    ->stripCharacters(',')
+                    ->numeric()
+                    ->minValue(1)
+                    ->inputMode('decimal')
+                    ->live(debounce:500)
+                    ->afterStateUpdated(function ($get, $set) {
+                        $total = moneyToNumber($get('quantity')) * moneyToNumber($get('price'));
+                        $set('total_amount',$total);
+
+                    })
+                    ->visible(fn ($get) => !$get('is_price_set')),
+
+                Forms\Components\TextInput::make('quantity')
+                    ->label('Quantity')
+                    ->required()
+                    ->numeric()
+                    ->minValue(1)
+                    ->live()
+                    ->live(debounce:500)
+                    ->afterStateUpdated(function ($get, $set) {
+                        $total = moneyToNumber($get('quantity')) * moneyToNumber($get('price'));
+
+                        $set('total_amount',number_format($total));
+                    }),
+            ])
+            ->columnSpanFull(),
 
             Forms\Components\TextInput::make('total_amount')
                 ->label('Total Amount')
+                ->disabled()
+                ->dehydrated()
+                ->required(fn ($get) => !$get('is_price_set'))
                 ->stripCharacters(',')
                 ->minValue(1)
-                ->required()
-                ->disabled(), 
+                ->columnSpanFull()
+                ->visible(fn ($get) => !$get('is_price_set')),
         ]);
     }
 
@@ -75,34 +81,69 @@ class OrderedItemsRelationManager extends RelationManager
         return $table
             ->columns([
                 Tables\Columns\TextColumn::make('supply.name')
-                    ->label('Supply'),
+                    ->label('Supply')
+                    ->sortable()
+                    ->searchable(),
 
-                Tables\Columns\TextColumn::make('quantity')
-                    ->label('Qty'),
+                Tables\Columns\IconColumn::make('is_price_set')
+                    ->label('Set at Delivery')
+                    ->boolean()
+                    ->falseIcon('heroicon-o-minus-circle') 
+                    ->trueIcon('heroicon-o-check-circle')
+                    ->falseColor('gray')
+                    ->trueColor('success'),
 
-                Tables\Columns\TextColumn::make('price')
-                    ->label('Price')
-                    ->money('PHP', true),
+                Tables\Columns\TextInputColumn::make('quantity')
+                    ->label('Qty')
+                    ->extraAttributes(['class'=>'max-w-[200px]']),
 
+                Tables\Columns\TextInputColumn::make('price')
+                    ->label('Unit Price')
+                    ->extraAttributes(['class'=>'max-w-[200px]']),
+                
                 Tables\Columns\TextColumn::make('total_amount')
-                    ->label('Total')
-                    ->money('PHP', true),
+                    ->label('Total Amount')
+                    ->sortable()
+                    ->formatStateUsing(function ($record) {
+                        if($record->is_price_set && ($record->price == 0)){
+                            return '-';
+                        }
+                        return '₱' . number_format($record->total_amount, 2);
+                    }),
             ])
             ->headerActions([
                 Tables\Actions\CreateAction::make()
-                    ->label('Add Item')
-                    ->color('info'),
+                    ->label('Add Ordered Item')
+                    ->icon('heroicon-o-plus')
+                    ->color('info')
+                    ->hidden(function (): bool {
+                        return ($this->getOwnerRecord()->status == PurchaseOrderStatusEnums::DELIVERYINPROGRESS->value)?true:false;
+                    }),
             ])
             ->actions([
                 Tables\Actions\ActionGroup::make([
-                    Tables\Actions\EditAction::make(),
-                    Tables\Actions\DeleteAction::make()->requiresConfirmation(),
+                    Tables\Actions\EditAction::make()
+                        ->label('Edit Ordered Item')
+                        ->icon('heroicon-o-pencil')
+                        ->color('warning')
+                        ->hidden(function (): bool {
+                            return ($this->getOwnerRecord()->status == PurchaseOrderStatusEnums::DELIVERYINPROGRESS->value)?true:false;
+                        }),
+                    Tables\Actions\DeleteAction::make()
+                        ->label('Remove Ordered Item')
+                        ->icon('heroicon-o-trash')
+                        ->color('danger')
+                        ->requiresConfirmation(),
                 ]),
-            ])
+            ], ActionsPosition::BeforeColumns)
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
-                    Tables\Actions\DeleteBulkAction::make()->requiresConfirmation(),
+                    Tables\Actions\DeleteBulkAction::make()
+                        ->label('Delete Selected')
+                        ->icon('heroicon-o-trash')
+                        ->requiresConfirmation(),
                 ]),
             ]);
     }
+
 }

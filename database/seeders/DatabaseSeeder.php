@@ -4,6 +4,7 @@ namespace Database\Seeders;
 
 use App\Models\Branch;
 use App\Models\Employee;
+use App\Models\Supplier;
 use App\Models\Supply;
 use App\Models\User;
 // use Illuminate\Database\Console\Seeds\WithoutModelEvents;
@@ -39,6 +40,9 @@ class DatabaseSeeder extends Seeder
             ->create();
 
         Supply::factory(100)
+            ->create();
+
+        Supplier::factory(3)
             ->create();
 
         $this->call(AdminSeeder::class);
