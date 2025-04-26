@@ -2,9 +2,9 @@
 
 namespace App\Filament\Resources;
 
-use App\Filament\Resources\DeliveryResource\Pages;
-use App\Filament\Resources\DeliveryResource\RelationManagers;
-use App\Models\Delivery;
+use App\Filament\Resources\SupplyUnitResource\Pages;
+use App\Filament\Resources\SupplyUnitResource\RelationManagers;
+use App\Models\SupplyUnit;
 use Filament\Forms;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
@@ -13,30 +13,25 @@ use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 
-class DeliveryResource extends Resource
+class SupplyUnitResource extends Resource
 {
-    protected static ?string $model = Delivery::class;
+    protected static ?string $model = SupplyUnit::class;
 
     protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
-    protected static ?string $navigationGroup = 'Inventory';
+    protected static ?string $navigationGroup = 'Supply Management';
     protected static ?int $navigationSort = 3;
-
 
     public static function form(Form $form): Form
     {
         return $form
             ->schema([
-                Forms\Components\TextInput::make('purchase_order_id')
+                Forms\Components\TextInput::make('name')
+                    ->label('unit')
+                    ->unique(ignoreRecord:true)
                     ->required()
-                    ->numeric(),
-                Forms\Components\TextInput::make('total_amount')
-                    ->required()
-                    ->numeric()
-                    ->default(0.00),
-                Forms\Components\TextInput::make('status')
-                    ->required()
-                    ->maxLength(255)
-                    ->default('for-delivery'),
+                    ->maxLength(255),
+                Forms\Components\Textarea::make('description')
+                    ->columnSpanFull(),
             ]);
     }
 
@@ -44,13 +39,10 @@ class DeliveryResource extends Resource
     {
         return $table
             ->columns([
-                Tables\Columns\TextColumn::make('purchase_order_id')
-                    ->numeric()
-                    ->sortable(),
-                Tables\Columns\TextColumn::make('total_amount')
-                    ->numeric()
-                    ->sortable(),
-                Tables\Columns\TextColumn::make('status')
+                Tables\Columns\TextColumn::make('name')
+                    ->label('Unit')
+                    ->searchable(),
+                Tables\Columns\TextColumn::make('description')
                     ->searchable(),
                 Tables\Columns\TextColumn::make('created_at')
                     ->dateTime()
@@ -65,11 +57,14 @@ class DeliveryResource extends Resource
                 //
             ])
             ->actions([
-                Tables\Actions\EditAction::make(),
+                Tables\Actions\EditAction::make()
+                ->label('')
+                ->icon(false),
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
-                    Tables\Actions\DeleteBulkAction::make(),
+                    Tables\Actions\DeleteBulkAction::make()
+                        ->requiresConfirmation(),
                 ]),
             ]);
     }
@@ -84,9 +79,9 @@ class DeliveryResource extends Resource
     public static function getPages(): array
     {
         return [
-            'index' => Pages\ListDeliveries::route('/'),
-            'create' => Pages\CreateDelivery::route('/create'),
-            'edit' => Pages\EditDelivery::route('/{record}/edit'),
+            'index' => Pages\ListSupplyUnits::route('/'),
+            // 'create' => Pages\CreateSupplyUnit::route('/create'),
+            // 'edit' => Pages\EditSupplyUnit::route('/{record}/edit'),
         ];
     }
 }

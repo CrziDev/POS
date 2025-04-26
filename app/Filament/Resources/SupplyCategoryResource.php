@@ -48,7 +48,15 @@ class SupplyCategoryResource extends Resource
                     ->extraAttributes(['style'=>'margin-right:50px']),
                 TextColumn::make('description')
                     ->label('Description')
-                    ->formatStateUsing(strFormat())
+                    ->formatStateUsing(strFormat()),
+                TextColumn::make('created_at')
+                    ->dateTime()
+                    ->sortable()
+                    ->toggleable(isToggledHiddenByDefault: true),
+                TextColumn::make('updated_at')
+                    ->dateTime()
+                    ->sortable()
+                    ->toggleable(isToggledHiddenByDefault: true),
             ])
             ->filters([
                 //
@@ -58,8 +66,7 @@ class SupplyCategoryResource extends Resource
                     ->label('')
                     ->icon(false),
             ])
-            ->bulkActions([
-                
+            ->bulkActions([     
                 Tables\Actions\BulkActionGroup::make([
                     Tables\Actions\DeleteBulkAction::make()
                         ->requiresConfirmation(),

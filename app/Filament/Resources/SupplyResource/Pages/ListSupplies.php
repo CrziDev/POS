@@ -21,17 +21,25 @@ class ListSupplies extends ListRecords
             Actions\Action::make('generate-barcode')
                 ->color('info')
                 ->modalWidth(MaxWidth::SixExtraLarge)
-                ->modalContent(function(){
+                ->modalContent(function () {
                     $barcodes = Supply::generateBarcode();
-                    return view('SupplyResource.GenerateBarCode',compact('barcodes'));
+                    return view('SupplyResource.GenerateBarCode', compact('barcodes'));
                 })
                 ->modalSubmitActionLabel('Generate')
-                ->action(fn () =>$this->dispatch('post-created')),
+                ->action(fn () => $this->dispatch('post-created'))
+                ->icon('heroicon-o-tag') 
+                ->label('Generate Barcode'), 
+    
             Actions\Action::make('export-stocks')
-                ->label('Export')
-                ->color('info'),
+                ->label('Export Stocks')
+                ->color('info')
+                ->icon('heroicon-o-arrow-down') 
+                ->label('Export Stocks'), 
+    
             Actions\CreateAction::make()
-                ->label('New Supply'),
+                ->label('New Supply')
+                ->icon('heroicon-m-plus') 
         ];
     }
+    
 }

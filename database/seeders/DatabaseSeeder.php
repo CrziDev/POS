@@ -38,6 +38,9 @@ class DatabaseSeeder extends Seeder
 
         Branch::factory(2)
             ->create();
+            
+        $this->call(SupplyCategorySeeder::class);
+        $this->call(SupplyUnitSeeder::class);
 
         Supply::factory(100)
             ->create();
@@ -46,9 +49,7 @@ class DatabaseSeeder extends Seeder
             ->create();
 
         $this->call(AdminSeeder::class);
-        $this->call(SupplyCategorySeeder::class);
         $this->call(StockSeeder::class);
-
 
     }
 }

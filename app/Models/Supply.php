@@ -46,4 +46,8 @@ class Supply extends Model
         return $this->belongsTo(SupplyCategory::class,'category_id');
     }
 
+    public function unit(){
+        return $this->belongsTo(SupplyUnit::class,'unit_id');
+    }
+
 }

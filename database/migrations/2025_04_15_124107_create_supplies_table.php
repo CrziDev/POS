@@ -18,13 +18,21 @@ return new class extends Migration
             $table->timestamps();
         });
 
+        Schema::create('supply_units', function (Blueprint $table) {
+            $table->id();
+            $table->string('name');
+            $table->text('description')->nullable();
+            $table->timestamps();
+        });
+
         Schema::create('supplies', function (Blueprint $table) {
             $table->id();
             $table->foreignId('category_id')->nullable()->constrained('supply_categories');
+            $table->foreignId('unit_id')->nullable()->constrained('supply_units');
             $table->string('name')->unique();
             $table->string('item_image')->nullable();
             $table->string('sku')->nullable();
-            $table->decimal('cost')->default(0);
+            $table->decimal('price')->default(0);
             $table->timestamps();
         });
     }

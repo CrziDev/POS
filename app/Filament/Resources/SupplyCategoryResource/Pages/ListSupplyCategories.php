@@ -14,7 +14,8 @@ class ListSupplyCategories extends ListRecords
     {
         return [
             Actions\CreateAction::make()
-                ->label('Add Category'),
+                ->label('Add Category')
+                ->icon('heroicon-m-plus'),
         ];
     }
 }

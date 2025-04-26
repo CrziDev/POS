@@ -1,19 +1,20 @@
 <?php
 
-namespace App\Filament\Resources\BranchResource\Pages;
+namespace App\Filament\Resources\SupplyUnitResource\Pages;
 
-use App\Filament\Resources\BranchResource;
+use App\Filament\Resources\SupplyUnitResource;
 use Filament\Actions;
 use Filament\Resources\Pages\ListRecords;
 
-class ListBranches extends ListRecords
+class ListSupplyUnits extends ListRecords
 {
-    protected static string $resource = BranchResource::class;
+    protected static string $resource = SupplyUnitResource::class;
 
     protected function getHeaderActions(): array
     {
         return [
             Actions\CreateAction::make()
+                ->label('Add Unit')
                 ->icon('heroicon-m-plus'),
         ];
     }

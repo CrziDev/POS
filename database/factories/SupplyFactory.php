@@ -2,6 +2,8 @@
 
 namespace Database\Factories;
 
+use App\Models\SupplyCategory;
+use App\Models\SupplyUnit;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
@@ -18,7 +20,9 @@ class SupplyFactory extends Factory
     {
         return [
             'name' => fake()->words(3, true),
-            'cost' => 100,
+            'price' => $this->faker->randomFloat(2, 10, 500),
+            'category_id' => SupplyCategory::inRandomOrder()->first()?->id,
+            'unit_id' => SupplyUnit::inRandomOrder()->first()?->id,
             'sku' => fake()->unique()->bothify('ITEM-####'),
         ];
     }

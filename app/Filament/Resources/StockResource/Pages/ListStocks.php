@@ -15,11 +15,15 @@ class ListStocks extends ListRecords
     protected function getHeaderActions(): array
     {
         return [
-            Actions\Action::make('transfer-item')
-                ->label('Transfer Stocks'),
-            Actions\Action::make('export-stocks')
-                ->label('Export')
-                ->color('info'),
+        Actions\Action::make('transfer-item')
+            ->label('Transfer Stocks')
+            ->icon('heroicon-m-arrow-right-on-rectangle'), // example icon
+        
+        Actions\Action::make('export-stocks')
+            ->label('Export')
+            ->color('info')
+            ->icon('heroicon-m-arrow-down-tray'), // example icon
+        
         ];
     }
 
