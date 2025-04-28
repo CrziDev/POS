@@ -2,6 +2,8 @@
 
 namespace App\Enums;
 
+use Illuminate\Support\str;
+
 enum RolesEnum: string
 {
     case ADMIN = 'admin';
@@ -13,7 +15,12 @@ enum RolesEnum: string
     {
         return array_combine(
             array_map(fn($case) => $case->value, self::cases()),
-            array_map(fn($case) => $case->value, self::cases())
+            array_map(fn($case) => Str::Headline($case->value), self::cases())
         );
+    }
+
+    public static function enumList(): array
+    {
+        return array_map(fn($case) => $case->value, self::cases());
     }
 }

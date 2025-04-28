@@ -15,6 +15,8 @@ use Filament\Tables\Columns\Layout\Split;
 use Filament\Tables\Columns\Layout\Stack;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
+use Illuminate\Database\Eloquent\Builder;
+
 class EmployeeResource extends Resource
 {
     protected static ?string $model = Employee::class;
@@ -71,7 +73,9 @@ class EmployeeResource extends Resource
                     TextColumn::make('full_name')
                         ->description('Name')
                         ->weight(FontWeight::Bold)
-                        ->searchable()
+                        ->searchable(query: function (Builder $query, string $search): Builder {
+                            return  $query->whereRaw("CONCAT(first_name, ' ', last_name) LIKE ?", ["%{$search}%"]);
+                        })
                         ->default('-'),
                     TextColumn::make('branch.branch.name')
                         ->description('Branch')
@@ -98,7 +102,27 @@ class EmployeeResource extends Resource
                 'xl' => 1,
             ])
             ->filters([
-                //
+                Tables\Filters\SelectFilter::make('branch_id')
+                    ->relationship('branch.branch', 'name')
+                    ->label('Branch')
+                    ->searchable()
+                    ->preload()
+                    ->placeholder('All Branches'),
+            
+                Tables\Filters\SelectFilter::make('role')
+                    ->label('Role')
+                    // ->multiple()
+                    ->options(function () {
+                        return \Spatie\Permission\Models\Role::pluck('name', 'name');
+                    })
+                    ->query(function (Builder $query, array $data) {
+                        if (!empty($data['value'])) {
+                            $query->whereHas('user.roles', function ($query) use ($data) {
+                                $query->where('name', $data['value']);
+                            });
+                        }
+                    })
+                    ->placeholder('All Roles'),
             ])
             ->actions([
             ])

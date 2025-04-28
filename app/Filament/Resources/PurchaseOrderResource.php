@@ -3,6 +3,7 @@
 namespace App\Filament\Resources;
 
 use App\Enums\PurchaseOrderStatusEnums;
+use App\Enums\RolesEnum;
 use App\Filament\Resources\PurchaseOrderResource\Pages;
 use App\Filament\Resources\PurchaseOrdersResource\RelationManagers\DeliveredItemsRelationManager;
 use App\Filament\Resources\PurchaseOrdersResource\RelationManagers\OrderedItemsRelationManager;
@@ -176,6 +177,8 @@ class PurchaseOrderResource extends Resource
                         })
                         ->visible(fn ($record) =>
                             $record->status === PurchaseOrderStatusEnums::PENDING->value
+                            &&
+                            auth()->user()->hasRole([RolesEnum::ADMIN->value])
                         ),
 
                     Tables\Actions\Action::make('create-delivery')
@@ -192,6 +195,8 @@ class PurchaseOrderResource extends Resource
                         })
                         ->visible(fn ($record) =>
                             $record->status === PurchaseOrderStatusEnums::APPROVED->value
+                            &&
+                            auth()->user()->hasRole([RolesEnum::ADMIN->value])
                         ),
 
                     Tables\Actions\Action::make('accept-delivery')
@@ -208,6 +213,8 @@ class PurchaseOrderResource extends Resource
                         })
                         ->visible(fn ($record) =>
                             $record->status === PurchaseOrderStatusEnums::DELIVERYINPROGRESS->value
+                            &&
+                            auth()->user()->hasRole([RolesEnum::ADMIN->value])
                         ),
                 ])
             ], ActionsPosition::BeforeColumns)

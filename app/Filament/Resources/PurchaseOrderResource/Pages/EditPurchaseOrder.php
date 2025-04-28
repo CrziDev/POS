@@ -3,6 +3,7 @@
 namespace App\Filament\Resources\PurchaseOrderResource\Pages;
 
 use App\Enums\PurchaseOrderStatusEnums;
+use App\Enums\RolesEnum;
 use App\Filament\Resources\PurchaseOrderResource;
 use App\Models\Stock;
 use Filament\Actions\Action;
@@ -31,7 +32,11 @@ class EditPurchaseOrder extends EditRecord
                     $record->approvePurchaseOrder();
                     notification('The purchase order has been successfully approved.');
                 })
-                ->visible(fn ($record) => $record->status == PurchaseOrderStatusEnums::PENDING->value),
+                ->visible(fn ($record) =>
+                     $record->status == PurchaseOrderStatusEnums::PENDING->value
+                     &&
+                     auth()->user()->hasRole([RolesEnum::ADMIN->value]) 
+                ),
             
             Action::make('create-delivery')
                 ->label('Initiate Delivery Process')
@@ -47,7 +52,11 @@ class EditPurchaseOrder extends EditRecord
 
                     notification('Delivery has been initiated for this purchase order.');
                 })
-                ->visible(fn ($record) => $record->status == PurchaseOrderStatusEnums::APPROVED->value),
+                ->visible(fn ($record) => 
+                    $record->status == PurchaseOrderStatusEnums::APPROVED->value
+                    &&
+                    auth()->user()->hasRole([RolesEnum::ADMIN->value])
+                ),
             
                 Action::make('accept-delivery')
                 ->label('Confirm Delivery')
@@ -84,7 +93,11 @@ class EditPurchaseOrder extends EditRecord
 
                     return redirect(route('filament.admin.resources.purchase-orders.index'));
                 })
-                ->visible(fn ($record) => $record->status === PurchaseOrderStatusEnums::DELIVERYINPROGRESS->value),
+                ->visible(fn ($record) => 
+                    $record->status === PurchaseOrderStatusEnums::DELIVERYINPROGRESS->value
+                    &&
+                    auth()->user()->hasRole([RolesEnum::ADMIN->value])
+                ),
             
         ];
     }

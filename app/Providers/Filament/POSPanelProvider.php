@@ -40,8 +40,8 @@ class POSPanelProvider extends PanelProvider
             ])
             ->discoverWidgets(in: app_path('Filament/Widgets'), for: 'App\\Filament\\Widgets')
             ->widgets([
-                Widgets\AccountWidget::class,
-                Widgets\FilamentInfoWidget::class,
+                // Widgets\AccountWidget::class,
+                // Widgets\FilamentInfoWidget::class,
             ])
             ->middleware([
                 EncryptCookies::class,
@@ -72,12 +72,13 @@ class POSPanelProvider extends PanelProvider
                 //     ->collapsed(),
             ])
             ->navigationGroups([
+                'Sales',
                 'Inventory',
                 'Supply Management',
                 'Branch Management',
                 'Settings',
             ])
-            ->databaseNotifications()
-            ->topNavigation();
+            ->databaseNotifications();
+            // ->topNavigation();
     }
 }
