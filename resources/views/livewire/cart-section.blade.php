@@ -18,7 +18,7 @@
     @endif
 
     <!-- Cart Items List (Scrollable) -->
-    <div class="space-y-2 flex-1 overflow-y-auto max-h-[300px] pr-1">
+    <div class="space-y-2 flex-1 overflow-y-auto max-h-[400px] pr-1">
         @foreach($cart as $key => $item)
             <div class="flex items-center justify-between text-xs border-b border-gray-200 dark:border-gray-700 py-2 px-3 bg-gray-50 dark:bg-white/5 rounded">
                 
@@ -50,7 +50,7 @@
         @endforeach
     </div>
 
-    <div class="pt-2 border-t border-gray-200 dark:border-gray-700 text-xs text-right space-y-2">
+    <div class="pt-2 border-t border-gray-200 dark:border-gray-700 text-xs text-right space-y-3">
         
         <div class="flex justify-between">
             <span class="text-gray-700 dark:text-gray-300">Net Total:</span>
@@ -64,17 +64,19 @@
 
         <hr class="border-gray-200 dark:border-gray-700 my-2" />
 
-        <div class="flex justify-between text-sm font-semibold text-gray-800 dark:text-gray-200">
+        <div class="flex mb-2 justify-between text-sm font-semibold text-gray-800 dark:text-gray-200">
             <span>Grand Total:</span>
             <span class="text-blue-600">₱</span>
         </div>
 
-        <button 
-            wire:click="mountAction('checkOut')"
-            class="w-full py-2 rounded-lg bg-blue-600 hover:bg-blue-700 text-white text-xs font-semibold"
-        >
-            Checkout
-        </button>
+        <div class="pt-5">
+            <button 
+                wire:click="mountAction('checkOut')"
+                class="w-full py-2 rounded-lg bg-blue-600 hover:bg-blue-700 text-white text-xs font-semibold"
+            >
+                Checkout
+            </button>
+        </div>
     </div>
 
     <x-filament-actions::modals />

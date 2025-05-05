@@ -25,7 +25,7 @@ class StockSeeder extends Seeder
                             'supply_id'  => $product->id,
                         ],
                         [
-                            'quantity'      => 0,
+                            'quantity'      => 12,
                             'reorder_level' => 10,
                         ],
                     );
