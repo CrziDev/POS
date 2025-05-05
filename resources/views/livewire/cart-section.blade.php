@@ -50,16 +50,13 @@
         @endforeach
     </div>
 
-    <!-- Footer (Sticky Checkout Section) -->
     <div class="pt-2 border-t border-gray-200 dark:border-gray-700 text-xs text-right space-y-2">
         
-        <!-- Net Total -->
         <div class="flex justify-between">
             <span class="text-gray-700 dark:text-gray-300">Net Total:</span>
             <span class="font-semibold text-blue-500">₱</span>
         </div>
 
-        <!-- Discount -->
         <div class="flex justify-between">
             <span class="text-gray-700 dark:text-gray-300">Discount:</span>
             <span class="font-semibold text-blue-500">₱</span>
@@ -67,25 +64,18 @@
 
         <hr class="border-gray-200 dark:border-gray-700 my-2" />
 
-        <!-- Grand Total -->
         <div class="flex justify-between text-sm font-semibold text-gray-800 dark:text-gray-200">
             <span>Grand Total:</span>
             <span class="text-blue-600">₱</span>
         </div>
 
-        <!-- Apply Discount Button (smaller) -->
         <button 
-            wire:click="openDiscountModal"
-            class="w-full py-1.5 rounded-md bg-yellow-400 hover:bg-yellow-500 text-gray-800 text-[11px] font-semibold mt-2"
-        >
-            Apply Discount
-        </button>
-
-        <!-- Checkout Button -->
-        <button 
+            wire:click="mountAction('checkOut')"
             class="w-full py-2 rounded-lg bg-blue-600 hover:bg-blue-700 text-white text-xs font-semibold"
         >
             Checkout
         </button>
     </div>
+
+    <x-filament-actions::modals />
 </div>

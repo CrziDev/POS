@@ -3,19 +3,17 @@ namespace App\Filament\Resources;
 
 use App\Filament\Resources\UserResource\Pages;
 use App\Models\User;
-use App\Enums\RolesEnum;  // Import the RolesEnum
+use App\Enums\RolesEnum;  
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
 use STS\FilamentImpersonate\Tables\Actions\Impersonate;
 use Filament\Forms\Components\TextInput;
-use Filament\Forms\Components\Password;
 use Filament\Forms\Components\Section;
-use Filament\Forms\Components\Select;  // Import Select component
+use Filament\Forms\Components\Select;  
 use Filament\Notifications\Notification;
 use Filament\Tables\Enums\ActionsPosition;
-use Filament\Tables\Filters\SelectFilter;  // Import SelectFilter for filtering roles
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\DB;
 use Spatie\Permission\Models\Role;
