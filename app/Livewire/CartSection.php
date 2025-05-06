@@ -36,10 +36,11 @@ class CartSection extends Component implements HasActions,HasForms
 
     public $cart = [];
     public $totalAmount = 0;
+    public $grandTotal = 0;
 
 
     #[On('add-to-cart')] 
-    public function updatePostList($itemId,$price)
+    public function updatePostList($itemId,$price,$quantity,$stock)
     {   
         $product = Supply::find($itemId);
 
@@ -60,7 +61,8 @@ class CartSection extends Component implements HasActions,HasForms
                 'name' => $product->name,
                 'retail_price' => $product->price,
                 'price' => $price,
-                'qty' => 1
+                'qty' => $quantity,
+                'stock' => $stock,
             ];
         }
 
@@ -69,6 +71,10 @@ class CartSection extends Component implements HasActions,HasForms
 
     public function increaseItem($itemId){
         foreach ($this->cart as &$cartItem){
+            if($cartItem['stock'] == $cartItem['qty'] ){
+                break;
+            }
+
             if ($cartItem['id'] === $itemId) {
                 $cartItem['qty'] += 1;
                 break;
@@ -102,45 +108,65 @@ class CartSection extends Component implements HasActions,HasForms
                                 if (empty($this->cart)) {
                                     return 'No items in cart.';
                                 }
-                            
-                                $this->totalAmount = 0;
-                                $rows = collect($this->cart)->map(function ($item) {
-                                    $this->totalAmount += (float)$item['qty'] * (float)$item['price'];
+                    
+                                $grandTotal = 0;
+                                $totalDiscount = 0;
+                    
+                                $rows = collect($this->cart)->map(function ($item) use (&$totalDiscount,&$grandTotal) {
+                                    $qty = (float) $item['qty'];
+                                    $retail = (float) $item['retail_price'];
+                                    $price = (float) $item['price'];
+                                    $total = $qty * $price;
+                                    $discount = ($retail - $price) * $qty;
+                                    $grandTotal += $total;
+                                    $totalDiscount += $discount;
+                    
+                                    $retailDisplay = $retail !== $price
+                                        ? "<div class='line-through text-xs text-red-400'>₱" . number_format($retail, 2) . "</div>
+                                           <div>₱" . number_format($price, 2) . "</div>"
+                                        : "₱" . number_format($retail, 2);
+                    
                                     return "<tr>
                                         <td class='border px-2 py-1'>{$item['name']}</td>
-                                        <td class='border px-2 py-1 text-right'>₱" . number_format($item['price'], 2) . "</td>
-                                        <td class='border px-2 py-1 text-center'>{$item['qty']}</td>
-                                        <td class='border px-2 py-1 text-right'>₱" . number_format((float)$item['qty'] * (float)$item['price'], 2) . "</td>
+                                        <td class='border px-2 py-1 text-right'>{$retailDisplay}</td>
+                                        <td class='border px-2 py-1 text-center'>{$qty}</td>
+                                        <td class='border px-2 py-1 text-right'>₱" . number_format($total, 2) . "</td>
+                                        <td class='border px-2 py-1 text-right text-rose-500'>₱" . number_format($discount, 2) . "</td>
                                     </tr>";
                                 })->implode('');
                                 
-
                                 return new HtmlString('
                                     <div class="overflow-auto max-h-96">
                                         <table class="w-full text-sm border-collapse bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100">
                                             <thead>
                                                 <tr class="bg-gray-100 dark:bg-gray-700">
                                                     <th class="border px-2 py-1 text-left">Name</th>
-                                                    <th class="border px-2 py-1 text-right">Retail Price</th>
+                                                    <th class="border px-2 py-1 text-right">Price</th>
                                                     <th class="border px-2 py-1 text-center">Qty</th>
-                                                    <th class="border px-2 py-1 text-right">Total Price</th>
+                                                    <th class="border px-2 py-1 text-right">Total</th>
+                                                    <th class="border px-2 py-1 text-right">Discount</th>
                                                 </tr>
                                             </thead>
                                             <tbody>
-                                                '.$rows.'
+                                                ' . $rows . '
                                             </tbody>
                                             <tfoot>
                                                 <tr class="bg-gray-200 dark:bg-gray-600 font-semibold">
-                                                    <td colspan="3" class="border px-2 py-1 text-right">Grand Total</td>
-                                                    <td class="border px-2 py-1 text-right">₱' . number_format($this->totalAmount, 2) . '</td>
+                                                    <td colspan="4" class="border px-2 py-1 text-right">Total Discount</td>
+                                                    <td class="border px-2 py-1 text-right text-rose-500">₱' . number_format($totalDiscount, 2) . '</td>
+                                                </tr>
+                                                <tr class="bg-gray-200 dark:bg-gray-600 font-semibold">
+                                                    <td colspan="4" class="border px-2 py-1 text-right">Grand Total</td>
+                                                    <td class="border px-2 py-1 text-right text-blue-600">₱' . number_format($grandTotal, 2) . '</td>
                                                 </tr>
                                             </tfoot>
                                         </table>
                                     </div>
                                 ');
                             })
-                            
+
                     ]),
+                    
 
                     Section::make('Payment')->schema([
                         Select::make('customer')
@@ -180,7 +206,15 @@ class CartSection extends Component implements HasActions,HasForms
                                 ->required(),
                             TextInput::make('amount')
                                 ->label('Amount')
-                                ->minValue($this->totalAmount)
+                                ->afterStateHydrated(function ($set) {
+                                    $grandTotal = collect($this->cart)->sum(function ($item) {
+                                        return (float)$item['qty'] * (float)$item['price'];
+                                    });
+                            
+                                    $set('amount', $grandTotal);
+                                })
+                                ->disabled()
+                                ->dehydrated()
                                 ->mask(RawJs::make('$money($input)'))
                                 ->stripCharacters(',')
                                 ->numeric()
@@ -196,11 +230,10 @@ class CartSection extends Component implements HasActions,HasForms
             });
     }
 
-
     protected function checkForStockAvailability($data)
     {
-        $branch = auth()->user()->branch;
-    
+        $branch = auth()->user()->employee->branch;
+
         $insufficient = [];
     
         foreach ($this->cart as $cartItem) {
@@ -239,37 +272,46 @@ class CartSection extends Component implements HasActions,HasForms
 
     protected function submitPayment($branch, $data)
     {
-        $totalAmount = 0;
+        $totalDiscount = 0;
+        $grandTotal = 0;
     
-        foreach ($this->cart as $cartItem) {
-            $stock = Stock::where('supply_id', $cartItem['id'])
+        foreach ($this->cart as $item) {
+            $stock = Stock::where('supply_id', $item['id'])
                 ->where('branch_id', $branch->id)
                 ->first();
     
             if ($stock) {
-                $stock->quantity -= $cartItem['qty'];
+                $stock->quantity -= $item['qty'];
                 $stock->save();
             }
-    
-            $totalAmount += $cartItem['qty'] * $cartItem['price'];
+
+            $qty = (float) $item['qty'];
+            $retail = (float) $item['retail_price'];
+            $price = (float) $item['price'];
+            $total = $qty * $price;
+            $discount = ($retail - $price) * $qty;
+
+            $grandTotal += $total;
+            $totalDiscount += $discount;
         }
     
         $transaction = SaleTransaction::create([
             'customer_id'        => $data['customer'],
-            'processed_by'       => auth()->user()->id,
+            'branch_id'          => $branch->id,
+            'processed_by'       => auth()->user()->employee->id,
             'payment_method'     => $data['payment_method'],
-            'payment_reference'  => $data['reference_number'],
+            'payment_reference'  => $data['reference_number'] ?? null,
             'date_paid'          => now()->toDateString(),
-            'discount_value'     => 0,
-            'total_amount'       => $totalAmount,
+            'discount_value'     => $totalDiscount,
+            'total_amount'       => $grandTotal,
             'status'             => 'Paid',
         ]);
     
         foreach ($this->cart as $cartItem) {
             $transaction->items()->create([
                 'supply_id'     => $cartItem['id'],
-                'origanl_price' => $cartItem['retail_price'],
-                'price_amout'   => $cartItem['price'],
+                'original_price' => $cartItem['retail_price'],
+                'price_amount'   => $cartItem['price'],
                 'quantity'      => $cartItem['qty'],
             ]);
         }
@@ -280,6 +322,8 @@ class CartSection extends Component implements HasActions,HasForms
             ->title('Transaction successful!')
             ->success()
             ->send();
+
+        $this->dispatch('refreshTable');
     }
     
 

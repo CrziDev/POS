@@ -15,6 +15,7 @@ return new class extends Migration
             $table->id();
             $table->foreignId('customer_id')->constrained('customers');
             $table->foreignId('processed_by')->constrained('employees');
+            $table->foreignId('branch_id')->constrained('branches');
             $table->string('payment_method');
             $table->string('payment_reference');
             $table->string('date_paid');
@@ -24,12 +25,12 @@ return new class extends Migration
             $table->timestamps();
         });
 
-        Schema::create('sale_transactions_items', function (Blueprint $table) {
+        Schema::create('sale_transaction_items', function (Blueprint $table) {
             $table->id();
             $table->foreignId('sale_transaction_id')->constrained('sale_transactions');
-            $table->foreignId('supply_id')->constrained('sale_transactions');
-            $table->decimal('origanl_price',16,6)->default(0);
-            $table->decimal('price_amout',16,6)->default(0);
+            $table->foreignId('supply_id')->constrained('supplies');
+            $table->decimal('original_price',16,6)->default(0);
+            $table->decimal('price_amount',16,6)->default(0);
             $table->integer('quantity');
             $table->timestamps();
         });

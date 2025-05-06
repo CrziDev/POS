@@ -78,7 +78,13 @@ class POSPanelProvider extends PanelProvider
                 'Branch Management',
                 'Settings',
             ])
-            ->databaseNotifications();
-            // ->topNavigation();
+            ->databaseNotifications()
+            ->topNavigation(function(){
+                if(auth()->user()->hasRole(['admin'])){
+                    return false;
+                }else{
+                    return true;
+                }
+            });
     }
 }

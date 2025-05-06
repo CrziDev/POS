@@ -22,65 +22,131 @@
     </div>
 
     <!-- Table Section -->
-    <div class="hideScroll p-5 h-full w-[90%] overflow-auto fi-section rounded-xl bg-white shadow-sm ring-1 ring-gray-950/5 dark:bg-gray-900 dark:ring-white/10">
+    <div class="hideScroll pb-5 h-full w-[90%] overflow-auto fi-section rounded-xl bg-white shadow-sm ring-1 ring-gray-950/5 dark:bg-gray-900 dark:ring-white/10">
+        
+        <div class="sticky px-5 pt-5 top-0 z-10 bg-white dark:bg-gray-900 pb-3   mb-4">
+            <div class="flex items-center justify-between">
+                <span class="text-sm text-gray-600 dark:text-gray-300">
+                    Branch: {{ filament()->auth()->user()->employee->branch->branch->name ?? 'N/A' }}
+                </span>
+
+                <div class="w-full max-w-sm ml-auto">
+                    <input 
+                       wire:model.live="search"
+                        type="text" 
+                        wire:model.debounce.300ms="search" 
+                        placeholder="Search supply..." 
+                        class="w-full px-3 py-2 rounded-lg border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800 text-sm text-gray-900 dark:text-gray-100 shadow-sm focus:ring-blue-500 focus:border-blue-500"
+                    />
+                </div>
+            </div>
+        </div>
+    
         <div 
-            class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-            @foreach($supplies as $key => $supply)
+            class="px-5 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+            @foreach($stocks as $key => $stock)
+                @php
+                    $quantity = $stock->quantity;
+                    $reorderLevel = $stock->reorder_level;
+                    $borderClass = 'border-blue-500';
+                    $textClass = 'text-gray-400 dark:text-gray-500';
+
+                    if ($quantity == 0) {
+                        $borderClass = 'border-red-500';
+                        $textClass = 'text-red-500';
+                    } elseif ($quantity <= $reorderLevel) {
+                        $borderClass = 'border-orange-400';
+                        $textClass = 'text-orange-400';
+                    }
+                @endphp
+
                 <div 
-                    wire:click="selectItem({{ $supply->id }})"
-                    class="relative h-[100px] bg-white dark:bg-gray-900 hover:bg-gray-50 dark:hover:bg-white/10 rounded-xl shadow-sm ring-1 ring-gray-950/5 dark:ring-white/10 border-b-4 border-blue-500 flex flex-col items-center justify-center text-center px-2">
-                    <p class="text-xs font-semibold text-gray-800 dark:text-gray-200">{{$supply->name}}</p>
-                    <p class="mb-3 text-[10px] text-gray-500 dark:text-gray-400 mt-1">₱999.00</p>
-                    <span class="absolute bottom-2 left-3 text-[10px] text-gray-400 dark:text-gray-500">Stock: 12</span>
-                    <span class="absolute bottom-2 right-3 text-[10px] text-gray-400 dark:text-gray-500">{{$supply->sku}}</span>
+                    wire:click="selectItem({{ $stock->supply_id }})"
+                    class="relative h-[100px] bg-white dark:bg-gray-900 hover:bg-gray-50 dark:hover:bg-white/10 
+                        rounded-xl shadow-sm ring-1 ring-gray-950/5 dark:ring-white/10 border-b-4 {{ $borderClass }} 
+                        flex flex-col items-center justify-center text-center px-2">
+                    
+                    <p class="text-xs font-semibold text-gray-800 dark:text-gray-200">{{$stock->supply->name}}</p>
+                    <p class="mb-3 text-[10px] text-gray-500 dark:text-gray-400 mt-1">{{$stock->supply->retail_price}}</p>
+
+                    <span class="absolute bottom-2 left-3 text-[10px] {{ $textClass }}">
+                        Stock: {{$quantity}}
+                    </span>
+
+                    <span class="absolute bottom-2 right-3 text-[10px] text-gray-400 dark:text-gray-500">{{$stock->supply->sku}}</span>
                 </div>
             @endforeach
+
         </div>
     </div>
 
      <!-- POS Modal for Item Selection and Price Entry -->
-     <x-filament::modal id="select-item" width="3xl">
+     <x-filament::modal id="select-item" width="4xl">
         <div 
             @keydown.space.prevent="$wire.addToCart()"
-            class="space-y-6 p-4 sm:p-6 focus:outline-none"
+            class="space-y-6  focus:outline-none"
         >
+            <!-- Item Header Info -->
+            <div class="bg-white dark:bg-gray-900 p-4 rounded-xl shadow ring-1 ring-gray-950/5 dark:ring-white/10 space-y-1">
+                <p class="text-sm text-gray-500 dark:text-gray-400">
+                    <span class="font-medium text-gray-800 dark:text-gray-100">Supply:</span>
+                    {{ $selectedSupply?->name }}
+                </p>
+                <p class="text-sm text-gray-500 dark:text-gray-400">
+                    <span class="font-medium text-gray-800 dark:text-gray-100">Stock:</span>
+                    {{ $selectedSupply?->stock->quantity }}
+                </p>
+                <p class="text-sm text-gray-500 dark:text-gray-400">
+                    <span class="font-medium text-gray-800 dark:text-gray-100">Retail Price:</span>
+                    ₱{{ number_format($selectedSupply?->price, 2) }}
+                </p>
+            </div>
 
-            <!-- Product Details -->
-            <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
-                <div class="p-4 sm:p-6 rounded-xl bg-white dark:bg-gray-900 shadow ring-1 ring-gray-950/5 dark:ring-white/10">
-                    <h2 class="text-lg font-semibold text-gray-800 dark:text-gray-200 mb-1">
-                        {{ $selectedSupply?->name }}
-                    </h2>
-                    <p class="text-sm text-gray-500 dark:text-gray-400 mb-2">
-                        Stock: <span class="font-medium">{{ $selectedSupply?->stock }}</span>
-                    </p>
-                    <p class="text-xl font-bold text-blue-600 dark:text-blue-400">
-                        ₱{{ number_format($selectedSupply?->price, 2) }}
-                    </p>
-                </div>
-
-                <!-- Price Input -->
-                <div class="p-4 sm:p-6 rounded-xl bg-white dark:bg-gray-900 shadow ring-1 ring-gray-950/5 dark:ring-white/10">
-                    <label for="price" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                        Set Custom Price
+            <!-- Input Fields -->
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <!-- Custom Price -->
+                <div>
+                    <label for="price" class="block text-sm text-gray-500 dark:text-gray-400 mb-1">
+                        Set Price (₱)
                     </label>
                     <input
                         wire:model="setPrice"
                         type="number"
+                        step="0.01"
                         class="w-full px-3 py-2 rounded-lg border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
-                        placeholder="Enter custom price"
+                        placeholder="e.g. 99.00"
                     />
+
+                    @error('setPrice')
+                        <p class="text-xs text-red-500 mt-1">{{ $message }}</p>
+                    @enderror
+                </div>
+
+                <div>
+                    <label for="quantity" class="block text-sm text-gray-500 dark:text-gray-400 mb-1">
+                        Quantity
+                    </label>
+                    <input
+                        wire:model="setQuantity"
+                        type="number"
+                        min="1"
+                        class="w-full px-3 py-2 rounded-lg border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+                        placeholder="e.g. 1"
+                    />           
+                    @error('setQuantity')
+                        <p class="text-xs text-red-500 mt-1">{{ $message }}</p>
+                    @enderror
+
                 </div>
             </div>
 
-            <!-- Action Buttons -->
             <div class="flex justify-end pt-2 space-x-3">
                 <x-filament::button
                     type="button"
                     color="gray"
                     tag="button"
                     size="sm"
-                    wire:click="$dispatch('close-modal',{id:'select-item'})"
+                    wire:click="$dispatch('close-modal', { id: 'select-item' })"
                 >
                     Cancel
                 </x-filament::button>
@@ -95,9 +161,6 @@
                     Add to Cart
                 </x-filament::button>
             </div>
-
         </div>
     </x-filament::modal>
-
-
 </div>

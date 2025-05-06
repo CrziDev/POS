@@ -8,7 +8,6 @@ use App\Models\Shop\Product;
 use App\Models\Supply;
 use Filament\Forms\Concerns\InteractsWithForms;
 use Filament\Forms\Contracts\HasForms;
-
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Columns\TextInputColumn;
 use Filament\Tables\Concerns\InteractsWithTable;
@@ -66,6 +65,11 @@ class PosPanel extends Page implements HasForms, HasTable
                 Section::make()
             ]);
 
+    }
+
+    public static function canAccess(): bool
+    {
+        return !auth()->user()->hasRole(['admin']);
     }
 
 }

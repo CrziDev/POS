@@ -42,6 +42,10 @@ class Supply extends Model
         )->all();
     }
 
+    public function stock(){
+        return $this->hasOne(Stock::class,'supply_id');
+    }
+
     public function category(){
         return $this->belongsTo(SupplyCategory::class,'category_id');
     }

@@ -16,6 +16,9 @@ use Filament\Tables\Columns\Layout\Stack;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
+use STS\FilamentImpersonate\Tables\Actions\Impersonate;
+
+// use Lab404\Impersonate\Impersonate;
 
 class EmployeeResource extends Resource
 {
@@ -111,7 +114,6 @@ class EmployeeResource extends Resource
             
                 Tables\Filters\SelectFilter::make('role')
                     ->label('Role')
-                    // ->multiple()
                     ->options(function () {
                         return \Spatie\Permission\Models\Role::pluck('name', 'name');
                     })
@@ -125,6 +127,7 @@ class EmployeeResource extends Resource
                     ->placeholder('All Roles'),
             ])
             ->actions([
+                Impersonate::make() 
             ])
             ->bulkActions([
             ]);

@@ -13,20 +13,31 @@
         <div class="flex items-center justify-between text-[11px] font-semibold px-3 text-gray-500 dark:text-gray-400 uppercase">
             <span class="w-1/2 truncate">Item</span>
             <span class="w-[120px] text-center">Qty</span>
-            <span class="w-[80px] text-right">Price</span>
+            <span class="w-[90px] text-center">Price</span>
+            <span class="w-[90px] text-right">Discount</span>
         </div>
     @endif
 
     <!-- Cart Items List (Scrollable) -->
     <div class="space-y-2 flex-1 overflow-y-auto max-h-[400px] pr-1">
+        @php
+            $netTotal = 0;
+            $totalDiscount = 0;
+        @endphp
+
         @foreach($cart as $key => $item)
+            @php
+                $itemTotal = $item['price'] * $item['qty'];
+                $itemDiscount = ($item['retail_price'] - $item['price']) * $item['qty'];
+                $netTotal += $itemTotal;
+                $totalDiscount += $itemDiscount;
+            @endphp
+
             <div class="flex items-center justify-between text-xs border-b border-gray-200 dark:border-gray-700 py-2 px-3 bg-gray-50 dark:bg-white/5 rounded">
                 
-                <!-- Item Name -->
                 <div class="text-gray-800 dark:text-gray-200 truncate w-1/2">{{ $item['name'] }}</div>
 
-                <!-- Quantity Control -->
-                <div class="flex items-center space-x-1 mx-4 w-[120px] justify-center">
+                <div class="flex items-center space-x-1 mx-4 w-[100px] justify-center">
                     <button 
                         class="text-[9px] bg-gray-300 dark:bg-gray-700 hover:bg-gray-400 dark:hover:bg-gray-600 rounded px-2"
                         wire:click="decreaseItem({{ $item['id'] }})"
@@ -42,9 +53,19 @@
                     </button>
                 </div>
 
-                <!-- Item Price -->
-                <div class="text-gray-600 dark:text-gray-400 text-right w-[80px]">
-                    ₱{{ number_format($item['price'] * $item['qty'], 2) }}
+                <div class="text-gray-600 dark:text-gray-400 text-center w-[90px] leading-tight">
+                    <div class="{{ $item['retail_price'] !== $item['price'] ? 'line-through text-red-400 text-[11px]' : '' }}">
+                        ₱{{ number_format($item['retail_price'], 2) }}
+                    </div>
+                    @if($item['retail_price'] !== $item['price'])
+                        <div class="text-[12px] font-semibold text-gray-800 dark:text-gray-200">
+                            ₱{{ number_format($item['price'], 2) }}
+                        </div>
+                    @endif
+                </div>
+
+                <div class="text-gray-600 dark:text-gray-400 text-right w-[90px]">
+                    ₱{{ number_format($itemDiscount, 2) }}
                 </div>
             </div>
         @endforeach
@@ -54,19 +75,19 @@
         
         <div class="flex justify-between">
             <span class="text-gray-700 dark:text-gray-300">Net Total:</span>
-            <span class="font-semibold text-blue-500">₱</span>
+            <span class="font-semibold text-blue-500">₱{{ number_format($netTotal, 2) }}</span>
         </div>
 
         <div class="flex justify-between">
             <span class="text-gray-700 dark:text-gray-300">Discount:</span>
-            <span class="font-semibold text-blue-500">₱</span>
+            <span class="font-semibold text-blue-500">₱{{ number_format($totalDiscount, 2) }}</span>
         </div>
 
         <hr class="border-gray-200 dark:border-gray-700 my-2" />
 
         <div class="flex mb-2 justify-between text-sm font-semibold text-gray-800 dark:text-gray-200">
             <span>Grand Total:</span>
-            <span class="text-blue-600">₱</span>
+            <span class="text-blue-600">₱{{ number_format($netTotal, 2) }}</span>
         </div>
 
         <div class="pt-5">

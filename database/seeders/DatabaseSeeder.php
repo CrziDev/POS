@@ -3,6 +3,7 @@
 namespace Database\Seeders;
 
 use App\Models\Branch;
+use App\Models\BranchEmployee;
 use App\Models\Employee;
 use App\Models\Supplier;
 use App\Models\Supply;
@@ -20,9 +21,12 @@ class DatabaseSeeder extends Seeder
     public function run(): void
     {
         $this->call(RolesSeeder::class);
+        Branch::factory(2)
+            ->create();
 
         for ($i = 0; $i < 10; $i++) {
-            $employeeData = Employee::factory()->make(); 
+            $employeeData = Employee::factory()->make([
+            ]); 
         
             $user = User::create([
                 'name' => $employeeData->first_name . ' ' . $employeeData->last_name,
@@ -31,14 +35,21 @@ class DatabaseSeeder extends Seeder
             ]);
         
             $user->employee()->create($employeeData->toArray()); 
+            
 
             $randomRole = Arr::random(['sales-clerk', 'cashier']);
             $user->assignRole($randomRole);
         }
 
-        Branch::factory(2)
-            ->create();
-            
+        Employee::all()->each(function ($item) {
+            BranchEmployee::create([
+                'branch_id'     => Branch::inRandomOrder()->first()->id,
+                'employee_id'   => $item->id,
+                'status'        => 'active',
+            ]);
+        });
+        
+
         $this->call(SupplyCategorySeeder::class);
         $this->call(SupplyUnitSeeder::class);
 
