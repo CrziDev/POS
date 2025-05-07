@@ -13,6 +13,7 @@ class UserPolicy
      */
     public function viewAny(User $user): bool
     {
+        return false;
         return $user->hasRole([RolesEnum::ADMIN->value]);
 
     }
@@ -22,6 +23,7 @@ class UserPolicy
      */
     public function view(User $user): bool
     {
+        return false;
         return $user->hasRole([RolesEnum::ADMIN->value]);
 
     }

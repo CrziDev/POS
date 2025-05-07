@@ -78,10 +78,17 @@ class SaleResource extends Resource
                         'success' => 'Paid',
                         'danger' => 'Voided',
                     ]),
-                Tables\Columns\TextColumn::make('id')->label('Txn ID')->sortable(),
+                Tables\Columns\TextColumn::make('id')
+                    ->label('Transaction #')
+                    ->sortable()
+                    ->formatStateUsing(fn($state)=>'TX - '. $state),
                 Tables\Columns\TextColumn::make('customer.name')
                     ->label('Customer')
-                    ->searchable()
+                    ->searchable(query: function (Builder $query, string $search): Builder {
+                        return  $query->whereHas('customer',function (Builder $sq) use($search){
+                            $sq->whereRaw("name LIKE ?", ["%{$search}%"]);
+                        });
+                    })
                     ->sortable(),
                 Tables\Columns\TextColumn::make('payment_method')->label('Payment')->sortable(),
                 Tables\Columns\TextColumn::make('payment_reference')->label('Reference')->toggleable(),
@@ -92,12 +99,17 @@ class SaleResource extends Resource
                     ->date(),
                 Tables\Columns\TextColumn::make('employee.fullName')
                     ->label('Proccessed By')
-                    ->searchable()
+                    ->searchable(query: function (Builder $query, string $search): Builder {
+                        return  $query->whereHas('employee',function (Builder $sq) use($search){
+                            $sq->whereRaw("CONCAT(first_name, ' ', last_name) LIKE ?", ["%{$search}%"]);
+                        });
+                    })
                     ->sortable(),         
                 Tables\Columns\TextColumn::make('branch.name')
                     ->label('Branch')
                     ->searchable()
-                    ->sortable(), 
+                    ->sortable()
+                    ->toggleable(isToggledHiddenByDefault: true), 
             ])
             ->filters([
                 SelectFilter::make('payment_method')

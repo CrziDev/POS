@@ -11,11 +11,15 @@ enum RolesEnum: string
     case CASHIER = 'cashier';
 
 
-    public static function toArray(): array
-    {
+    public static function toArray($employee = false): array
+    {   
+        $cases = self::cases();
+        if($employee){
+            unset($cases[0]);
+        }
         return array_combine(
-            array_map(fn($case) => $case->value, self::cases()),
-            array_map(fn($case) => Str::Headline($case->value), self::cases())
+            array_map(fn($case) => $case->value, $cases),
+            array_map(fn($case) => Str::Headline($case->value), $cases)
         );
     }
 

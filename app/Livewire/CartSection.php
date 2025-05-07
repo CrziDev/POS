@@ -238,7 +238,7 @@ class CartSection extends Component implements HasActions,HasForms
     
         foreach ($this->cart as $cartItem) {
             $stock = Stock::where('supply_id', $cartItem['id'])
-                ->where('branch_id', $branch->id)
+                ->where('branch_id', $branch->branch_id)
                 ->first();
     
             if (!$stock || $stock->quantity < $cartItem['qty']) {
@@ -277,7 +277,7 @@ class CartSection extends Component implements HasActions,HasForms
     
         foreach ($this->cart as $item) {
             $stock = Stock::where('supply_id', $item['id'])
-                ->where('branch_id', $branch->id)
+                ->where('branch_id', $branch->branch_id)
                 ->first();
     
             if ($stock) {
@@ -297,7 +297,7 @@ class CartSection extends Component implements HasActions,HasForms
     
         $transaction = SaleTransaction::create([
             'customer_id'        => $data['customer'],
-            'branch_id'          => $branch->id,
+            'branch_id'          => $branch->branch_id,
             'processed_by'       => auth()->user()->employee->id,
             'payment_method'     => $data['payment_method'],
             'payment_reference'  => $data['reference_number'] ?? null,

@@ -85,21 +85,21 @@ class PosTableSection extends Component implements HasActions,HasForms
     public function render()
     {
         $currentBranch = auth()->user()->employee->branch;
-    
+        
         $stocks = Stock::query()
-            ->where('branch_id', $currentBranch->id)
+            ->where('branch_id', $currentBranch->branch_id)
             ->when($this->selectedCategory !== 'all', function ($query) {
                 $query->whereHas('supply', function ($q) {
                     $q->where('category_id', $this->selectedCategory);
                 });
             })
-            ->when($this->search, function ($query) {
+            ->when($this->search !== '', function ($query) {
                 $query->whereHas('supply', function ($q) {
                     $q->where('name', 'like', '%' . $this->search . '%')
                     ->orwhere('sku', 'like', '%' . $this->search . '%');
                 });
             });
-    
+            
         return view('livewire.pos-table-section', [
             'stocks' => $stocks->get(),
         ]);

@@ -109,7 +109,7 @@ class UserResource extends Resource
                 Tables\Actions\ActionGroup::make([
                     Tables\Actions\Action::make('change-password')
                         ->label('Change Password')
-                        ->icon('heroicon-o-key')  // Add the key icon
+                        ->icon('heroicon-o-key')  
                         ->modalHeading('Change Password for User')  // Modal heading
                         ->form([
                             TextInput::make('password')
@@ -137,7 +137,7 @@ class UserResource extends Resource
                                 ->send();
                         }),
                 ]),
-                Impersonate::make(),
+                // Impersonate::make(),
             ],ActionsPosition::BeforeColumns)
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([

@@ -15,7 +15,6 @@ class PurchaseOrderPolicy
     {
         return $user->hasRole([
             RolesEnum::ADMIN->value,
-            RolesEnum::SALESCLERK->value,
         ]);
 
     }
@@ -27,7 +26,6 @@ class PurchaseOrderPolicy
     {
         return $user->hasRole([
             RolesEnum::ADMIN->value,
-            RolesEnum::SALESCLERK->value,
         ]);
 
     }

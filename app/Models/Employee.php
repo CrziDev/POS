@@ -9,7 +9,7 @@ use Illuminate\Database\Eloquent\Model;
 class Employee extends Model
 {
     use HasFactory;
-    protected $guarded = [];
+    protected $guarded = ['role','branch'];
 
     protected function fullName(): Attribute
     {

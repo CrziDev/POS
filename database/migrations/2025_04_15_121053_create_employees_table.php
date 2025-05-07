@@ -19,9 +19,9 @@ return new class extends Migration
             $table->string('employee_avatar')->nullable();
             $table->string('first_name',100);
             $table->string('last_name',100);
-            $table->string('email',155);
-            $table->string('contact_no',155);
-            $table->string('address',155);
+            $table->string('email',155)->nullable();
+            $table->string('contact_no',155)->nullable();
+            $table->string('address',155)->nullable();
             $table->string('status',55)->default(EmployeeStatusEnum::ACTIVE->value);
             $table->timestamps();
         });
