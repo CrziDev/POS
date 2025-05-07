@@ -6,6 +6,10 @@ use App\Filament\Resources\SaleTransactionReturnResource\Pages;
 use App\Filament\Resources\SaleTransactionReturnResource\RelationManagers;
 use App\Models\SaleTransactionReturn;
 use Filament\Forms;
+use Filament\Forms\Components\DatePicker;
+use Filament\Forms\Components\Repeater;
+use Filament\Forms\Components\Select;
+use Filament\Forms\Components\TextInput;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
 use Filament\Tables;
@@ -23,15 +27,60 @@ class SaleTransactionReturnResource extends Resource
     {
         return $form
             ->schema([
-                Forms\Components\TextInput::make('sale_transaction_id')
-                    ->required()
-                    ->numeric(),
-                Forms\Components\TextInput::make('branch_id')
-                    ->required()
-                    ->numeric(),
-                Forms\Components\DateTimePicker::make('returned_at'),
-                Forms\Components\Textarea::make('remarks')
-                    ->columnSpanFull(),
+
+
+                Forms\Components\Section::make([
+
+                    Forms\Components\Split::make([
+                        
+                        Select::make('customer')
+                            ->searchable()
+                            ->placeholder('Select a Customer'),
+
+                        Select::make('transaction_id')
+                            ->label('Transaction Number')
+                            ->placeholder(''),
+                    ]),
+
+                    DatePicker::make('date_transaction')
+                        ->label('Transaction Date')
+                        ->disabled(),
+
+                    Select::make('processed_by')
+                        ->label('Processed By')
+                        ->disabled()
+                ]),
+
+                Forms\Components\Section::make([
+
+                    Repeater::make('Items')
+                        ->visible(fn($get)=>$get('transaction_id'))
+                        ->schema([
+                            TextInput::make('name')->required(),
+                            Select::make('role')
+                                ->options([
+                                    'member' => 'Member',
+                                    'administrator' => 'Administrator',
+                                    'owner' => 'Owner',
+                                ])
+                                ->required(),
+                        ])
+                        ->addable(false)
+                        ->deletable(false)
+                        ->reorderable(false)
+                        ->columns(2)
+                ])
+
+
+                // Forms\Components\TextInput::make('sale_transaction_id')
+                //     ->required()
+                //     ->numeric(),
+                // Forms\Components\TextInput::make('branch_id')
+                //     ->required()
+                //     ->numeric(),
+                // Forms\Components\DateTimePicker::make('returned_at'),
+                // Forms\Components\Textarea::make('remarks')
+                //     ->columnSpanFull(),
             ]);
     }
 
