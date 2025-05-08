@@ -18,9 +18,19 @@ class Employee extends Model
         );
     }
 
-    public static function getOptionsArray($notDeployed = false): array
+    public static function getOptionsArray($notDeployed = false,$html=true): array
     {
         $query = self::query()->with('user.roles');
+
+        
+        if(!$html){
+            return $query
+                    ->get()->mapWithKeys(fn($item) =>
+                        [
+                            $item->id => 
+                                "<span> <b>Employee:</b> " .  $item->first_name . ' ' . $item->last_name. "</span>". "<br>"
+                        ])->all();
+        }
 
         if($notDeployed)
         {

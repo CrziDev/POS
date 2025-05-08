@@ -13,6 +13,10 @@ class Customer extends Model
         $query = self::query();
 
 
+        if(!$html){
+            return $query->pluck('name','id')->toArray();
+        }
+
         return $query->get()->mapWithKeys(fn($item) =>
             [
                 $item->id => 

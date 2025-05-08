@@ -23,4 +23,24 @@ class SaleTransaction extends Model
     public function employee(){
         return $this->belongsTo(Employee::class,'processed_by');
     }
+
+    public static function getOptionsArray($html = true,$customer = false): array
+    {
+        $query = self::query();
+
+        if(!$html){
+            return $query->pluck('id','id')->toArray();
+        }
+
+        if(!$customer){
+            $query = $query->where('customer_id',$customer);
+        }
+
+        return $query->get()->mapWithKeys(fn($item) =>
+            [
+                $item->id => 
+                    "<span> <b>TX - </b> " . $item->id . "</span>". "<br>" 
+            ]
+        )->all();
+    }
 }

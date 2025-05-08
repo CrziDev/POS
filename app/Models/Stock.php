@@ -28,6 +28,22 @@ class Stock extends Model
 
     }
 
+    public static function getOptionsArray(): array
+    {
+        $query = self::query()->with(['supply','branch']);
+
+        return $query->get()->mapWithKeys(fn($item) =>
+            [
+                $item->id => 
+                    "<span> <b>Supply:</b> " . $item->supply->name . "</span>". "<br>".
+                    "<small>" .
+                        "<span> Branch:". $item->branch->name."<span>"."<br>".
+                        "<span> Stocks: ". $item->quantity."<span>" .
+                    "<small>" 
+            ]
+        )->all();
+    }
+
     public function branch(){
         return $this->belongsTo(Branch::class,'branch_id');
     }

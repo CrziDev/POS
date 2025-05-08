@@ -16,6 +16,7 @@ return new class extends Migration
             $table->foreignId('sale_transaction_id')->constrained('sale_transactions')->onDelete('cascade');
             $table->foreignId('branch_id')->constrained('branches');
             $table->timestamp('returned_at')->nullable();
+            $table->foreignId('handled_by')->constrained('employees');
             $table->text('remarks')->nullable();
             $table->timestamps();
         });
