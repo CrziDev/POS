@@ -19,7 +19,6 @@ class Branch extends Model
     {
         $query = self::query();
 
-
         if(!$html){
             return $query->pluck('name', 'id')->toArray();
         }

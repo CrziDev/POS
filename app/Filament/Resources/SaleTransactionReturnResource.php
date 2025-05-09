@@ -3,237 +3,253 @@
 namespace App\Filament\Resources;
 
 use App\Filament\Resources\SaleTransactionReturnResource\Pages;
-use App\Filament\Resources\SaleTransactionReturnResource\RelationManagers;
+use App\Models\Branch;
 use App\Models\Customer;
 use App\Models\Employee;
 use App\Models\SaleTransaction;
 use App\Models\SaleTransactionItem;
 use App\Models\SaleTransactionReturn;
 use App\Models\Stock;
+use App\Models\Supply;
 use Filament\Forms;
-use Filament\Forms\Components\CheckboxList;
-use Filament\Forms\Components\DatePicker;
-use Filament\Forms\Components\Repeater;
-use Filament\Forms\Components\Section;
-use Filament\Forms\Components\Select;
-use Filament\Forms\Components\Split;
-use Filament\Forms\Components\Textarea;
-use Filament\Forms\Components\TextInput;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Database\Eloquent\SoftDeletingScope;
+use Illuminate\Support\Str;
 
 class SaleTransactionReturnResource extends Resource
 {
     protected static ?string $model = SaleTransactionReturn::class;
 
     protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
-
-    public $returnedItem = [];
+    protected static ?string $navigationLabel = 'Returns';
+    protected static ?string $navigationGroup = 'Sales';
 
     public static function form(Form $form): Form
     {
         return $form
             ->schema([
+                Forms\Components\Grid::make(3)->schema([
 
-                Forms\Components\grid::make(3)
+                    Forms\Components\Section::make([
+                        Forms\Components\Split::make([
+                            Forms\Components\Select::make('customer_id')
+                                ->label('Customer')
+                                ->searchable()
+                                ->allowHtml()
+                                ->live()
+                                ->options(Customer::getOptionsArray(false))
+                                ->placeholder('Select a customer'),
 
-                    ->schema([
+                            Forms\Components\Select::make('transaction_id')
+                                ->label('Transaction #')
+                                ->options(fn ($get) => SaleTransaction::getOptionsArray(true, $get('customer_id')))
+                                ->allowHtml()
+                                ->live()
+                                ->afterStateUpdated(function ($state, $set) {
+                                    $transaction = SaleTransaction::find($state);
 
-                        Forms\Components\Section::make([
+                                    if ($transaction) {
+                                        $set('date_transaction', $transaction->date_paid);
+                                        $set('processed_by', $transaction->processed_by);
+                                        $set('branch_id', $transaction->branch_id);
 
-                            Forms\Components\Split::make([
-                                
-                                Select::make('customer_id')
-                                    ->label('Customer')
-                                    ->searchable()
-                                    ->allowHtml()
-                                    ->live()
-                                    ->options(Customer::getOptionsArray(false))
-                                    ->placeholder('Select a Customer')
-                                    ->default(1),
+                                    }
+                                })
+                                ->placeholder('Select a transaction'),
+                        ]),
 
-                                Select::make('transaction_id')
-                                    ->label('Transaction Number')
-                                    ->options(fn($get)=>SaleTransaction::getOptionsArray(true,$get('customer_id')))
-                                    ->allowHtml()
-                                    ->live()
-                                    ->afterStateUpdated(function($state,$set){
-                                        $transaction = SaleTransaction::find($state);
-                                        
-                                        if($transaction){
-                                            $set('date_transaction',$transaction->date_paid);
-                                            $set('processed_by',$transaction->processed_by);
-                                        }
-                                    })
-                                    ->default(1)
-                                    ->placeholder(''),
-                            ]),
-
-                            DatePicker::make('date_transaction')
+                        Forms\Components\Split::make([
+                            Forms\Components\DatePicker::make('date_transaction')
                                 ->label('Transaction Date')
                                 ->disabled(),
-
-                            Select::make('processed_by')
-                                ->label('Processed By')
-                                ->allowHtml()
-                                ->options(Employee::getOptionsArray(false,false))
+                            Forms\Components\Select::make('branch_id')
+                                ->label('Branch')
+                                ->options(Branch::getOptionsArray(false))
+                                ->dehydrated()
                                 ->disabled()
+                        ]),
 
-                        ])->columnSpan(function($get){
-                            return $get('transaction_id')? 2 : 3;
-                        }),
+                        Forms\Components\Select::make('processed_by')
+                            ->label('Processed By')
+                            ->allowHtml()
+                            ->options(Employee::getOptionsArray(false, false))
+                            ->disabled(),
+                    ])->columnSpan(fn ($get) => $get('transaction_id') ? 2 : 3),
 
-                        Forms\Components\Section::make([
-                            CheckboxList::make('items_to_return')
-                                ->label('Select items to return')
-                                ->options(fn($get) => SaleTransactionItem::getOptionsArray($get('transaction_id')))
-                                ->bulkToggleable()
-                                ->live()
-                                ->afterStateUpdated(function($state,$set,$get){
-                                    $soldItems = SaleTransactionItem::whereIn('id',$state)->get();
-
-                                    $itemToReturn = $soldItems->map(function($item){
-                                        return [
-                                            'returned_item'      => $item->supply_id,
-                                            'original_quantity'  => $item->quantity,
-                                            'return_quantity'    => null,
-                                            'issue_type'         => null,
-                                            'items'              => [],
-                                            'remarks'            => null,
-
-                                        ];
-                                    })->toArray();
-
-                                    $set('returned_panel',$itemToReturn);
-                                })
-
-                        ])
-                        ->visible(fn($get)=>$get('transaction_id'))
-                        ->columnSpan(1)
+                    Forms\Components\Section::make([
+                        Forms\Components\CheckboxList::make('items_to_return')
+                            ->label('Select items to return')
+                            ->options(fn ($get) => SaleTransactionItem::getOptionsArray($get('transaction_id')))
+                            ->bulkToggleable()
+                            ->live()
+                            ->afterStateUpdated(function ($state, $set,$get) {
+                                $set('returned_panel', self::mapItemsForReturn($state,$get('transaction_id')));
+                            }),
+                    ])
+                        ->visible(fn ($get) => $get('transaction_id'))
+                        ->columnSpan(1),
                 ]),
 
-
                 Forms\Components\Section::make([
-
-                    Repeater::make('returned_panel')
+                    Forms\Components\Repeater::make('returned_panel')
                         ->label('Returned Items')
-                        ->visible(fn($get)=>$get('items_to_return'))
+                        ->visible(fn ($get) => $get('items_to_return'))
                         ->schema([
-                            Select::make('returned_item')
+                            Forms\Components\Select::make('returned_item')
                                 ->label('Item to Return')
-                                ->options(SaleTransactionItem::getOptionsArray(false))
-                                ->disabled(),
+                                ->options(Supply::getOptionsArray(false))
+                                ->disabled()
+                                ->dehydrated(),
 
-                            TextInput::make('original_quantity')
+                            Forms\Components\TextInput::make('original_quantity')
                                 ->label('Original Qty')
-                                ->disabled(),
+                                ->disabled()
+                                ->numeric()
+                                ->dehydrated(),
 
-                            TextInput::make('return_quantity')
+                            Forms\Components\TextInput::make('return_quantity')
                                 ->label('Return Qty')
                                 ->numeric()
-                                ->required(),
+                                ->required()
+                                ->helperText('Must not exceed original quantity')
+                                ->maxValue(fn ($get) => $get('original_quantity')),
 
-                            Select::make('issue_type')
+                            Forms\Components\Select::make('issue_type')
                                 ->label('Issue Type')
-                                ->options([
-                                    'wrong_item' => 'Wrong Item',
-                                    'defective' => 'Defective',
-                                    'damaged' => 'Damaged',
-                                ])
-                                ->required(),
+                                ->required()
+                                ->options(SaleTransactionReturn::ISSUE_TYPES),
 
-                            Repeater::make('items')
-                                ->label('Replacement')
+                            Forms\Components\Repeater::make('replacements')
+                                ->label('Replacements')
                                 ->schema([
+                                    Forms\Components\Select::make('replacement_item_id')
+                                        ->label('Replacement Item')
+                                        ->searchable()
+                                        ->options(Supply::getOptionsArray(true,showStock:true))
+                                        ->allowHtml()
+                                        ->live()
+                                        ->nullable(),
 
-                                Select::make('replacement_item_id')
-                                    ->label('Replacement Item')
-                                    ->searchable()
-                                    ->options(Stock::getOptionsArray())
-                                    ->allowHtml()
-                                    ->nullable(),
-    
-                                TextInput::make('replacement_quantity')
-                                    ->label('Replacement Qty')
-                                    ->numeric()
-    
+                                    Forms\Components\TextInput::make('replacement_quantity')
+                                        ->label('Replacement Qty')
+                                        ->minValue(0)
+                                        ->maxValue(function($get){
+                                            $branchId = $get('../../../../branch_id'); 
+                                            $supplyId = $get('replacement_item_id');
+
+                                            if ($branchId && $supplyId) {
+                                                $stock = Stock::where([
+                                                    'branch_id' => $branchId,
+                                                    'supply_id' => $supplyId,
+                                                ])->first();
+
+                                                return $stock?->quantity ?? 0;
+                                            }
+
+                                            return 0;
+                                        })
+                                        ->numeric(),
                                 ])
-                                ->addActionLabel('Add Item')
+                                ->addActionLabel('Add Replacement')
                                 ->reorderable(false)
                                 ->columns(2)
                                 ->columnSpanFull(),
-            
-                            Textarea::make('remarks')
+
+                            Forms\Components\Textarea::make('remarks')
                                 ->label('Remarks')
-                                ->nullable()
                                 ->hint('Optional')
+                                ->nullable()
                                 ->columnSpanFull(),
                         ])
                         ->addable(false)
                         ->deletable(false)
                         ->reorderable(false)
                         ->columns(2)
-                        ->columnSpanFull()
-
-                ])
-
-
-                // Forms\Components\TextInput::make('sale_transaction_id')
-                //     ->required()
-                //     ->numeric(),
-                // Forms\Components\TextInput::make('branch_id')
-                //     ->required()
-                //     ->numeric(),
-                // Forms\Components\DateTimePicker::make('returned_at'),
-                // Forms\Components\Textarea::make('remarks')
-                //     ->columnSpanFull(),
+                        ->columnSpanFull(),
+                ]),
             ]);
     }
 
     public static function table(Table $table): Table
     {
         return $table
+            ->modifyQueryUsing(function (Builder $query) { 
+                if (!auth()->user()->hasRole(['admin'])) { 
+                    return $query->where('branch_id', auth()->user()->employee->branch->branch->id); 
+                } 
+            }) 
             ->columns([
-                Tables\Columns\TextColumn::make('sale_transaction_id')
-                    ->numeric()
+                Tables\Columns\TextColumn::make('id')
+                    ->label('Return #')
+                    ->formatStateUsing(fn ($state) => 'R-' . $state)
                     ->sortable(),
-                Tables\Columns\TextColumn::make('branch_id')
-                    ->numeric()
-                    ->sortable(),
+
                 Tables\Columns\TextColumn::make('returned_at')
-                    ->dateTime()
+                    ->date()
                     ->sortable(),
-                Tables\Columns\TextColumn::make('created_at')
-                    ->dateTime()
-                    ->sortable()
-                    ->toggleable(isToggledHiddenByDefault: true),
-                Tables\Columns\TextColumn::make('updated_at')
-                    ->dateTime()
-                    ->sortable()
-                    ->toggleable(isToggledHiddenByDefault: true),
+
+                Tables\Columns\TextColumn::make('sale_transaction_id')
+                    ->label('Transaction #')
+                    ->formatStateUsing(fn ($state) => 'TX-' . $state)
+                    ->sortable(),
+
+                Tables\Columns\TextColumn::make('saleTransaction.customer.name')
+                    ->label('Customer')
+                    ->formatStateUsing(strFormat()),
+
+                Tables\Columns\TextColumn::make('returnedItem.name')
+                    ->label('Item Returned')
+                    ->formatStateUsing(fn($record,$state)=>Str::headline($state) .' ('.$record->quantity.'/qty)'),
+
+                Tables\Columns\TextColumn::make('issue_type')
+                    ->label('Issue')
+                    ->formatStateUsing(strFormat()),
+
+                Tables\Columns\TextColumn::make('replacements')
+                    ->label('Replacements')
+                    ->formatStateUsing(function ($state, $record) {
+                        return collect($record->replacements)
+                            ->map(function ($replacement) {
+                                $name = $replacement->supply?->name ?? 'N/A';
+                                $qty = $replacement->replacement_quantity ?? 0;
+                                return "$name ($qty/qty)";
+                            })
+                            ->implode("\n");
+                    })
+                    ->bulleted()
+                    ->limit(50),
+                Tables\Columns\TextColumn::make('remarks')
+                    ->label('Remarks'),
             ])
             ->filters([
-                //
-            ])
-            ->actions([
-                Tables\Actions\EditAction::make(),
-            ])
-            ->bulkActions([
-                Tables\Actions\BulkActionGroup::make([
-                    Tables\Actions\DeleteBulkAction::make(),
-                ]),
+                Tables\Filters\SelectFilter::make('customer_id')
+                    ->label('Customer')
+                    ->relationship('saleTransaction.customer', 'name')
+                    ->searchable(),
+    
+                Tables\Filters\Filter::make('returned_at')
+                    ->form([
+                        Forms\Components\DatePicker::make('from')->label('From'),
+                        Forms\Components\DatePicker::make('until')->label('Until'),
+                    ])
+                    ->query(function (Builder $query, array $data): Builder {
+                        return $query
+                            ->when($data['from'], fn ($q) => $q->whereDate('returned_at', '>=', $data['from']))
+                            ->when($data['until'], fn ($q) => $q->whereDate('returned_at', '<=', $data['until']));
+                    }),
+    
+                Tables\Filters\SelectFilter::make('issue_type')
+                    ->label('Issue Type')
+                    ->options(SaleTransactionReturn::ISSUE_TYPES),
             ]);
     }
 
     public static function getRelations(): array
     {
-        return [
-            //
-        ];
+        return [];
     }
 
     public static function getPages(): array
@@ -241,7 +257,26 @@ class SaleTransactionReturnResource extends Resource
         return [
             'index' => Pages\ListSaleTransactionReturns::route('/'),
             'create' => Pages\CreateSaleTransactionReturn::route('/create'),
-            'edit' => Pages\EditSaleTransactionReturn::route('/{record}/edit'),
+            // 'edit' => Pages\EditSaleTransactionReturn::route('/{record}/edit'),
         ];
+    }
+
+    protected static function mapItemsForReturn(array $itemIds,$transactionId): array
+    {
+        return SaleTransactionItem::whereIn('id', $itemIds)->get()->map(function ($item) use($transactionId){
+            
+            $returnedItem = SaleTransactionReturn::where([
+                'sale_transaction_id' => $transactionId,
+                'returned_item_id' => $item->supply_id,
+            ])->sum('quantity');
+            
+            return [
+                'returned_item' => $item->supply_id,
+                'original_quantity' => $item->quantity - $returnedItem ?? 0,
+                'return_quantity' => null,
+                'issue_type' => null,
+                'remarks' => null,
+            ];
+        })->toArray();
     }
 }

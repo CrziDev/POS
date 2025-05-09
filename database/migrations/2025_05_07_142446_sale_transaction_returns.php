@@ -14,21 +14,23 @@ return new class extends Migration
         Schema::create('sale_transaction_returns', function (Blueprint $table) {
             $table->id();
             $table->foreignId('sale_transaction_id')->constrained('sale_transactions')->onDelete('cascade');
+            $table->foreignId('sale_transaction_item_id')->constrained('sale_transaction_items');
             $table->foreignId('branch_id')->constrained('branches');
             $table->timestamp('returned_at')->nullable();
             $table->foreignId('handled_by')->constrained('employees');
+            $table->foreignId('returned_item_id')->constrained('supplies');
+            $table->string('issue_type');
+            $table->integer('quantity')->default(1);
+            $table->decimal('price_sold',16,2)->default(1);
             $table->text('remarks')->nullable();
             $table->timestamps();
         });
 
-        Schema::create('sale_transaction_return_items', function (Blueprint $table) {
+        Schema::create('sale_transaction_return_replacements', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('sale_transaction_return_id')->constrained('sale_transaction_returns');
-            $table->foreignId('supply_id')->constrained('supplies');
-            $table->integer('quantity')->default(1);
+            $table->foreignId('return_id')->constrained('sale_transaction_returns');
             $table->foreignId('replacement_item_id')->nullable()->constrained('supplies');
             $table->integer('replacement_quantity')->default(0);
-            $table->text('remarks')->nullable();
             $table->timestamps();
         });
     }

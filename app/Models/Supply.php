@@ -27,9 +27,27 @@ class Supply extends Model
         return $barCodes;
     }
 
-    public static function getOptionsArray(): array
+    public static function getOptionsArray($html = true,$showStock = false): array
     {
-        $query = self::query()->with('category');
+        $query = self::query()->with('category','stock');
+
+        if(!$html){
+            return $query->pluck('name','id')->toArray();
+        }
+
+        if($showStock){
+            return $query->get()->mapWithKeys(fn($item) =>
+                [
+                    $item->id => 
+                        "<span> <b>Supply:</b> " . $item->name . "</span>". "<br>".
+                        "<small>" .
+                            "<span> Branch: ".$item->stock->branch->name."<span>" . "<br>".
+                            "<span> Stock: ".$item->stock->quantity."<span>" .
+                        "<small>" 
+                ]
+            )->all();
+        }
+
 
         return $query->get()->mapWithKeys(fn($item) =>
             [

@@ -24,6 +24,7 @@ class PosTableSection extends Component implements HasActions,HasForms
     public $search = '';
     public $categoryList = [];
     public $selectedSupply;
+    public $scanning = false;
 
     ## Selecting Item
     public $setPrice = 0;
@@ -104,4 +105,26 @@ class PosTableSection extends Component implements HasActions,HasForms
             'stocks' => $stocks->get(),
         ]);
     }
+
+    public function handleBarcode($code)
+    {
+        $this->scanning = true;
+
+        try {
+            $supply = Supply::where('sku', $code)->first();
+
+            if (!$supply) {
+                Notification::make()
+                    ->title("No item found for code: $code")
+                    ->danger()
+                    ->send();
+                return;
+            }
+
+            $this->selectItem($supply->id);
+        } finally {
+            $this->scanning = false;
+        }
+    }
+
 }

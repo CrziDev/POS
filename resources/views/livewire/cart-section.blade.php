@@ -10,7 +10,7 @@
 
     @if(count($cart) > 0)
         <!-- Column Labels -->
-        <div class="flex items-center justify-between text-[11px] font-semibold px-3 text-gray-500 dark:text-gray-400 uppercase">
+        <div class="flex items-center justify-between text-[11px] font-semibold px-3 text-gray-500 dark:text-gray-400 uppercase pr-4">
             <span class="w-1/2 truncate">Item</span>
             <span class="w-[120px] text-center">Qty</span>
             <span class="w-[90px] text-center">Price</span>
@@ -19,7 +19,7 @@
     @endif
 
     <!-- Cart Items List (Scrollable) -->
-    <div class="space-y-2 flex-1 overflow-y-auto max-h-[400px] pr-1">
+    <div class="space-y-2 flex-1 overflow-y-auto max-h-[400px] pr-4 ">
         @php
             $netTotal = 0;
             $totalDiscount = 0;
@@ -33,8 +33,14 @@
                 $totalDiscount += $itemDiscount;
             @endphp
 
-            <div class="flex items-center justify-between text-xs border-b border-gray-200 dark:border-gray-700 py-2 px-3 bg-gray-50 dark:bg-white/5 rounded">
-                
+            <div class="relative flex items-center justify-between text-xs border-b border-gray-200 dark:border-gray-700 py-2 px-3 bg-gray-50 dark:bg-white/5 rounded">
+                <button 
+                    wire:click="removeItem({{ $item['id'] }})"
+                    class="absolute top-2 right-[-15px] text-red-500 hover:text-red-700 text-xs"
+                    title="Remove item"
+                >
+                    ✕
+                </button>
                 <div class="text-gray-800 dark:text-gray-200 truncate w-1/2">{{ $item['name'] }}</div>
 
                 <div class="flex items-center space-x-1 mx-4 w-[100px] justify-center">

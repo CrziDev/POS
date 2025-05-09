@@ -94,6 +94,14 @@ class CartSection extends Component implements HasActions,HasForms
         }
     }
 
+    public function removeItem($itemId)
+    {
+        $this->cart = collect($this->cart)
+            ->reject(fn ($item) => $item['id'] === $itemId)
+            ->values()
+            ->all();
+    }
+
     public function checkOut(): Action
     {
         return Action::make('checkOut')

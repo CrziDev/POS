@@ -1,6 +1,46 @@
 
 <div class="flex gap-2 w-full h-full"> 
 
+<div 
+    x-data="{
+        barcode: '',
+        shouldFocus: true,
+
+        init() {
+            const input = document.getElementById('barcode-input');
+
+            setInterval(() => {
+                const active = document.activeElement;
+                const isInputFocused = ['INPUT', 'TEXTAREA'].includes(active.tagName) && active.id !== 'barcode-input';
+                
+                this.shouldFocus = !isInputFocused;
+
+                if (this.shouldFocus) {
+                    input.focus();
+                }
+            }, 500);
+        },
+
+        handleEnter(e) {
+            if (this.barcode.length > 2) {
+                @this.call('handleBarcode', this.barcode);
+                this.barcode = '';
+                e.target.value = '';
+            }
+        }
+    }"
+    x-init="init()"
+>
+    <input 
+        id="barcode-input"
+        type="text" 
+        class="absolute opacity-0 pointer-events-none"
+        @input="barcode = $event.target.value" 
+        @keydown.space.prevent="handleEnter($event)" 
+        autocomplete="off"
+    >
+</div>
+
     <!-- Category Selection as Pills -->
     <div  class="p-5 h-full w-[10%] overflow-auto fi-section rounded-xl bg-white shadow-sm ring-1 ring-gray-950/5 dark:bg-gray-900 dark:ring-white/10 sm:w-60">
         <div class="space-y-2">
@@ -164,3 +204,4 @@
         </div>
     </x-filament::modal>
 </div>
+

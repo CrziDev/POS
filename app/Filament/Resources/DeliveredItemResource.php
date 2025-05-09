@@ -16,7 +16,7 @@ class DeliveredItemResource extends Resource
 
     protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
     protected static ?string $navigationGroup = 'Inventory';
-    protected static ?string $navigationLabel = 'Stock Entries';
+    protected static ?string $navigationLabel = 'Delivered Items';
     protected static ?int $navigationSort = 2;
 
     public static function table(Table $table): Table
