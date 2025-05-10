@@ -27,6 +27,14 @@ if (!function_exists('moneyToNumber')) {
     }
 }
 
+
+if (!function_exists('numberToMoney')) {
+    function numberToMoney($number, $decimals = 2): string
+    {
+        return '₱ ' . number_format($number, $decimals);
+    }
+}
+
 if (!function_exists('notification')) {
     function notification($message)
     {
