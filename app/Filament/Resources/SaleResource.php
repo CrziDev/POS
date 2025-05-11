@@ -23,6 +23,8 @@ class SaleResource extends Resource
     protected static ?string $navigationIcon = 'heroicon-o-receipt-refund';
     protected static ?string $navigationLabel = 'Sales Transaction';
     protected static ?string $navigationGroup = 'Sales';
+    protected static ?int $navigationSort = 1;
+
 
 
     public static function form(Form $form): Form
