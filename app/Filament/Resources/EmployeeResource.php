@@ -6,6 +6,7 @@ use App\Enums\RolesEnum;
 use App\Filament\Resources\EmployeeResource\Pages;
 use App\Models\Branch;
 use App\Models\Employee;
+use App\Tables\Actions\CustomImpersonate;
 use Filament\Forms;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
@@ -168,7 +169,7 @@ class EmployeeResource extends Resource
                 
             ])
             ->actions([
-                Impersonate::make()
+                CustomImpersonate::make()
             ])
             ->actionsPosition(ActionsPosition::AfterColumns)
             ->bulkActions([
