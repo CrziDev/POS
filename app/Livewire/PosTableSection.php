@@ -52,8 +52,8 @@ class PosTableSection extends Component implements HasActions,HasForms
     {
         $currentBranch = auth()->user()->employee->branch;
 
-        $this->selectedSupply = Stock::with('supply')
-                                    ->where('branch_id',$currentBranch->branch_id)->find($id);
+
+        $this->selectedSupply = Stock::with('supply')->find($id);
         
         $this->setPrice =  $this->selectedSupply->supply->price;
                             
