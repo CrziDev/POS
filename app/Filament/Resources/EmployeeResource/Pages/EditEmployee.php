@@ -4,12 +4,14 @@ namespace App\Filament\Resources\EmployeeResource\Pages;
 
 use App\Filament\Resources\EmployeeResource;
 use App\Models\Employee;
+use App\Traits\HasBackUrl;
 use Filament\Actions;
 use Filament\Resources\Pages\EditRecord;
 use Illuminate\Database\Eloquent\Model;
 
 class EditEmployee extends EditRecord
 {
+    use HasBackUrl;
     protected static string $resource = EmployeeResource::class;
 
     protected function getHeaderActions(): array

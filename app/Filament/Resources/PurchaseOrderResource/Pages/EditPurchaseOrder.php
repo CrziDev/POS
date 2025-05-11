@@ -6,6 +6,7 @@ use App\Enums\PurchaseOrderStatusEnums;
 use App\Enums\RolesEnum;
 use App\Filament\Resources\PurchaseOrderResource;
 use App\Models\Stock;
+use App\Traits\HasBackUrl;
 use Filament\Actions\Action;
 use Filament\Notifications\Notification;
 use Filament\Tables;
@@ -14,6 +15,8 @@ use Illuminate\Database\Eloquent\Model;
 
 class EditPurchaseOrder extends EditRecord
 {
+    use HasBackUrl;
+
     protected static string $resource = PurchaseOrderResource::class;
 
     protected function getHeaderActions(): array
