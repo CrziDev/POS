@@ -3,9 +3,11 @@
 namespace App\Filament\Resources;
 
 use App\Filament\Resources\SaleResource\Pages;
+use App\Filament\Resources\SaleResource\RelationManagers;
 use App\Models\Branch;
 use App\Models\SaleTransaction;
 use Filament\Forms;
+use Filament\Forms\Components\Section;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
 use Filament\Tables;
@@ -18,50 +20,67 @@ class SaleResource extends Resource
 {
     protected static ?string $model = SaleTransaction::class;
 
-    protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
+    protected static ?string $navigationIcon = 'heroicon-o-receipt-refund';
     protected static ?string $navigationLabel = 'Sales Transaction';
     protected static ?string $navigationGroup = 'Sales';
+
 
     public static function form(Form $form): Form
     {
         return $form->schema([
-            Forms\Components\Select::make('customer_id')
-                ->relationship('customer', 'name')
-                ->searchable()
-                ->required(),
+            Section::make('Customer & Payment Info')
+                ->schema([
+                    Forms\Components\Select::make('customer_id')
+                        ->label('Customer')
+                        ->relationship('customer', 'name')
+                        ->searchable()
+                        ->required(),
 
-            Forms\Components\Select::make('payment_method')
-                ->options([
-                    'Cash' => 'Cash',
-                    'GCash' => 'GCash',
+                    Forms\Components\Select::make('payment_method')
+                        ->label('Payment Method')
+                        ->options([
+                            'cash' => 'Cash',
+                            'g-cash' => 'G-Cash',
+                        ])
+                        ->required(),
+
+                    Forms\Components\TextInput::make('payment_reference')
+                        ->label('Reference No.')
+                        ->placeholder('Enter payment reference (optional)')
+                        ->nullable()
+                        ->maxLength(100),
+
+                    Forms\Components\DatePicker::make('date_paid')
+                        ->label('Date Paid')
+                        ->required(),
                 ])
-                ->required(),
+                ->columns(2),
 
-            Forms\Components\TextInput::make('payment_reference')
-                ->label('Reference No.')
-                ->nullable()
-                ->maxLength(100),
+            Section::make('Transaction Details')
+                ->schema([
+                    Forms\Components\TextInput::make('discount_value')
+                        ->label('Discount')
+                        ->numeric()
+                        ->default(0),
 
-            Forms\Components\DatePicker::make('date_paid')
-                ->required(),
+                    Forms\Components\TextInput::make('total_amount')
+                        ->label('Total Amount')
+                        ->numeric()
+                        ->disabled()
+                        ->dehydrated(),
 
-            Forms\Components\TextInput::make('discount_value')
-                ->numeric()
-                ->default(0),
-
-            Forms\Components\TextInput::make('total_amount')
-                ->numeric()
-                ->disabled()
-                ->dehydrated(),
-
-            Forms\Components\Select::make('status')
-                ->options([
-                    'Paid' => 'Paid',
-                    'Voided' => 'Voided',
+                    Forms\Components\Select::make('status')
+                        ->label('Transaction Status')
+                        ->options([
+                            'Paid' => 'Paid',
+                            'Voided' => 'Voided',
+                        ])
+                        ->required(),
                 ])
-                ->required(),
+                ->columns(2),
         ]);
     }
+
 
     public static function table(Table $table): Table
     {
@@ -139,7 +158,7 @@ class SaleResource extends Resource
     public static function getRelations(): array
     {
         return [
-            // RelationManagers\ItemsRelationManager::class,
+            RelationManagers\ItemsRelationManager::class,
         ];
     }
 
@@ -148,7 +167,7 @@ class SaleResource extends Resource
         return [
             'index' => Pages\ListSales::route('/'),
             'create' => Pages\CreateSale::route('/create'),
-            // 'edit' => Pages\EditSale::route('/{record}/edit'),
+            'view' => Pages\ViewSale::route('/{record}/edit'),
         ];
     }
 }

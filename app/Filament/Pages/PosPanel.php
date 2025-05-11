@@ -64,7 +64,6 @@ class PosPanel extends Page implements HasForms, HasTable
             ->schema([
                 Section::make()
             ]);
-
     }
 
     public static function canAccess(): bool

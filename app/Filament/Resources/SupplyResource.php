@@ -25,7 +25,7 @@ class SupplyResource extends Resource
 {
     protected static ?string $model = Supply::class;
 
-    protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
+    protected static ?string $navigationIcon = 'heroicon-o-archive-box';
     protected static ?string $navigationLabel = 'Supplies';
     protected static ?string $navigationGroup = 'Supply Management';
     protected static ?int $navigationSort = 1;
@@ -42,7 +42,7 @@ class SupplyResource extends Resource
                 Forms\Components\Grid::make(2) // 2 columns layout
                     ->schema([
                         Forms\Components\TextInput::make('sku')
-                            ->label('SKU')
+                            ->label('Item Code')
                             ->unique(ignoreRecord:true)
                             ->required(),
         
@@ -89,7 +89,7 @@ class SupplyResource extends Resource
                     ->money('PHP')
                     ->sortable(),
                 TextInputColumn::make('sku')
-                    ->label('SKU')
+                    ->label('Item Code')
                     ->searchable()
                     ->default('-')
                     ->extraAttributes(['style' => 'max-width:120px']),

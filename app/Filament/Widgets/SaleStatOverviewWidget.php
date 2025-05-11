@@ -9,7 +9,8 @@ use Illuminate\Support\Str;
 class SaleStatOverviewWidget extends BaseWidget
 {
     protected int | string | array $columnSpan = [
-        'default' => 1,
+        'default' => 2,
+
         'md' => 2,
         'lg' => 2,
         'xl' => 2,
@@ -49,7 +50,7 @@ class SaleStatOverviewWidget extends BaseWidget
                 ->extraAttributes(['class' => 'font-semibold']),
 
             Stat::make('Refund Processed', numberToMoney($totalRefunds))
-                ->description('Returned transactions')
+                ->description('Returned Value')
                 ->descriptionIcon('heroicon-m-arrow-uturn-left')
                 ->chart($trendData)
                 ->color('danger')

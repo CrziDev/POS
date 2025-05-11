@@ -19,7 +19,7 @@ class SupplyCategoryResource extends Resource
 {
     protected static ?string $model = SupplyCategory::class;
 
-    protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
+    protected static ?string $navigationIcon = 'heroicon-o-tag';
     protected static ?string $navigationLabel = 'Supply Category';
     protected static ?string $navigationGroup = 'Supply Management';
 

@@ -23,8 +23,8 @@ class SaleTransactionReturnResource extends Resource
 {
     protected static ?string $model = SaleTransactionReturn::class;
 
-    protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
-    protected static ?string $navigationLabel = 'Returns';
+    protected static ?string $navigationIcon = 'heroicon-o-arrow-uturn-left';
+    protected static ?string $navigationLabel = 'Returned Items';
     protected static ?string $navigationGroup = 'Sales';
 
     public static function form(Form $form): Form
@@ -213,7 +213,7 @@ class SaleTransactionReturnResource extends Resource
                     ->formatStateUsing(function ($state, $record) {
                         return collect($record->replacements)
                             ->map(function ($replacement) {
-                                $name = $replacement->supply?->name ?? 'N/A';
+                                $name = Str::headline($replacement->supply?->name) ?? 'N/A';
                                 $qty = $replacement->replacement_quantity ?? 0;
                                 return "$name ($qty/qty)";
                             })
@@ -222,7 +222,8 @@ class SaleTransactionReturnResource extends Resource
                     ->bulleted()
                     ->limit(50),
                 Tables\Columns\TextColumn::make('remarks')
-                    ->label('Remarks'),
+                    ->label('Remarks')
+                    ->default('-'),
             ])
             ->filters([
                 Tables\Filters\SelectFilter::make('customer_id')

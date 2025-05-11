@@ -50,10 +50,14 @@ class PosTableSection extends Component implements HasActions,HasForms
 
     public function selectItem($id)
     {
-        $this->selectedSupply = Supply::with('stock')->find($id);
-        $this->setPrice =  $this->selectedSupply->price;
+        $currentBranch = auth()->user()->employee->branch;
 
-        if($this->selectedSupply->stock->quantity == 0){
+        $this->selectedSupply = Stock::with('supply')
+                                    ->where('branch_id',$currentBranch->branch_id)->find($id);
+        
+        $this->setPrice =  $this->selectedSupply->supply->price;
+                            
+        if($this->selectedSupply->quantity == 0){
             Notification::make()
                 ->title('No Available Stock For this Product')
                 ->danger()
@@ -66,8 +70,8 @@ class PosTableSection extends Component implements HasActions,HasForms
 
     public function addToCart()
     {
-        $maxPrice = $this->selectedSupply?->price ?? 0;
-        $maxQty = $this->selectedSupply?->stock->quantity ?? 0;
+        $maxPrice = $this->selectedSupply?->supply->price ?? 0;
+        $maxQty = $this->selectedSupply?->quantity ?? 0;
     
         $this->validate([
             'setPrice' => ['required', 'numeric', 'min:0.01', "max:$maxPrice"],
@@ -76,7 +80,7 @@ class PosTableSection extends Component implements HasActions,HasForms
 
         $this->dispatch(
             'add-to-cart', 
-            itemId:$this->selectedSupply?->id,
+            itemId:$this->selectedSupply?->supply->id,
             price:$this->setPrice,
             quantity:$this->setQuantity,
             stock:$maxQty 

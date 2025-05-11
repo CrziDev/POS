@@ -10,8 +10,12 @@ class SalesByBranchChartWidget extends ChartWidget
     use InteractsWithPageFilters;
 
     protected static ?string $heading = 'Total Sales by Branch';
-    protected int | string | array $columnSpan = 'half';
-    protected static ?string $maxHeight = '400px';
+    protected static ?string $minHeight = '380px';
+
+    protected int | string | array $columnSpan = [
+        'default' => 'full',
+        'md' => 'half',
+    ];
 
     protected function getData(): array
     {

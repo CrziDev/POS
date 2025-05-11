@@ -14,7 +14,7 @@ class DeliveredItemResource extends Resource
 {
     protected static ?string $model = DeliveredItem::class;
 
-    protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
+    protected static ?string $navigationIcon = 'heroicon-o-truck';
     protected static ?string $navigationGroup = 'Inventory';
     protected static ?string $navigationLabel = 'Delivered Items';
     protected static ?int $navigationSort = 2;
@@ -25,11 +25,13 @@ class DeliveredItemResource extends Resource
             ->columns([
                 Tables\Columns\TextColumn::make('po.supplier.name')
                     ->label('Supplier')
+                    ->formatStateUsing(strFormat())
                     ->sortable()
                     ->searchable(),
 
                 Tables\Columns\TextColumn::make('supply.name')
                     ->label('Supply')
+                    ->formatStateUsing(strFormat())
                     ->sortable()
                     ->searchable(),
 

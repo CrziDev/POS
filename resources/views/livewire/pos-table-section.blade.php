@@ -18,7 +18,7 @@
                 if (this.shouldFocus) {
                     input.focus();
                 }
-            }, 500);
+            }, 200);
         },
 
         handleEnter(e) {
@@ -101,7 +101,7 @@
                 @endphp
 
                 <div 
-                    wire:click="selectItem({{ $stock->supply_id }})"
+                    wire:click="selectItem({{ $stock->id }})"
                     class="relative h-[100px] bg-white dark:bg-gray-900 hover:bg-gray-50 dark:hover:bg-white/10 
                         rounded-xl shadow-sm ring-1 ring-gray-950/5 dark:ring-white/10 border-b-4 {{ $borderClass }} 
                         flex flex-col items-center justify-center text-center px-2">
@@ -130,15 +130,19 @@
             <div class="bg-white dark:bg-gray-900 p-4 rounded-xl shadow ring-1 ring-gray-950/5 dark:ring-white/10 space-y-1">
                 <p class="text-sm text-gray-500 dark:text-gray-400">
                     <span class="font-medium text-gray-800 dark:text-gray-100">Supply:</span>
-                    {{ $selectedSupply?->name }}
+                    {{ $selectedSupply?->supply->name }}
+                </p>
+                <p class="text-sm text-gray-500 dark:text-gray-400">
+                    <span class="font-medium text-gray-800 dark:text-gray-100">Branch:</span>
+                    {{ $selectedSupply?->branch->name }}
                 </p>
                 <p class="text-sm text-gray-500 dark:text-gray-400">
                     <span class="font-medium text-gray-800 dark:text-gray-100">Stock:</span>
-                    {{ $selectedSupply?->stock->quantity }}
+                    {{ $selectedSupply?->quantity }}
                 </p>
                 <p class="text-sm text-gray-500 dark:text-gray-400">
                     <span class="font-medium text-gray-800 dark:text-gray-100">Retail Price:</span>
-                    ₱{{ number_format($selectedSupply?->price, 2) }}
+                    ₱{{ number_format($selectedSupply?->supply->price, 2) }}
                 </p>
             </div>
 

@@ -12,6 +12,27 @@ class Supply extends Model
 
     protected $guarded =[];
 
+    public static function booted():void
+    {
+
+        static::created(function ($model){
+            
+            Branch::all()->each(function($branch) use($model){
+                Stock::firstOrCreate(
+                    [
+                        'branch_id'   => $branch->id,
+                        'supply_id'  => $model->id,
+                    ],
+                    [
+                        'quantity'      => 0,
+                        'reorder_level' => 10,
+                    ],
+                );
+            });
+
+        });
+    }
+
     public static function generateBarcode()
     {
         $supplies = self::all();

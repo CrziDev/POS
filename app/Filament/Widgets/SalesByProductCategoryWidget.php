@@ -10,8 +10,13 @@ class SalesByProductCategoryWidget extends ChartWidget
     use InteractsWithPageFilters;
 
     protected static ?string $heading = 'Sales by Product Category';
-    protected int | string | array $columnSpan = 'half';
     protected static ?string $maxHeight = '380px';
+
+
+    protected int | string | array $columnSpan = [
+        'default' => 'full',
+        'md' => 'half',
+    ];
 
     protected function getData(): array
     {

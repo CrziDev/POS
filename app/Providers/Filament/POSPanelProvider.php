@@ -31,6 +31,10 @@ class POSPanelProvider extends PanelProvider
             ->colors([
                 'primary' => Color::Indigo,
             ])
+            // ->brandName('Filament Demo')
+            // ->brandLogo(fn () => view('filament.admin.logo'))
+            ->brandLogo(asset('images/log-pos.png'))
+            ->brandLogoHeight('3rem')
             ->sidebarFullyCollapsibleOnDesktop(false)
             ->maxContentWidth(MaxWidth::Full)
             ->discoverResources(in: app_path('Filament/Resources'), for: 'App\\Filament\\Resources')
