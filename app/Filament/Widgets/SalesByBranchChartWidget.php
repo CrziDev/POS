@@ -19,7 +19,6 @@ class SalesByBranchChartWidget extends ChartWidget
 
     protected function getData(): array
     {
-        // Simulate dummy data for branches and their sales
         $branches = [
             1 => 'Branch 1',
             2 => 'Branch 2',
@@ -28,7 +27,6 @@ class SalesByBranchChartWidget extends ChartWidget
             5 => 'Branch 5',
         ];
 
-        // Simulate total sales for each branch (for example, in thousands)
         $salesData = [
             1 => rand(10000, 50000),  // Branch 1
             2 => rand(15000, 45000),  // Branch 2
@@ -37,17 +35,16 @@ class SalesByBranchChartWidget extends ChartWidget
             5 => rand(30000, 80000),  // Branch 5
         ];
 
-        // Prepare chart data
-        $labels = array_values($branches); // Branch names
-        $values = array_values($salesData); // Sales data for each branch
+        $labels = array_values($branches); 
+        $values = array_values($salesData); 
 
         return [
             'datasets' => [
                 [
-                    'label' => 'Total Sales', // Explicitly label the dataset
+                    'label' => 'Total Sales', 
                     'data' => $values,
                     'backgroundColor' => [
-                        '#4caf50', // Branch 1 color (green)
+                        '#4caf50', // Branch 1 color (green
                         '#2196f3', // Branch 2 color (blue)
                         '#ff9800', // Branch 3 color (orange)
                         '#f44336', // Branch 4 color (red)

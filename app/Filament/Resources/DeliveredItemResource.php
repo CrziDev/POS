@@ -56,8 +56,7 @@ class DeliveredItemResource extends Resource
 
                 Tables\Columns\TextColumn::make('created_at')
                     ->label('Date Delivered')
-                    ->date('F j, Y') // more readable
-                    ->sortable(),
+                    ->date('F j, Y')                     ->sortable(),
             ])
             ->filters([
                 Tables\Filters\SelectFilter::make('po.supplier_id')
@@ -97,10 +96,8 @@ class DeliveredItemResource extends Resource
                     }),
             ])
             ->actions([
-                // No actions for now
             ])
             ->bulkActions([
-                // No bulk actions for now
             ]);
     }
 
