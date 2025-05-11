@@ -30,7 +30,7 @@ class EmployeeResource extends Resource
 
     protected static ?string $navigationIcon = 'heroicon-o-user-group';
     protected static ?string $navigationGroup = 'Branch Management';
-    protected static ?string $navigationLabel = 'Employee Test';
+    protected static ?string $navigationLabel = 'Employee';
 
 
     public static function form(Form $form): Form
