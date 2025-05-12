@@ -20,7 +20,6 @@ trait HasBackUrl
         return $this->backUrl;
     }
 
-    
 
     protected function getCancelFormAction(): Action
     {

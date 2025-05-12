@@ -36,7 +36,7 @@ class SaleTransaction extends Model
             return $query->pluck('id','id')->toArray();
         }
 
-        if(!$customer){
+        if($customer){
             $query = $query->where('customer_id',$customer);
         }
 

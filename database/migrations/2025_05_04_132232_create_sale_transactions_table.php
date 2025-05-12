@@ -29,8 +29,8 @@ return new class extends Migration
             $table->id();
             $table->foreignId('sale_transaction_id')->constrained('sale_transactions');
             $table->foreignId('supply_id')->constrained('supplies');
-            $table->decimal('original_price',16,6)->default(0);
-            $table->decimal('price_amount',16,6)->default(0);
+            $table->decimal('original_price',16,2)->default(0);
+            $table->decimal('price_amount',16,2)->default(0);
             $table->integer('returned_quantity')->default(0);
             $table->integer('quantity');
             $table->timestamps();

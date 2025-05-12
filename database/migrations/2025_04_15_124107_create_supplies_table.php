@@ -32,7 +32,7 @@ return new class extends Migration
             $table->string('name')->unique();
             $table->string('item_image')->nullable();
             $table->string('sku')->nullable();
-            $table->decimal('price')->default(0);
+            $table->decimal('price',16,2)->default(0);
             $table->timestamps();
         });
     }

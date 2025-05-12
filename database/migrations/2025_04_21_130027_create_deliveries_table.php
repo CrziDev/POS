@@ -15,7 +15,7 @@ return new class extends Migration
         Schema::create('deliveries', function (Blueprint $table) {
             $table->id();
             $table->foreignId('purchase_order_id')->constrained('purchase_orders');
-            $table->decimal('total_amount')->default(0);
+            $table->decimal('total_amount',16,2)->default(0);
             $table->string('status')->default(PurchaseOrderStatusEnums::FORDELIVERY->value);
             $table->timestamps();
         });

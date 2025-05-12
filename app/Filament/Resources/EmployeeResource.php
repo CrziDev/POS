@@ -21,7 +21,7 @@ use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Enums\ActionsPosition;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
-
+use STS\FilamentImpersonate\Tables\Actions\Impersonate;
 
 class EmployeeResource extends Resource
 {

@@ -12,6 +12,7 @@ use Illuminate\Database\Eloquent\Model;
 class EditEmployee extends EditRecord
 {
     use HasBackUrl;
+
     protected static string $resource = EmployeeResource::class;
 
     protected function getHeaderActions(): array
@@ -19,7 +20,7 @@ class EditEmployee extends EditRecord
         return [
         ];
     }
-
+    
     protected function mutateFormDataBeforeFill(array $data): array
     {  
 

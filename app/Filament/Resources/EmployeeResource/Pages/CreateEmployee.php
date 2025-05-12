@@ -12,7 +12,6 @@ class CreateEmployee extends CreateRecord
 {
     protected static string $resource = EmployeeResource::class;
 
-
     protected function handleRecordCreation(array $data): Model
     {
 
@@ -27,7 +26,6 @@ class CreateEmployee extends CreateRecord
                 $user->assignRole($role);
             }
         }
-
 
         $data['user_id'] = $user->id;
 

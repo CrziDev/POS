@@ -24,7 +24,7 @@ class Supply extends Model
                         'supply_id'  => $model->id,
                     ],
                     [
-                        'quantity'      => 0,
+                        'quantity'      => 12,
                         'reorder_level' => 10,
                     ],
                 );

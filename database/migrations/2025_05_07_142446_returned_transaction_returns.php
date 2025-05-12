@@ -18,6 +18,7 @@ return new class extends Migration
             $table->foreignId('handled_by')->constrained('employees');
             $table->timestamp('returned_date')->nullable();
             $table->text('remarks')->nullable();
+            $table->string('status')->default('Pending');
             $table->timestamps();
         });
     
@@ -28,17 +29,18 @@ return new class extends Migration
             $table->foreignId('replacement_item_id')->nullable()->constrained('supplies');
             $table->integer('qty_returned');
             $table->integer('qty_replaced');
-            $table->decimal('original_item_price', 10, 2);
-            $table->decimal('replacement_item_price', 10, 2)->nullable();
-            $table->decimal('value_difference', 10, 2);
+            $table->decimal('original_item_price', 16, 2);
+            $table->decimal('replacement_item_price', 16, 2)->nullable();
+            $table->decimal('value_difference', 16, 2);
             $table->string('issue');
+            $table->boolean('is_saleble');
             $table->timestamps();
         });
 
         Schema::create('replacement_payments', function (Blueprint $table) {
             $table->id();
             $table->foreignId('returned_transaction_id')->constrained('returned_transactions')->onDelete('cascade');
-            $table->decimal('amount', 10, 2);
+            $table->decimal('amount', 16, 2);
             $table->string('payment_method'); 
             $table->string('reference_no')->nullable(); 
             $table->foreignId('received_by')->constrained('users');

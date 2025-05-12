@@ -4,8 +4,6 @@ namespace App\Filament\Resources\ReturnedTransactionResource\Pages;
 
 use App\Filament\Resources\ReturnedTransactionResource;
 use App\Models\ReturnItem;
-use App\Models\SaleTransactionItem;
-use Filament\Actions;
 use Filament\Resources\Pages\CreateRecord;
 use Illuminate\Database\Eloquent\Model;
 
@@ -18,10 +16,10 @@ class CreateReturnedTransaction extends CreateRecord
 
          $mainPayload = [
                 'sale_transaction_id' => $data['transaction_id'],
-                'quantity'            => $data['date_transaction'],
-                'processed_by'        => $data['processed_by'],
+                'returned_date'       => now(),
+                'handled_by'        => auth()->user()->id,
                 'status'              => 'pending',
-                'remarks'             => $data['branch_id'],
+                'branch_id'           => $data['branch_id'],
          ];
 
         $record = static::getModel()::create($mainPayload);
@@ -41,7 +39,8 @@ class CreateReturnedTransaction extends CreateRecord
                 'original_item_price'       => $item['original_item_price'],         
                 'replacement_item_price'    => $item['replacement_item_price'],         
                 'value_difference'          => $soldPrice - $replaceItemPrice,         
-                'issue'                     => $item['issue'],         
+                'issue'                     => $item['issue'],   
+                'is_saleble'                => $item['is_saleble'],   
             ];
 
             ReturnItem::create($itemPayload);
