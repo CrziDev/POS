@@ -3,16 +3,10 @@
 namespace App\Filament\Resources\ReturnedTransactionResource\Pages;
 
 use App\Filament\Resources\ReturnedTransactionResource;
-use Filament\Actions;
-use Filament\Resources\Pages\EditRecord;
+use Filament\Resources\Pages\ViewRecord;
 
-class EditReturnedTransaction extends EditRecord
+class ViewReturnedTransaction extends ViewRecord
 {
     protected static string $resource = ReturnedTransactionResource::class;
 
-    protected function getHeaderActions(): array
-    {
-        return [
-        ];
-    }
 }

@@ -168,6 +168,8 @@ class EmployeeResource extends Resource
             ])
             ->actions([
                 CustomImpersonate::make()
+                // Impersonate::make()
+
             ])
             ->actionsPosition(ActionsPosition::AfterColumns)
             ->bulkActions([

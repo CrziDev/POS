@@ -3,15 +3,16 @@
 namespace App\Filament\Resources;
 
 use App\Filament\Resources\ReturnedTransactionResource\Pages;
+use App\Filament\Resources\ReturnedTransactionResoureResource\RelationManagers\ReturnedItemRelationManager;
 use App\Models\{
     Branch,
+    Customer,
     Employee,
     ReturnedTransaction,
     SaleTransaction,
     SaleTransactionItem,
     Stock
 };
-use Filament\Forms;
 use Filament\Forms\Components\{
     DatePicker,
     Fieldset,
@@ -25,10 +26,12 @@ use Filament\Forms\Components\{
     Section
 };
 use Filament\Forms\Form;
+use Filament\Notifications\Notification;
 use Filament\Resources\Resource;
 use Filament\Support\RawJs;
 use Filament\Tables;
 use Filament\Tables\Columns\TextColumn;
+use Filament\Tables\Enums\ActionsPosition;
 use Filament\Tables\Table;
 use Illuminate\Support\Str;
 use Illuminate\Database\Eloquent\Builder;
@@ -46,23 +49,24 @@ class ReturnedTransactionResource extends Resource
     {
         return $form->schema([
             Section::make('Sales Transaction')->schema([
-                Select::make('transaction_id')
+                Select::make('sale_transaction_id')
                     ->label('Transaction #')
                     ->options(fn () => SaleTransaction::getOptionsArray(true))
                     ->allowHtml()
+                    ->required()
                     ->live()
                     ->afterStateUpdated(function ($state, $set) {
                         $transaction = SaleTransaction::find($state);
                         if ($transaction) {
                             $set('date_transaction', $transaction->date_paid);
-                            $set('processed_by', $transaction->processed_by);
+                            $set('handled_by', $transaction->processed_by);
                             $set('branch_id', $transaction->branch_id);
                         }
                     })
                     ->placeholder('Select a transaction'),
 
                 Split::make([
-                    DatePicker::make('date_transaction')
+                    DatePicker::make('returned_date')
                         ->label('Transaction Date')
                         ->disabled(),
 
@@ -72,19 +76,20 @@ class ReturnedTransactionResource extends Resource
                         ->disabled()
                         ->dehydrated()
                         
-                ])->visible(fn ($get) => $get('transaction_id')),
+                ])->visible(fn ($get) => $get('sale_transaction_id')),
 
-                Select::make('processed_by')
-                    ->label('Processed By')
+                Select::make('handled_by')
+                    ->label('Handled By')
                     ->allowHtml()
                     ->options(Employee::getOptionsArray(false, false))
                     ->disabled()
-                    ->visible(fn ($get) => $get('transaction_id')),
+                    ->visible(fn ($get) => $get('sale_transaction_id')),
             ]),
 
             Repeater::make('return_item')
+                ->visible(fn($operation,$get)=>$operation == 'create' && $get('sale_transaction_id'))
                 ->label('Returned Items')
-                ->disabled(fn ($get) => !$get('transaction_id'))
+                ->afterStateHydrated(fn($set)=>$set('return_item',[]))
                 ->schema([
                     Split::make([
                         Fieldset::make()->schema([
@@ -93,7 +98,7 @@ class ReturnedTransactionResource extends Resource
                                 ->live()
                                 ->allowHtml()
                                 ->searchable()
-                                ->options(fn($get)=>SaleTransactionItem::getOptionsArray($get('transaction_id'),html:true))
+                                ->options(fn($get)=>SaleTransactionItem::getOptionsArray($get('sale_transaction_id'),html:true))
                                 ->afterStateUpdated(function($state,$set){  
                                     $transactionItem = SaleTransactionItem::find($state);
 
@@ -189,6 +194,7 @@ class ReturnedTransactionResource extends Resource
                 ])
                 ->deletable(false)
                 ->reorderable(false)
+                ->addActionLabel('Return Item')
                 ->columnSpanFull(),
         ]);
     }
@@ -203,9 +209,17 @@ class ReturnedTransactionResource extends Resource
                 }
             })
             ->columns([
-                TextColumn::make('status')
-                    ->formatStateUsing(strFormat()),
-
+               TextColumn::make('status')
+                ->label('Status')
+                ->badge()
+                ->formatStateUsing(strFormat())
+                ->color(fn ($state) => match (Str::lower($state)) {
+                    'pending' => 'warning',
+                    'approved' => 'success',
+                    'declined', 'rejected' => 'danger',
+                    'completed' => 'primary',
+                    default => 'gray',
+                }),
                 TextColumn::make('id')
                     ->label('Return #')
                     ->formatStateUsing(fn ($state) => 'R-' . $state)
@@ -224,28 +238,122 @@ class ReturnedTransactionResource extends Resource
                     ->label('Customer')
                     ->formatStateUsing(strFormat()),
 
-                TextColumn::make('returnedItem.saleItem.supply.name')
+                TextColumn::make('returnedItem.saleTransactionItem.supply.name')
                     ->label('Items Returned')
-                    ->formatStateUsing(fn ($record, $state) =>
-                        Str::headline($state) . ' (' . $record->quantity . '/qty)'
-                    ),
+                    ->bulleted()
+                    ->formatStateUsing(strFormat()),
 
                 TextColumn::make('difference_value')
-                    ->label('Required Payment')
+                    ->label('Amount to Pay')
+                    ->default(function($record){    
+                        $payable = $record->returnedItem->sum('value_difference');
+
+                        if($payable == 0){
+                            return 'N/A';
+                        }
+
+                        return $payable;
+                    })
+                    ->color(fn ($record) => 
+                        $record->returnedItem->sum('value_difference') > 0 ? 'danger' : 'gray'
+                    )
                     ->money('PHP'),
 
-                TextColumn::make('branch_id.name')
+                TextColumn::make('branch.name')
                     ->label('Branch')
                     ->formatStateUsing(strFormat()),
+
+                TextColumn::make('branch.name')
+                    ->label('Branch')
+                    ->formatStateUsing(strFormat())
+                    ->toggleable(isToggledHiddenByDefault:true),
+                TextColumn::make('handleBy.full_name')
+                    ->label('Handled By')
+                    ->formatStateUsing(strFormat())
+                    ->toggleable(isToggledHiddenByDefault:true),
             ])
             ->actions([
-                Tables\Actions\EditAction::make(),
-            ]);
+                 Tables\Actions\ActionGroup::make([
+                    Tables\Actions\Action::make('process-entry')
+                        ->label('Process Return Entry')
+                        ->disabled(fn($record)=>$record->status == 'approved')
+                        ->form([
+                            Section::make('Additional Payment')->schema([
+                                Select::make('customer')
+                                    ->placeholder('Select Customer')
+                                    ->createOptionForm([
+                                        Section::make('New Customer')->schema([
+                                            TextInput::make('name')
+                                                ->label('Customer Name')
+                                                ->required(),
+                                            TextInput::make('contact_number')
+                                                ->label('Contact Number'),
+                                            TextInput::make('address')
+                                                ->label('Address'),
+                                        ]),
+                                    ])
+                                    ->createOptionUsing(function (array $data): int {
+                                        $customer = Customer::create($data);
+                                        return $customer->getKey();
+                                    })
+                                    ->required()
+                                    ->searchable()
+                                    ->allowHtml()
+                                    ->options(Customer::getOptionsArray()),
+
+                                Select::make('payment_method')
+                                    ->options([
+                                        'g-cash' => 'G-Cash',
+                                        'cash'  => 'Cash',
+                                    ])
+                                    ->default('g-cash')
+                                    ->live(),
+
+                                Split::make([
+                                    TextInput::make('reference_no')
+                                        ->visible(fn ($get) => $get('payment_method') === 'g-cash')
+                                        ->label('Reference No.')
+                                        ->required(),
+                                    TextInput::make('amount')
+                                        ->label('Amount')
+                                        ->afterStateHydrated(function ($record,$set) {
+                                             $set('amount',$record->returnedItem->sum('value_difference'));
+                                        })
+                                        ->disabled()
+                                        ->dehydrated()
+                                        ->mask(RawJs::make('$money($input)'))
+                                        ->stripCharacters(',')
+                                        ->numeric()
+                                        ->minValue(1)
+                                        ->inputMode('decimal')
+                                        ->required(),
+                                ]),
+                            ]),
+                        ])
+                        ->action(function($record,$data){
+                            $record->recordPayment($data);
+                            $record->approveReturn();
+
+                            Notification::make()
+                                ->title('Transaction Approved')
+                                ->success()
+                                ->send();
+                            Notification::make()
+                                ->title('Payment Was Recorded')
+                                ->success()
+                                ->send();
+                        })
+                        ->icon('heroicon-o-clipboard-document-check'),
+                ])
+
+            ],ActionsPosition::BeforeColumns);
     }
 
     public static function getRelations(): array
     {
-        return [];
+        return [
+            ReturnedItemRelationManager::class
+        ];
     }
 
     public static function getPages(): array
@@ -253,7 +361,7 @@ class ReturnedTransactionResource extends Resource
         return [
             'index' => Pages\ListReturnedTransactions::route('/'),
             'create' => Pages\CreateReturnedTransaction::route('/create'),
-            'edit' => Pages\EditReturnedTransaction::route('/{record}/edit'),
+            'view' => Pages\ViewReturnedTransaction::route('/{record}/view'),
         ];
     }
 }

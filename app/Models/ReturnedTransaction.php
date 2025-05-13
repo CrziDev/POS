@@ -20,20 +20,49 @@ class ReturnedTransaction extends Model
         'defective' => 'Defective',
         'damaged' => 'Damaged',
     ];
-    
-    // public function customer(){
-    //     return $this->belongsTo(Customer::class,'customer_id');
-    // }
 
-    // public function saleTransaction(){
-    //     return $this->belongsTo(SaleTransaction::class,'sale_transaction_id');
-    // }
+     public function approveReturn(){
+        $this->status = 'approved';
+        $this->update();
 
-    // public function returnedItem(){
-    //     return $this->belongsTo(Supply::class,'returned_item_id');
-    // }
+        $this->returnedItem()->each(function($item){
+            $saleTransactionItem = $item->saleTransactionItem;
+            $saleTransactionItem->update([
+                'returned_quantity' => $saleTransactionItem->returned_quantity + $item->qty_returned
+            ]);
+        });
 
-    // public function replacements(){
-    //     return $this->hasMany(SaleTransactionReturnReplacement::class,'return_id');
-    // }
+    }
+
+    public function recordPayment($data){
+        $this->replacementPayment()->create([
+            'returned_transaction_id' => $this->id,
+            'amount'            => $data['amount'],
+            'payment_method'    => $data['payment_method'],
+            'reference_no'      => $data['reference_no'],
+
+            'received_by'       => auth()->user()->id,
+        ]);
+    }
+
+    public function replacementPayment(){
+        return $this->belongsTo(ReplacementPayment::class,'replacement_item_id');
+    }
+
+    public function handleBy(){
+        return $this->belongsTo(Employee::class,'handled_by');
+    }
+
+    public function branch(){
+        return $this->belongsTo(Branch::class,'branch_id');
+    }
+
+    public function saleTransaction(){
+        return $this->belongsTo(SaleTransaction::class,'sale_transaction_id');
+    }
+
+    public function returnedItem(){
+        return $this->hasMany(ReturnItem::class,'returned_transaction_id');
+    }
+
 }

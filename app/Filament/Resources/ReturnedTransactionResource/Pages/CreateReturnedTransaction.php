@@ -15,9 +15,9 @@ class CreateReturnedTransaction extends CreateRecord
     {
 
          $mainPayload = [
-                'sale_transaction_id' => $data['transaction_id'],
+                'sale_transaction_id' => $data['sale_transaction_id'],
                 'returned_date'       => now(),
-                'handled_by'        => auth()->user()->id,
+                'handled_by'          => auth()->user()->id,
                 'status'              => 'pending',
                 'branch_id'           => $data['branch_id'],
          ];
@@ -30,6 +30,15 @@ class CreateReturnedTransaction extends CreateRecord
             $soldPrice =   moneyToNumber($item['original_item_price']);
             $replaceItemPrice = moneyToNumber($item['replacement_item_price']);
 
+            $totalReplacementAmount = $replaceItemPrice * $item['qty_replaced'];
+            $totalReturnedAmount = $soldPrice * $item['qty_returned'];
+
+            if($totalReplacementAmount > $totalReturnedAmount ){
+                $valueDifference = $totalReplacementAmount - $totalReturnedAmount;
+            }else{
+                $valueDifference = 0;
+            }
+            
             $itemPayload = [
                 'returned_transaction_id'   => $record->id,
                 'original_item_id'          => $item['returned_item'],         
@@ -38,7 +47,7 @@ class CreateReturnedTransaction extends CreateRecord
                 'qty_replaced'              => $item['qty_replaced'],         
                 'original_item_price'       => $item['original_item_price'],         
                 'replacement_item_price'    => $item['replacement_item_price'],         
-                'value_difference'          => $soldPrice - $replaceItemPrice,         
+                'value_difference'          => $valueDifference,         
                 'issue'                     => $item['issue'],   
                 'is_saleble'                => $item['is_saleble'],   
             ];
