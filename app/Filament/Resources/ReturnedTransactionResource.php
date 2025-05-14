@@ -66,7 +66,7 @@ class ReturnedTransactionResource extends Resource
                     ->placeholder('Select a transaction'),
 
                 Split::make([
-                    DatePicker::make('returned_date')
+                    DatePicker::make('date_transaction')
                         ->label('Transaction Date')
                         ->disabled(),
 
@@ -255,7 +255,7 @@ class ReturnedTransactionResource extends Resource
                         return $payable;
                     })
                     ->color(fn ($record) => 
-                        $record->returnedItem->sum('value_difference') > 0 ? 'danger' : 'gray'
+                        ($record->returnedItem->sum('value_difference') > 0 && $record->status != 'approved') ? 'danger' : 'gray'
                     )
                     ->money('PHP'),
 

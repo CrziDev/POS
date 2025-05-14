@@ -16,6 +16,8 @@ use Illuminate\Database\Eloquent\Builder;
 use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Filters\DateRangeFilter;
 
+use function Laravel\Prompts\warning;
+
 class SaleResource extends Resource
 {
     protected static ?string $model = SaleTransaction::class;
@@ -113,8 +115,11 @@ class SaleResource extends Resource
                     ->sortable(),
                 Tables\Columns\TextColumn::make('payment_method')->label('Payment')->sortable(),
                 Tables\Columns\TextColumn::make('payment_reference')->label('Reference')->toggleable(),
-                Tables\Columns\TextColumn::make('total_amount')->money('PHP')->sortable(),
-                Tables\Columns\TextColumn::make('discount_value')->label('Discount')->money('PHP'),
+                Tables\Columns\TextColumn::make('total_amount')->badge()->money('PHP')->sortable(),
+                Tables\Columns\TextColumn::make('discount_value')
+                    ->badge()
+                    ->color('warning')
+                ->label('Discount')->money('PHP'),
                 Tables\Columns\TextColumn::make('date_paid')
                     ->label('Date Transaction')
                     ->date(),

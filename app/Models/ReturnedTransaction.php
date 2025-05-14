@@ -26,7 +26,21 @@ class ReturnedTransaction extends Model
         $this->update();
 
         $this->returnedItem()->each(function($item){
+
             $saleTransactionItem = $item->saleTransactionItem;
+
+            
+            if($item->is_saleble){
+                $stock = Stock::where('supply_id', $saleTransactionItem->supply_id)
+                    ->where('branch_id', $this->branch_id)
+                    ->first();
+        
+                if ($stock) {
+                    $stock->quantity += $item['qty'];
+                    $stock->save();
+                }
+            }
+            
             $saleTransactionItem->update([
                 'returned_quantity' => $saleTransactionItem->returned_quantity + $item->qty_returned
             ]);

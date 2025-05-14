@@ -34,11 +34,13 @@ class ItemsRelationManager extends RelationManager
                     ->money('PHP', true),
                 Tables\Columns\TextColumn::make('price_amount')
                     ->label('Price Sold')
+                    ->badge()
                     ->money('PHP', true),
                 Tables\Columns\TextColumn::make('quantity')
+                    ->badge()
                     ->label('Quantity Sold'),
                 Tables\Columns\TextColumn::make('total_amount')
-                    ->formatStateUsing(fn($record,$set) => $set('total_amount',$record->price_amount * $record->quantity))
+                    ->default(fn($record) => $record->price_amount * $record->quantity)
                     ->money('PHP', true),
             ])
             ->filters([])

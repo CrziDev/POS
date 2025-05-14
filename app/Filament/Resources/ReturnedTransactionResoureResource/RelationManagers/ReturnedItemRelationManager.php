@@ -35,7 +35,11 @@ class ReturnedItemRelationManager extends RelationManager
                     ->formatStateUsing(function ($record, $state) {
                         return Str::headline($state) . " ({$record->qty_returned} pcs)";
                     }),
-                    
+
+                Tables\Columns\ToggleColumn::make('is_saleble')
+                    ->label('Saleble')
+                    ->disabled(),
+                
                 Tables\Columns\TextColumn::make('original_item_price')
                     ->label("Original Price")
                     ->money('PHP'),
