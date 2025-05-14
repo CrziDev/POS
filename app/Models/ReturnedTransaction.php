@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use Filament\Notifications\Notification;
 use Illuminate\Database\Eloquent\Model;
 
 class ReturnedTransaction extends Model
@@ -40,10 +41,24 @@ class ReturnedTransaction extends Model
                     $stock->save();
                 }
             }
+
+              $returnedItem = Stock::where('supply_id', $item->replacement_item_price)
+                    ->where('branch_id', $this->branch_id)
+                    ->first();
+        
+                if ($returnedItem) {
+                    $returnedItem->quantity -= $item['qty'];
+                    $returnedItem->save();
+                }
             
             $saleTransactionItem->update([
                 'returned_quantity' => $saleTransactionItem->returned_quantity + $item->qty_returned
             ]);
+
+               Notification::make()
+                ->title('Transaction Approved')
+                ->success()
+                ->send();
         });
 
     }
@@ -54,9 +69,13 @@ class ReturnedTransaction extends Model
             'amount'            => $data['amount'],
             'payment_method'    => $data['payment_method'],
             'reference_no'      => $data['reference_no'],
-
             'received_by'       => auth()->user()->id,
         ]);
+
+        Notification::make()
+            ->title('Payment Was Recorded')
+            ->success()
+            ->send();
     }
 
     public function replacementPayment(){

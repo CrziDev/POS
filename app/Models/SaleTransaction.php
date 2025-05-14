@@ -29,7 +29,7 @@ class SaleTransaction extends Model
         $query = self::query();
 
         if(!auth()->user()->hasRole(['admin'])){
-            $query = $query->where('branch_id',auth()->user()->employee->branch->id);
+            $query = $query->where('branch_id',auth()->user()->employee->branch->branch_id);
         }
 
         if(!$html){

@@ -20,12 +20,8 @@ class SaleTransactionItem extends Model
     {
         $query = self::query()->with('supply');
 
-        if(!auth()->user()->hasRole(['admin'])){
-            $query = $query->where('branch_id',auth()->user()->employee->branch->id);
-        }
-
         if($transction){
-            $query = $query->where('Sale_transaction_id',$transction);
+            $query = $query->where('sale_transaction_id',$transction);
         }
 
         if(!$html){
@@ -43,7 +39,7 @@ class SaleTransactionItem extends Model
                     "<span> <b>Item:</b> " . $item->supply->name . "</span>". "<br>".
                     "<small>" .
                         "<span> Branch:". $item->saleTransaction->branch->name."<span>"."<br>".
-                        "<span> Sold Price: ". $item->quantity - $item->returned_quantity ."<span>" .
+                        "<span> Remaining: ". $item->quantity - $item->returned_quantity ."<span>" .
                     "<small>" 
             ]
         )->all();
