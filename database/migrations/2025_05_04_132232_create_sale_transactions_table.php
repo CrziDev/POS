@@ -16,11 +16,9 @@ return new class extends Migration
             $table->foreignId('customer_id')->constrained('customers');
             $table->foreignId('processed_by')->constrained('employees');
             $table->foreignId('branch_id')->constrained('branches');
-            $table->string('payment_method');
-            $table->string('payment_reference');
-            $table->string('date_paid');
             $table->decimal('discount_value',16,2)->default(0);
             $table->decimal('total_amount',16,2)->default(0);
+            $table->date('transaction_date');
             $table->string('status')->default('Pending');
             $table->timestamps();
         });
@@ -33,6 +31,17 @@ return new class extends Migration
             $table->decimal('price_amount',16,2)->default(0);
             $table->integer('returned_quantity')->default(0);
             $table->integer('quantity');
+            $table->timestamps();
+        });
+
+        Schema::create('sale_payments', function (Blueprint $table) {
+            $table->id();
+            $table->foreignId('sale_transaction_id')->constrained('sale_transactions');
+            $table->foreignId('processed_by')->constrained('employees');
+            $table->string('payment_method');
+            $table->string('payment_reference');
+            $table->date('date_paid');
+            $table->decimal('amount_paid',16,2)->default(0);
             $table->timestamps();
         });
     }

@@ -104,9 +104,22 @@ class CartSection extends Component implements HasActions,HasForms
 
     public function checkOut(): Action
     {
+
         return Action::make('checkOut')
             ->label('Purchase Information')
             ->modalWidth(MaxWidth::SevenExtraLarge)
+            ->mountUsing(function($action){
+
+                if(count($this->cart) == 0){
+                    
+                    Notification::make()
+                    ->title('Cart Is empty Please Select Items')
+                    ->danger()
+                    ->send();
+                    
+                    $action->cancel();
+                };
+            })
             ->form([
                 Split::make([
                     Section::make('Items')->schema([
@@ -176,70 +189,72 @@ class CartSection extends Component implements HasActions,HasForms
                     ]),
                     
 
-                    Section::make('Payment')->schema([
-                        Select::make('customer')
-                            ->placeholder('Select Customer')
-                            ->createOptionForm([
-                                Section::make('New Customer')->schema([
-                                    TextInput::make('name')
-                                        ->label('Customer Name')
-                                        ->required(),
-                                    TextInput::make('contact_number')
-                                        ->label('Contact Number'),
-                                    TextInput::make('address')
-                                        ->label('Address'),
-                                ]),
-                            ])
-                            ->createOptionUsing(function (array $data): int {
-                                $customer = Customer::create($data);
-                                return $customer->getKey();
-                            })
-                            ->required()
-                            ->searchable()
-                            ->allowHtml()
-                            ->options(Customer::getOptionsArray()),
+                    // Section::make('Payment')->schema([
+                    //     Select::make('customer')
+                    //         ->placeholder('Select Customer')
+                    //         ->createOptionForm([
+                    //             Section::make('New Customer')->schema([
+                    //                 TextInput::make('name')
+                    //                     ->label('Customer Name')
+                    //                     ->required(),
+                    //                 TextInput::make('contact_number')
+                    //                     ->label('Contact Number'),
+                    //                 TextInput::make('address')
+                    //                     ->label('Address'),
+                    //             ]),
+                    //         ])
+                    //         ->createOptionUsing(function (array $data): int {
+                    //             $customer = Customer::create($data);
+                    //             return $customer->getKey();
+                    //         })
+                    //         ->required()
+                    //         ->searchable()
+                    //         ->allowHtml()
+                    //         ->options(Customer::getOptionsArray()),
 
-                        Select::make('payment_method')
-                            ->options([
-                                'g-cash' => 'G-Cash',
-                                'cash'  => 'Cash',
-                            ])
-                            ->default('g-cash')
-                            ->live(),
+                    //     Select::make('payment_method')
+                    //         ->options([
+                    //             'g-cash' => 'G-Cash',
+                    //             'cash'  => 'Cash',
+                    //         ])
+                    //         ->default('g-cash')
+                    //         ->live(),
 
-                        Split::make([
-                            TextInput::make('reference_number')
-                                ->visible(fn ($get) => $get('payment_method') === 'g-cash')
-                                ->label('Reference No.')
-                                ->required(),
-                            TextInput::make('amount')
-                                ->label('Amount')
-                                ->afterStateHydrated(function ($set) {
-                                    $grandTotal = collect($this->cart)->sum(function ($item) {
-                                        return (float)$item['qty'] * (float)$item['price'];
-                                    });
+                    //     Split::make([
+                    //         TextInput::make('reference_number')
+                    //             ->visible(fn ($get) => $get('payment_method') === 'g-cash')
+                    //             ->label('Reference No.')
+                    //             ->required(),
+                    //         TextInput::make('amount')
+                    //             ->label('Amount')
+                    //             ->afterStateHydrated(function ($set) {
+                    //                 $grandTotal = collect($this->cart)->sum(function ($item) {
+                    //                     return (float)$item['qty'] * (float)$item['price'];
+                    //                 });
                             
-                                    $set('amount', $grandTotal);
-                                })
-                                ->disabled()
-                                ->dehydrated()
-                                ->mask(RawJs::make('$money($input)'))
-                                ->stripCharacters(',')
-                                ->numeric()
-                                ->minValue(1)
-                                ->inputMode('decimal')
-                                ->required(),
-                        ]),
-                    ]),
+                    //                 $set('amount', $grandTotal);
+                    //             })
+                    //             ->disabled()
+                    //             ->dehydrated()
+                    //             ->mask(RawJs::make('$money($input)'))
+                    //             ->stripCharacters(',')
+                    //             ->numeric()
+                    //             ->minValue(1)
+                    //             ->inputMode('decimal')
+                    //             ->required(),
+                    //     ]),
+                    // ]),
                 ]),
             ])
             ->action(function($data){
                 $this->checkForStockAvailability($data);
-            });
+            })
+            ->modalSubmitActionLabel('Procceed');
     }
 
     protected function checkForStockAvailability($data)
     {
+
         $branch = auth()->user()->employee->branch;
 
         $insufficient = [];
@@ -274,11 +289,10 @@ class CartSection extends Component implements HasActions,HasForms
             return;
         }
     
-        $this->submitPayment($branch,$data); 
+        $this->createTransaction($branch,$data); 
     }
-    
 
-    protected function submitPayment($branch, $data)
+    protected function createTransaction($branch, $data)
     {
         $totalDiscount = 0;
         $grandTotal = 0;
@@ -307,12 +321,12 @@ class CartSection extends Component implements HasActions,HasForms
             'customer_id'        => $data['customer'],
             'branch_id'          => $branch->branch_id,
             'processed_by'       => auth()->user()->employee->id,
-            'payment_method'     => $data['payment_method'],
-            'payment_reference'  => $data['reference_number'] ?? null,
+            // 'payment_method'     => $data['payment_method'],
+            // 'payment_reference'  => $data['reference_number'] ?? null,
             'date_paid'          => now()->toDateString(),
             'discount_value'     => $totalDiscount,
             'total_amount'       => $grandTotal,
-            'status'             => 'Paid',
+            'status'             => 'pending',
         ]);
     
         foreach ($this->cart as $cartItem) {
@@ -333,6 +347,64 @@ class CartSection extends Component implements HasActions,HasForms
 
         $this->dispatch('refreshTable');
     }
+    
+    
+
+    // protected function submitPayment($branch, $data)
+    // {
+    //     $totalDiscount = 0;
+    //     $grandTotal = 0;
+    
+    //     foreach ($this->cart as $item) {
+    //         $stock = Stock::where('supply_id', $item['id'])
+    //             ->where('branch_id', $branch->branch_id)
+    //             ->first();
+    
+    //         if ($stock) {
+    //             $stock->quantity -= $item['qty'];
+    //             $stock->save();
+    //         }
+
+    //         $qty = (float) $item['qty'];
+    //         $retail = (float) $item['retail_price'];
+    //         $price = (float) $item['price'];
+    //         $total = $qty * $price;
+    //         $discount = ($retail - $price) * $qty;
+
+    //         $grandTotal += $total;
+    //         $totalDiscount += $discount;
+    //     }
+    
+    //     $transaction = SaleTransaction::create([
+    //         'customer_id'        => $data['customer'],
+    //         'branch_id'          => $branch->branch_id,
+    //         'processed_by'       => auth()->user()->employee->id,
+    //         'payment_method'     => $data['payment_method'],
+    //         'payment_reference'  => $data['reference_number'] ?? null,
+    //         'date_paid'          => now()->toDateString(),
+    //         'discount_value'     => $totalDiscount,
+    //         'total_amount'       => $grandTotal,
+    //         'status'             => 'Paid',
+    //     ]);
+    
+    //     foreach ($this->cart as $cartItem) {
+    //         $transaction->items()->create([
+    //             'supply_id'     => $cartItem['id'],
+    //             'original_price' => $cartItem['retail_price'],
+    //             'price_amount'   => $cartItem['price'],
+    //             'quantity'      => $cartItem['qty'],
+    //         ]);
+    //     }
+    
+    //     $this->cart = [];
+    
+    //     Notification::make()
+    //         ->title('Transaction successful!')
+    //         ->success()
+    //         ->send();
+
+    //     $this->dispatch('refreshTable');
+    // }
     
 
     public function render()
