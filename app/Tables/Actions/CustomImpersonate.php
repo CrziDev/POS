@@ -19,7 +19,7 @@ class CustomImpersonate extends Action
             ->iconButton()
             ->icon('impersonate-icon')
             ->action(function ($record) {
-                if (!$record->branch) {
+                if (!$record->branch()->exists()) {
                     Notification::make()
                         ->title('User Has No Branch')
                         ->body('Please assign a branch for this user.')

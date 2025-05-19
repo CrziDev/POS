@@ -68,7 +68,7 @@ class PosPanel extends Page implements HasForms, HasTable
 
     public static function canAccess(): bool
     {
-        return !auth()->user()->hasRole(['admin','super-admin']);
+        return !auth()->user()->hasRole(['admin','super-admin','manager']);
     }
 
 }

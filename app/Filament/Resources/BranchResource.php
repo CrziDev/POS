@@ -44,6 +44,13 @@ class BranchResource extends Resource
     public static function table(Table $table): Table
     {
         return $table
+            ->modifyQueryUsing(function (Builder $query) {
+                if (auth_user()->hasRole(['admin','super-admin'])) {
+                    return $query;
+                }else{
+                    return $query->whereIn('id', auth_user()->employee->branch()->pluck('branch_id'));
+                }
+            })
             ->columns([
                 Tables\Columns\TextColumn::make('name')
                     ->label('Branch'),
