@@ -3,6 +3,7 @@
 namespace App\Filament\Resources\BranchResource\RelationManagers;
 
 use App\Enums\EmployeeStatusEnum;
+use App\Enums\RolesEnum;
 use App\Models\Employee;
 use Filament\Forms;
 use Filament\Forms\Form;
@@ -22,6 +23,7 @@ class EmployeesRelationManager extends RelationManager
         return $form
             ->schema([
                 Forms\Components\Select::make('employee_id')
+                    ->label('Employee')
                     ->required()
                     ->allowHtml()
                     ->searchable()
@@ -42,6 +44,14 @@ class EmployeesRelationManager extends RelationManager
                     ->circular(),
                 Tables\Columns\TextColumn::make('employee.full_name'),
                 Tables\Columns\TextColumn::make('employee.user.roles.name')
+                    ->badge()
+                    ->color(function($state){
+                        if($state == RolesEnum::MANAGER->value){
+                            return 'warning';
+                        }else{
+                            return 'info';
+                        }
+                    })
                     ->formatStateUsing(strFormat()),
                 Tables\Columns\TextColumn::make('status')
                     ->formatStateUsing(strFormat())
@@ -53,14 +63,33 @@ class EmployeesRelationManager extends RelationManager
               
             ])
             ->headerActions([
-                Tables\Actions\CreateAction::make()
-                    ->label('Add Employee'),
+                Tables\Actions\Action::make('assign-manager')
+                    ->color('warning')
+                    ->label('Assign Manager')
+                    ->form([
+                        Forms\Components\Select::make('employee_id')
+                            ->label('Employee')
+                            ->required()
+                            ->allowHtml()
+                            ->searchable()
+                            ->options(fn () => Employee::getOptionsArray(managers:true,branch:$this->getOwnerRecord()->id))
+                            ->live()
+                            ->columnSpanFull()
+                    ])
+                    ->action(function($data){
+                        $this->getOwnerRecord()->branchEmployees()->create([
+                            'employee_id' => $data['employee_id'],
+                        ]);
+                    }),
+                    Tables\Actions\CreateAction::make()
+                        ->label('Add Employee'),
             ])
             ->actions([
                 Tables\Actions\ActionGroup::make([
                     Tables\Actions\Action::make('view_detail')
                         ->icon('heroicon-m-eye')
-                        ->label('View Detail'),
+                        ->label('View Detail')
+                        ->action(fn($record)=>redirect(route('filament.admin.resources.employees.edit',['record'=>$record->employee_id]))),
                     Tables\Actions\DeleteAction::make('Remove')
                         ->label('Remove')
                         ->requiresConfirmation(),

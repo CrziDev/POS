@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources\EmployeeResource\Pages;
 
+use App\Enums\RolesEnum;
 use App\Filament\Resources\EmployeeResource;
 use App\Models\Employee;
 use App\Traits\HasBackUrl;
@@ -25,7 +26,12 @@ class EditEmployee extends EditRecord
 
         $employee = Employee::find($data['id']);
         $data['role'] = $employee->user->getRoleNames();
-        $data['branch'] = $employee->branch?->branch_id;
+
+        if(in_array(RolesEnum::MANAGER->value,$employee->user->getRoleNames()->toArray())){
+            $data['branch'] = $employee->branch()?->pluck('branch_id');
+        }else{
+            $data['branch'] = $employee->branch()->first()?->branch_id;
+        }
 
         return $data;
     }
@@ -35,22 +41,48 @@ class EditEmployee extends EditRecord
         $data['user_id'] = $record->user->id;
 
         $record->update($data);
-
         $record->user->syncRoles($data['role']);
 
-        $currentBranchId = $record->branch?->branch_id;
+        if(in_array(RolesEnum::MANAGER->value,$data['role'])){
+            $this->handleBranchForManager($record,$data);
+        }else{
+            $this->handleBranchForOtherRoles($record,$data);
+        }
+
+        return $record;
+    }
+
+
+    public function handleBranchForManager($record,$data){
+
+        $branches = $data['branch'];
+
+        $record->branch()->delete();
+
+        if($branches){
+            foreach($branches as $branch){
+                $record->branch()->create([
+                    'branch_id'   => $branch,
+                    'employee_id' => $record->id,
+                    'status'      => 'active',
+                ]);
+            }
+        }
+    }
+
+    public function handleBranchForOtherRoles($record, $data)
+    {
         $newBranchId = $data['branch'];
+        $existingBranch = $record->branch()->first();
+        $currentBranchId = $existingBranch?->branch_id;
 
-
-        ## Branch Create
-        if (!$newBranchId && $record->branch) {
-            $record->branch->delete();
+        if (!$newBranchId && $record->branch->isNotEmpty()) {
+            $record->branch->each(fn ($branch) => $branch->delete());
+            return;
         }
 
         if ($newBranchId && $newBranchId != $currentBranchId) {
-            if ($record->branch) {
-                $record->branch->delete();
-            }
+            $record->branch()->delete();
 
             $record->branch()->create([
                 'branch_id'   => $newBranchId,
@@ -58,8 +90,6 @@ class EditEmployee extends EditRecord
                 'status'      => 'active',
             ]);
         }
-
-        return $record;
     }
 
 }

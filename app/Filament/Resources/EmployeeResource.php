@@ -133,13 +133,14 @@ class EmployeeResource extends Resource
                         ->default('-'),
                     TextColumn::make('branch.branch.name')
                         ->label('Branch')
+                        ->listWithLineBreaks()
                         ->description(function($record){
 
                             if($record->user->hasRole(['admin'])){
                                 return 'All Access';
                             }
 
-                           return $record->branch?->branch?->name ? 'Branch':'No Branch Assigned';
+                           return $record->branch()->first()?->branch?->name ? 'Branch':'No Branch Assigned';
                         })
                         ->color(fn ($state) => $state ? 'primary' : 'danger')
                         ->icon(fn ($state) => $state ? null : 'heroicon-m-exclamation-triangle')

@@ -49,7 +49,6 @@ class BranchResource extends Resource
                     ->label('Branch'),
                 Tables\Columns\TextColumn::make('address')
                     ->label('Location'),
-                // Tables\Columns\TextColumn::make('contact_no'),
                 Tables\Columns\ImageColumn::make('branchEmployees.employee.employee_avatar')
                     ->label('Employees')
                     ->circular()
@@ -58,7 +57,6 @@ class BranchResource extends Resource
                     ->limitedRemainingText()
             ])
             ->filters([
-                //
             ])
             ->actions([
                 Tables\Actions\ActionGroup::make([
