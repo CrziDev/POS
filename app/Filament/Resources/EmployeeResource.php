@@ -65,7 +65,8 @@ class EmployeeResource extends Resource
 
                             Forms\Components\Split::make([              
                                 Forms\Components\TextInput::make('email')
-                                    ->unique(ignoreRecord:true),
+                                    ->unique(ignoreRecord:true)
+                                    ->required(),
                                 Forms\Components\TextInput::make('contact_no'),
                             ]),
                             Forms\Components\Textarea::make('address'),
@@ -77,7 +78,7 @@ class EmployeeResource extends Resource
                                 Forms\Components\Select::make('role')  
                                     ->label('Position')
                                     ->multiple()
-                                    ->options(RolesEnum::toArray(employee:true))
+                                    ->options(RolesEnum::toArray(excludeAdmin:true))
                                     ->required()
                                     ->live()
                                     ->columnSpanFull(),
@@ -86,6 +87,7 @@ class EmployeeResource extends Resource
                                     ->label('Branch')
                                     ->options(Branch::getOptionsArray(false)) 
                                     ->allowHtml() 
+                                    ->multiple(fn ($get) => in_array(RolesEnum::MANAGER->value, $get('role'))?true:false)
                                     ->columnSpanFull(),
 
                             ])  ->columnSpanFull(),
@@ -100,6 +102,20 @@ class EmployeeResource extends Resource
     public static function table(Table $table): Table
     {
         return $table
+            ->modifyQueryUsing(function (Builder $query) {
+                $query->leftJoin('users', 'employees.user_id', '=', 'users.id')
+                    ->leftJoin('model_has_roles', function ($join) {
+                        $join->on('users.id', '=', 'model_has_roles.model_id')
+                            ->where('model_has_roles.model_type', '=', \App\Models\User::class);
+                    })
+                    ->leftJoin('roles', 'model_has_roles.role_id', '=', 'roles.id')
+                    ->whereNot('roles.name','super-admin')
+                    ->whereNot('users.id',auth()->user()->id)
+                    ->select('employees.*') 
+                    ->orderByRaw("CASE WHEN roles.name = 'admin' THEN 0 ELSE 1 END")
+                    ->orderBy('last_name');
+
+            })
             ->columns([
                 Panel::make([
                 Split::make([
@@ -117,12 +133,20 @@ class EmployeeResource extends Resource
                         ->default('-'),
                     TextColumn::make('branch.branch.name')
                         ->label('Branch')
-                        ->description(fn ($record) => $record->branch?->branch?->name ?? 'No Branch Assigned')
+                        ->description(function($record){
+
+                            if($record->user->hasRole(['admin'])){
+                                return 'All Access';
+                            }
+
+                           return $record->branch?->branch?->name ? 'Branch':'No Branch Assigned';
+                        })
                         ->color(fn ($state) => $state ? 'primary' : 'danger')
                         ->icon(fn ($state) => $state ? null : 'heroicon-m-exclamation-triangle')
                         ->weight(FontWeight::Bold)
                         ->searchable()
-                        ->default('-'),
+                        ->default(fn($record)=>$record->user->hasRole(['admin'])?'':'-'),
+
                     TextColumn::make('user.roles.name')
                         ->formatStateUsing(strFormat())
                         ->listWithLineBreaks()
@@ -138,10 +162,6 @@ class EmployeeResource extends Resource
                 ->from('md'),
             ])
             ])
-            // ->contentGrid([
-            //     'md' => 1,
-            //     'xl' => 1,
-            // ])
             ->filters([
                 Tables\Filters\SelectFilter::make('branch_id')
                     ->relationship('branch.branch', 'name')
@@ -154,7 +174,7 @@ class EmployeeResource extends Resource
                     ->label('Role')
                     ->multiple()
                     ->options(fn()=>
-                        \Spatie\Permission\Models\Role::pluck('name', 'name')
+                        RolesEnum::toArray(true)
                     )
                     ->query(function (Builder $query, array $data) {
                         if (!empty($data['values'])) {
@@ -168,8 +188,6 @@ class EmployeeResource extends Resource
             ])
             ->actions([
                 CustomImpersonate::make()
-                // Impersonate::make()
-
             ])
             ->actionsPosition(ActionsPosition::AfterColumns)
             ->bulkActions([
@@ -179,7 +197,6 @@ class EmployeeResource extends Resource
     public static function getRelations(): array
     {
         return [
-            //
         ];
     }
 

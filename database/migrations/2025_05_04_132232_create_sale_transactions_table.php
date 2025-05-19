@@ -13,7 +13,6 @@ return new class extends Migration
     {
         Schema::create('sale_transactions', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('customer_id')->constrained('customers');
             $table->foreignId('processed_by')->constrained('employees');
             $table->foreignId('branch_id')->constrained('branches');
             $table->decimal('discount_value',16,2)->default(0);
@@ -37,6 +36,7 @@ return new class extends Migration
         Schema::create('sale_payments', function (Blueprint $table) {
             $table->id();
             $table->foreignId('sale_transaction_id')->constrained('sale_transactions');
+            $table->foreignId('branch_id')->constrained('branches');
             $table->foreignId('processed_by')->constrained('employees');
             $table->string('payment_method');
             $table->string('payment_reference');

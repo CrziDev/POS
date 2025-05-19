@@ -4,7 +4,6 @@ namespace App\Policies;
 
 use App\Enums\RolesEnum;
 use App\Models\User;
-use Illuminate\Auth\Access\Response;
 
 class DeliveredItemPolicy
 {
@@ -15,6 +14,7 @@ class DeliveredItemPolicy
     {
         return $user->hasRole([
             RolesEnum::ADMIN->value,
+            RolesEnum::MANAGER->value,
             RolesEnum::SALESCLERK->value,
         ]);
 
@@ -27,6 +27,8 @@ class DeliveredItemPolicy
     {
         return $user->hasRole([
             RolesEnum::ADMIN->value,
+            RolesEnum::SUPERADMIN->value,
+            RolesEnum::MANAGER->value,
             RolesEnum::SALESCLERK->value,
         ]);
 
@@ -39,6 +41,8 @@ class DeliveredItemPolicy
     {
         return $user->hasRole([
             RolesEnum::ADMIN->value,
+            RolesEnum::SUPERADMIN->value,
+            RolesEnum::MANAGER->value,
             RolesEnum::SALESCLERK->value,
         ]);
 
@@ -51,6 +55,8 @@ class DeliveredItemPolicy
     {
         return $user->hasRole([
             RolesEnum::ADMIN->value,
+            RolesEnum::SUPERADMIN->value,
+            RolesEnum::MANAGER->value,
             RolesEnum::SALESCLERK->value,
         ]);
 
@@ -63,6 +69,8 @@ class DeliveredItemPolicy
     {
         return $user->hasRole([
             RolesEnum::ADMIN->value,
+            RolesEnum::SUPERADMIN->value,
+            RolesEnum::MANAGER->value,
             RolesEnum::SALESCLERK->value,
         ]);
 
@@ -75,6 +83,8 @@ class DeliveredItemPolicy
     {
         return $user->hasRole([
             RolesEnum::ADMIN->value,
+            RolesEnum::SUPERADMIN->value,
+            RolesEnum::MANAGER->value,
             RolesEnum::SALESCLERK->value,
         ]);
     }
@@ -86,6 +96,8 @@ class DeliveredItemPolicy
     {
         return $user->hasRole([
             RolesEnum::ADMIN->value,
+            RolesEnum::SUPERADMIN->value,
+            RolesEnum::MANAGER->value,
             RolesEnum::SALESCLERK->value,
         ]);
     }

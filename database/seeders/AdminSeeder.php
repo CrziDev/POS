@@ -24,6 +24,6 @@ class AdminSeeder extends Seeder
         ]); 
     
         $user->employee()->create($employeeData->toArray()); 
-        $user->assignRole('admin');
+        $user->assignRole('super-admin');
     }
 }

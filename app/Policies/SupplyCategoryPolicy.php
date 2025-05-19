@@ -15,6 +15,8 @@ class SupplyCategoryPolicy
     {
         return $user->hasRole([
             RolesEnum::ADMIN->value,
+            RolesEnum::SUPERADMIN->value,
+            RolesEnum::MANAGER->value,
             RolesEnum::SALESCLERK->value,
         ]);
 
@@ -27,6 +29,8 @@ class SupplyCategoryPolicy
     {
         return $user->hasRole([
             RolesEnum::ADMIN->value,
+            RolesEnum::SUPERADMIN->value,
+            RolesEnum::MANAGER->value,
             RolesEnum::SALESCLERK->value,
         ]);
 
@@ -39,6 +43,8 @@ class SupplyCategoryPolicy
     {
         return $user->hasRole([
             RolesEnum::ADMIN->value,
+            RolesEnum::SUPERADMIN->value,
+            RolesEnum::MANAGER->value,
             RolesEnum::SALESCLERK->value,
         ]);
 
@@ -51,6 +57,8 @@ class SupplyCategoryPolicy
     {
         return $user->hasRole([
             RolesEnum::ADMIN->value,
+            RolesEnum::SUPERADMIN->value,
+            RolesEnum::MANAGER->value,
             RolesEnum::SALESCLERK->value,
         ]);
 
@@ -63,6 +71,8 @@ class SupplyCategoryPolicy
     {
         return $user->hasRole([
             RolesEnum::ADMIN->value,
+            RolesEnum::SUPERADMIN->value,
+            RolesEnum::MANAGER->value,
             RolesEnum::SALESCLERK->value,
         ]);
 
@@ -75,6 +85,8 @@ class SupplyCategoryPolicy
     {
         return $user->hasRole([
             RolesEnum::ADMIN->value,
+            RolesEnum::SUPERADMIN->value,
+            RolesEnum::MANAGER->value,
             RolesEnum::SALESCLERK->value,
         ]);
     }
@@ -86,6 +98,8 @@ class SupplyCategoryPolicy
     {
         return $user->hasRole([
             RolesEnum::ADMIN->value,
+            RolesEnum::SUPERADMIN->value,
+            RolesEnum::MANAGER->value,
             RolesEnum::SALESCLERK->value,
         ]);
     }

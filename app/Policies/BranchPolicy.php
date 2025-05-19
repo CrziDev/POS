@@ -15,6 +15,8 @@ class BranchPolicy
     {
         return $user->hasRole([
             RolesEnum::ADMIN->value,
+            RolesEnum::SUPERADMIN->value,
+            RolesEnum::MANAGER->value,
         ]);
 
     }
@@ -24,8 +26,11 @@ class BranchPolicy
      */
     public function view(User $user): bool
     {
-        return $user->hasRole([RolesEnum::ADMIN->value]);
-
+        return $user->hasRole([
+            RolesEnum::ADMIN->value,
+            RolesEnum::SUPERADMIN->value,
+            RolesEnum::MANAGER->value,
+        ]);
     }
 
     /**
@@ -33,8 +38,11 @@ class BranchPolicy
      */
     public function create(User $user): bool
     {
-        return $user->hasRole([RolesEnum::ADMIN->value]);
-
+        return $user->hasRole([
+            RolesEnum::ADMIN->value,
+            RolesEnum::SUPERADMIN->value,
+            RolesEnum::MANAGER->value,
+        ]);
     }
 
     /**
@@ -42,8 +50,11 @@ class BranchPolicy
      */
     public function update(User $user): bool
     {
-        return $user->hasRole([RolesEnum::ADMIN->value]);
-
+        return $user->hasRole([
+            RolesEnum::ADMIN->value,
+            RolesEnum::SUPERADMIN->value,
+            RolesEnum::MANAGER->value,
+        ]);
     }
 
     /**
@@ -51,8 +62,11 @@ class BranchPolicy
      */
     public function delete(User $user): bool
     {
-        return $user->hasRole([RolesEnum::ADMIN->value]);
-
+         return $user->hasRole([
+            RolesEnum::ADMIN->value,
+            RolesEnum::SUPERADMIN->value,
+            RolesEnum::MANAGER->value,
+        ]);
     }
 
     /**
@@ -60,7 +74,11 @@ class BranchPolicy
      */
     public function restore(User $user): bool
     {
-        return $user->hasRole([RolesEnum::ADMIN->value]);
+         return $user->hasRole([
+            RolesEnum::ADMIN->value,
+            RolesEnum::SUPERADMIN->value,
+            RolesEnum::MANAGER->value,
+        ]);
     }
 
     /**
@@ -68,7 +86,10 @@ class BranchPolicy
      */
     public function forceDelete(User $user): bool
     {
-        return $user->hasRole([RolesEnum::ADMIN->value]);
-
+         return $user->hasRole([
+            RolesEnum::ADMIN->value,
+            RolesEnum::SUPERADMIN->value,
+            RolesEnum::MANAGER->value,
+        ]);
     }
 }

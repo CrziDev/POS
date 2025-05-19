@@ -84,7 +84,7 @@ class POSPanelProvider extends PanelProvider
             ])
             ->databaseNotifications()
             ->topNavigation(function(){
-                if(auth()->user()->hasRole(['admin'])){
+                if(auth()->user()->hasRole(['admin','super-admin'])){
                     return false;
                 }else{
                     return true;

@@ -7,15 +7,18 @@ use Illuminate\Support\str;
 enum RolesEnum: string
 {
     case ADMIN = 'admin';
+    case SUPERADMIN = 'super-admin';
     case SALESCLERK = 'sales-clerk';
+    case MANAGER = 'manager';
     case CASHIER = 'cashier';
 
-
-    public static function toArray($employee = false): array
+    public static function toArray($excludeAdmin = false): array
     {   
         $cases = self::cases();
-        if($employee){
+        if($excludeAdmin){
             unset($cases[0]);
+            unset($cases[1]);
+
         }
         return array_combine(
             array_map(fn($case) => $case->value, $cases),

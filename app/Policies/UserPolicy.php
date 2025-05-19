@@ -14,7 +14,10 @@ class UserPolicy
     public function viewAny(User $user): bool
     {
         return false;
-        return $user->hasRole([RolesEnum::ADMIN->value]);
+        return $user->hasRole([
+            RolesEnum::ADMIN->value,
+            RolesEnum::SUPERADMIN->value,
+        ]);
 
     }
 

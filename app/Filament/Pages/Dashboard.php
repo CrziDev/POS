@@ -27,7 +27,6 @@ class Dashboard extends BaseDashboard
                             ->label('Select Branch')
                             ->placeholder('All Branch')
                             ->options([
-                                // Assuming you have a Branch model
                                 1 => 'Branch 1',
                                 2 => 'Branch 2',
                                 3 => 'Branch 3',

@@ -187,63 +187,6 @@ class CartSection extends Component implements HasActions,HasForms
                             })
 
                     ]),
-                    
-
-                    // Section::make('Payment')->schema([
-                    //     Select::make('customer')
-                    //         ->placeholder('Select Customer')
-                    //         ->createOptionForm([
-                    //             Section::make('New Customer')->schema([
-                    //                 TextInput::make('name')
-                    //                     ->label('Customer Name')
-                    //                     ->required(),
-                    //                 TextInput::make('contact_number')
-                    //                     ->label('Contact Number'),
-                    //                 TextInput::make('address')
-                    //                     ->label('Address'),
-                    //             ]),
-                    //         ])
-                    //         ->createOptionUsing(function (array $data): int {
-                    //             $customer = Customer::create($data);
-                    //             return $customer->getKey();
-                    //         })
-                    //         ->required()
-                    //         ->searchable()
-                    //         ->allowHtml()
-                    //         ->options(Customer::getOptionsArray()),
-
-                    //     Select::make('payment_method')
-                    //         ->options([
-                    //             'g-cash' => 'G-Cash',
-                    //             'cash'  => 'Cash',
-                    //         ])
-                    //         ->default('g-cash')
-                    //         ->live(),
-
-                    //     Split::make([
-                    //         TextInput::make('reference_number')
-                    //             ->visible(fn ($get) => $get('payment_method') === 'g-cash')
-                    //             ->label('Reference No.')
-                    //             ->required(),
-                    //         TextInput::make('amount')
-                    //             ->label('Amount')
-                    //             ->afterStateHydrated(function ($set) {
-                    //                 $grandTotal = collect($this->cart)->sum(function ($item) {
-                    //                     return (float)$item['qty'] * (float)$item['price'];
-                    //                 });
-                            
-                    //                 $set('amount', $grandTotal);
-                    //             })
-                    //             ->disabled()
-                    //             ->dehydrated()
-                    //             ->mask(RawJs::make('$money($input)'))
-                    //             ->stripCharacters(',')
-                    //             ->numeric()
-                    //             ->minValue(1)
-                    //             ->inputMode('decimal')
-                    //             ->required(),
-                    //     ]),
-                    // ]),
                 ]),
             ])
             ->action(function($data){
@@ -318,12 +261,9 @@ class CartSection extends Component implements HasActions,HasForms
         }
     
         $transaction = SaleTransaction::create([
-            'customer_id'        => $data['customer'],
             'branch_id'          => $branch->branch_id,
             'processed_by'       => auth()->user()->employee->id,
-            // 'payment_method'     => $data['payment_method'],
-            // 'payment_reference'  => $data['reference_number'] ?? null,
-            'date_paid'          => now()->toDateString(),
+            'transaction_date'   => now()->toDateString(),
             'discount_value'     => $totalDiscount,
             'total_amount'       => $grandTotal,
             'status'             => 'pending',
@@ -341,7 +281,8 @@ class CartSection extends Component implements HasActions,HasForms
         $this->cart = [];
     
         Notification::make()
-            ->title('Transaction successful!')
+            ->title('Checkout Complete')
+            ->body('A new sale transaction has been successfully recorded. Please proceed to payment.')
             ->success()
             ->send();
 

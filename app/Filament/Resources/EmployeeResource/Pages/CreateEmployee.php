@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources\EmployeeResource\Pages;
 
+use App\Enums\RolesEnum;
 use App\Filament\Resources\EmployeeResource;
 use App\Models\User;
 use Filament\Resources\Pages\CreateRecord;
@@ -31,11 +32,21 @@ class CreateEmployee extends CreateRecord
         $record = static::getModel()::create($data);
 
         if($data['branch']){
-            $record->branch()->create([
-                'branch_id'   => $data['branch'],
-                'employee_id' => $record->id,
-                'status'      => 'active',
-            ]);
+            if($user->hasRole(RolesEnum::MANAGER->value)){
+                foreach($data['branch'] as $branch){
+                    $record->branch()->create([
+                        'branch_id'   => $branch,
+                        'employee_id' => $record->id,
+                        'status'      => 'active',
+                    ]);
+                }
+            }else{
+                    $record->branch()->create([
+                    'branch_id'   => $data['branch'],
+                    'employee_id' => $record->id,
+                    'status'      => 'active',
+                ]);
+            }
         }
 
         return $record;
