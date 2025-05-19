@@ -20,6 +20,7 @@ class PosTableSection extends Component implements HasActions,HasForms
     use InteractsWithActions;
     use InteractsWithForms;
 
+    public $currentBranch = null;
     public $selectedCategory = 'all';
     public $search = '';
     public $categoryList = [];
@@ -35,6 +36,8 @@ class PosTableSection extends Component implements HasActions,HasForms
     {
         $this->categoryList['all'] = 'All';
         $this->categoryList += SupplyCategory::pluck('name', 'id')->toArray();
+
+        $this->currentBranch = auth()->user()->employee->branch()->first();
     }
 
     #[On('refreshTable')]
@@ -86,10 +89,9 @@ class PosTableSection extends Component implements HasActions,HasForms
 
     public function render()
     {
-        $currentBranch = auth()->user()->employee->branch;
         
         $stocks = Stock::query()
-            ->where('branch_id', $currentBranch->branch_id)
+            ->where('branch_id', $this->currentBranch->branch_id)
             ->when($this->selectedCategory !== 'all', function ($query) {
                 $query->whereHas('supply', function ($q) {
                     $q->where('category_id', $this->selectedCategory);

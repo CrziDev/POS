@@ -39,6 +39,17 @@ class ItemsRelationManager extends RelationManager
                 Tables\Columns\TextColumn::make('quantity')
                     ->badge()
                     ->label('Quantity Sold'),
+                 Tables\Columns\TextColumn::make('returned_quantity')
+                    ->badge()
+                    ->formatStateUsing(fn($state)=> 0 - $state)
+                    ->color(function($state){
+                        if($state == 0){
+                            return 'gray';
+                        }else{
+                            return 'warning';
+                        }
+                    })
+                    ->label('Returned'),
                 Tables\Columns\TextColumn::make('total_amount')
                     ->default(fn($record) => $record->price_amount * $record->quantity)
                     ->money('PHP', true),

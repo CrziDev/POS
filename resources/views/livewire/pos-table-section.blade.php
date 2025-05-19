@@ -67,7 +67,7 @@
         <div class="sticky px-5 pt-5 top-0 z-10 bg-white dark:bg-gray-900 pb-3   mb-4">
             <div class="flex items-center justify-between">
                 <span class="text-sm text-gray-600 dark:text-gray-300">
-                    Branch: {{ filament()->auth()->user()->employee->branch->branch->name ?? 'N/A' }}
+                    Branch: {{ $this->currentBranch->branch->name ?? 'N/A' }}
                 </span>
 
                 <div class="w-full max-w-sm ml-auto">

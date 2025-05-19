@@ -19,16 +19,18 @@ class SalePaymentResource extends Resource
 
     protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
     protected static ?string $navigationLabel = 'Sales Payment';
-        protected static ?string $navigationGroup = 'Sales';
+    protected static ?string $navigationGroup = 'Sales';
     protected static ?string $navigationParentItem = 'Sales Transaction';
 
 
     public static function table(Table $table): Table
     {
         return $table
-            ->modifyQueryUsing(function (Builder $query) {
-                if (!auth()->user()->hasRole(['admin'])) {
-                    return $query->where('branch_id', auth()->user()->employee->branch->branch_id);
+             ->modifyQueryUsing(function (Builder $query) {
+                if (auth()->user()->hasRole(['admin','super-admin'])) {
+                    return $query;
+                }else{
+                    return $query->whereIn('branch_id', auth()->user()->employee->branch()->pluck('branch_id'));
                 }
             })
             ->columns([
@@ -64,7 +66,7 @@ class SalePaymentResource extends Resource
         return [
             'index' => Pages\ListSalePayments::route('/'),
             'create' => Pages\CreateSalePayment::route('/create'),
-            'edit' => Pages\EditSalePayment::route('/{record}/edit'),
+            // 'edit' => Pages\EditSalePayment::route('/{record}/edit'),
         ];
     }
 }

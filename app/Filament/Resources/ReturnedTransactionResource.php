@@ -59,7 +59,7 @@ class ReturnedTransactionResource extends Resource
                     ->afterStateUpdated(function ($state, $set) {
                         $transaction = SaleTransaction::find($state);
                         if ($transaction) {
-                            $set('date_transaction', $transaction->date_paid);
+                            $set('date_transaction', $transaction->transaction_date);
                             $set('handled_by', $transaction->processed_by);
                             $set('branch_id', $transaction->branch_id);
                         }
@@ -208,10 +208,11 @@ class ReturnedTransactionResource extends Resource
     public static function table(Table $table): Table
     {
         return $table
-            ->modifyQueryUsing(function (Builder $query) {
-                if (!auth()->user()->hasRole(['admin'])) {
-                    $branchId = auth()->user()->employee->branch->branch_id;
-                    return $query->where('branch_id', $branchId);
+             ->modifyQueryUsing(function (Builder $query) {
+                if (auth()->user()->hasRole(['admin','super-admin'])) {
+                    return $query;
+                }else{
+                    return $query->whereIn('branch_id', auth()->user()->employee->branch()->pluck('branch_id'));
                 }
             })
             ->columns([
@@ -239,11 +240,6 @@ class ReturnedTransactionResource extends Resource
                     ->label('Transaction #')
                     ->formatStateUsing(fn ($state) => 'TX-' . $state)
                     ->sortable(),
-
-                TextColumn::make('saleTransaction.customer.name')
-                    ->label('Customer')
-                    ->formatStateUsing(strFormat()),
-
                 TextColumn::make('returnedItem.saleTransactionItem.supply.name')
                     ->label('Items Returned')
                     ->bulleted()
@@ -288,27 +284,27 @@ class ReturnedTransactionResource extends Resource
                             if($record->returnedItem->sum('value_difference') > 0){
                                return [
                                     Section::make('Additional Payment')->schema([
-                                        Select::make('customer')
-                                            ->placeholder('Select Customer')
-                                            ->createOptionForm([
-                                                Section::make('New Customer')->schema([
-                                                    TextInput::make('name')
-                                                        ->label('Customer Name')
-                                                        ->required(),
-                                                    TextInput::make('contact_number')
-                                                        ->label('Contact Number'),
-                                                    TextInput::make('address')
-                                                        ->label('Address'),
-                                                ]),
-                                            ])
-                                            ->createOptionUsing(function (array $data): int {
-                                                $customer = Customer::create($data);
-                                                return $customer->getKey();
-                                            })
-                                            ->required()
-                                            ->searchable()
-                                            ->allowHtml()
-                                            ->options(Customer::getOptionsArray()),
+                                        // Select::make('customer')
+                                        //     ->placeholder('Select Customer')
+                                        //     ->createOptionForm([
+                                        //         Section::make('New Customer')->schema([
+                                        //             TextInput::make('name')
+                                        //                 ->label('Customer Name')
+                                        //                 ->required(),
+                                        //             TextInput::make('contact_number')
+                                        //                 ->label('Contact Number'),
+                                        //             TextInput::make('address')
+                                        //                 ->label('Address'),
+                                        //         ]),
+                                        //     ])
+                                        //     ->createOptionUsing(function (array $data): int {
+                                        //         $customer = Customer::create($data);
+                                        //         return $customer->getKey();
+                                        //     })
+                                        //     ->required()
+                                        //     ->searchable()
+                                        //     ->allowHtml()
+                                        //     ->options(Customer::getOptionsArray()),
 
                                         Select::make('payment_method')
                                             ->options([

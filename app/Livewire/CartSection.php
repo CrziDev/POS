@@ -34,10 +34,17 @@ class CartSection extends Component implements HasActions,HasForms
     use InteractsWithActions;
     use InteractsWithForms;
 
+    public $currentBranch = null;
+
     public $cart = [];
     public $totalAmount = 0;
     public $grandTotal = 0;
 
+
+    public function mount()
+    {
+        $this->currentBranch = auth()->user()->employee->branch()->first();
+    }
 
     #[On('add-to-cart')] 
     public function updatePostList($itemId,$price,$quantity,$stock)
@@ -198,13 +205,12 @@ class CartSection extends Component implements HasActions,HasForms
     protected function checkForStockAvailability($data)
     {
 
-        $branch = auth()->user()->employee->branch;
 
         $insufficient = [];
     
         foreach ($this->cart as $cartItem) {
             $stock = Stock::where('supply_id', $cartItem['id'])
-                ->where('branch_id', $branch->branch_id)
+                ->where('branch_id', $this->currentBranch->branch_id)
                 ->first();
     
             if (!$stock || $stock->quantity < $cartItem['qty']) {
@@ -232,17 +238,17 @@ class CartSection extends Component implements HasActions,HasForms
             return;
         }
     
-        $this->createTransaction($branch,$data); 
+        $this->createTransaction(); 
     }
 
-    protected function createTransaction($branch, $data)
+    protected function createTransaction()
     {
         $totalDiscount = 0;
         $grandTotal = 0;
     
         foreach ($this->cart as $item) {
             $stock = Stock::where('supply_id', $item['id'])
-                ->where('branch_id', $branch->branch_id)
+                ->where('branch_id', $this->currentBranch->branch_id)
                 ->first();
     
             if ($stock) {
@@ -261,7 +267,7 @@ class CartSection extends Component implements HasActions,HasForms
         }
     
         $transaction = SaleTransaction::create([
-            'branch_id'          => $branch->branch_id,
+            'branch_id'          => $this->currentBranch->branch_id,
             'processed_by'       => auth()->user()->employee->id,
             'transaction_date'   => now()->toDateString(),
             'discount_value'     => $totalDiscount,
@@ -288,65 +294,6 @@ class CartSection extends Component implements HasActions,HasForms
 
         $this->dispatch('refreshTable');
     }
-    
-    
-
-    // protected function submitPayment($branch, $data)
-    // {
-    //     $totalDiscount = 0;
-    //     $grandTotal = 0;
-    
-    //     foreach ($this->cart as $item) {
-    //         $stock = Stock::where('supply_id', $item['id'])
-    //             ->where('branch_id', $branch->branch_id)
-    //             ->first();
-    
-    //         if ($stock) {
-    //             $stock->quantity -= $item['qty'];
-    //             $stock->save();
-    //         }
-
-    //         $qty = (float) $item['qty'];
-    //         $retail = (float) $item['retail_price'];
-    //         $price = (float) $item['price'];
-    //         $total = $qty * $price;
-    //         $discount = ($retail - $price) * $qty;
-
-    //         $grandTotal += $total;
-    //         $totalDiscount += $discount;
-    //     }
-    
-    //     $transaction = SaleTransaction::create([
-    //         'customer_id'        => $data['customer'],
-    //         'branch_id'          => $branch->branch_id,
-    //         'processed_by'       => auth()->user()->employee->id,
-    //         'payment_method'     => $data['payment_method'],
-    //         'payment_reference'  => $data['reference_number'] ?? null,
-    //         'date_paid'          => now()->toDateString(),
-    //         'discount_value'     => $totalDiscount,
-    //         'total_amount'       => $grandTotal,
-    //         'status'             => 'Paid',
-    //     ]);
-    
-    //     foreach ($this->cart as $cartItem) {
-    //         $transaction->items()->create([
-    //             'supply_id'     => $cartItem['id'],
-    //             'original_price' => $cartItem['retail_price'],
-    //             'price_amount'   => $cartItem['price'],
-    //             'quantity'      => $cartItem['qty'],
-    //         ]);
-    //     }
-    
-    //     $this->cart = [];
-    
-    //     Notification::make()
-    //         ->title('Transaction successful!')
-    //         ->success()
-    //         ->send();
-
-    //     $this->dispatch('refreshTable');
-    // }
-    
 
     public function render()
     {

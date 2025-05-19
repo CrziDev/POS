@@ -92,8 +92,10 @@ class SaleResource extends Resource
     {
         return $table
             ->modifyQueryUsing(function (Builder $query) {
-                if (!auth()->user()->hasRole(['admin'])) {
-                    return $query->where('branch_id', auth()->user()->employee->branch->branch_id);
+                if (auth()->user()->hasRole(['admin','super-admin'])) {
+                    return $query;
+                }else{
+                    return $query->whereIn('branch_id', auth()->user()->employee->branch()->pluck('branch_id'));
                 }
             })
             ->columns([
