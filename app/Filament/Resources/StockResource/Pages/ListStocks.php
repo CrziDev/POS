@@ -30,7 +30,11 @@ class ListStocks extends ListRecords
 
     public function getTabs(): array
     {
-        $branches = Branch::all();
+         if (auth_user()->hasRole(['admin','super-admin'])) {
+            $branches = Branch::all();
+        }else{
+            $branches = Branch::whereIn('id',auth_user()->employee->branch()->pluck('branch_id'))->get();
+        }
     
         return $branches->map(function ($branch) {
             return Tab::make($branch->name)

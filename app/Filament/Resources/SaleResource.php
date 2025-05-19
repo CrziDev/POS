@@ -92,10 +92,10 @@ class SaleResource extends Resource
     {
         return $table
             ->modifyQueryUsing(function (Builder $query) {
-                if (auth()->user()->hasRole(['admin','super-admin'])) {
+                if (auth_user()->hasRole(['admin','super-admin'])) {
                     return $query;
                 }else{
-                    return $query->whereIn('branch_id', auth()->user()->employee->branch()->pluck('branch_id'));
+                    return $query->whereIn('branch_id', auth_user()->employee->branch()->pluck('branch_id'));
                 }
             })
             ->columns([
@@ -166,12 +166,13 @@ class SaleResource extends Resource
                     ->form(fn ($record) => self::paymentForm($record))
                     ->modalHeading('Record Payment')
                     ->modalSubmitActionLabel('Submit Payment')
+                    ->disabled(fn($record)=>$record->status == 'paid')
                     ->color('success')
                     ->action(function(CreateSalePayment $createSalePayment,$record,$data){
 
                         $createSalePayment->handle(
                             $record->id,
-                            auth()->user()->id,
+                            auth_user()->id,
                             $record->branch_id,
                             $data['payment_method'],
                             $data['reference_number'] ?? null,

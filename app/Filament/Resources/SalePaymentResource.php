@@ -39,11 +39,17 @@ class SalePaymentResource extends Resource
                     ->sortable()
                     ->formatStateUsing(fn($state) => 'TX - ' . $state),
                 Tables\Columns\TextColumn::make('date_paid')
-                    ->label('Date Recorded')
+                    ->label('Date recorded')
                     ->date(),
-                Tables\Columns\TextColumn::make('payment_method'),
+                Tables\Columns\TextColumn::make('payment_method')
+                    ->formatStateUsing(fn($state)=>ucfirst($state)),
                 Tables\Columns\TextColumn::make('payment_reference'),
-                Tables\Columns\TextColumn::make('amount_paid'),
+                Tables\Columns\TextColumn::make('payment_reference'),
+                Tables\Columns\TextColumn::make('processedBy.full_name'),
+                Tables\Columns\TextColumn::make('amount_paid')
+                    ->color('success')
+                    ->money('PHP')
+                    ->badge(),
 
                 
             ])

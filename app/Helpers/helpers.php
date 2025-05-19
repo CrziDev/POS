@@ -15,6 +15,17 @@ if (! function_exists('statusColor')) {
     }
 }
 
+/**
+ * @return \App\Models\User|null
+ */
+if (! function_exists('auth_user')) {
+    function auth_user()
+    {
+        return auth()->user();
+    }
+}
+
+
 if (!function_exists('moneyToNumber')) {
     function moneyToNumber($moneyString): float
     {

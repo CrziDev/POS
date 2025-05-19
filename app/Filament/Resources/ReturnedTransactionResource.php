@@ -209,10 +209,10 @@ class ReturnedTransactionResource extends Resource
     {
         return $table
              ->modifyQueryUsing(function (Builder $query) {
-                if (auth()->user()->hasRole(['admin','super-admin'])) {
+                if (auth_user()->hasRole(['admin','super-admin'])) {
                     return $query;
                 }else{
-                    return $query->whereIn('branch_id', auth()->user()->employee->branch()->pluck('branch_id'));
+                    return $query->whereIn('branch_id', auth_user()->employee->branch()->pluck('branch_id'));
                 }
             })
             ->columns([
@@ -274,87 +274,87 @@ class ReturnedTransactionResource extends Resource
                     ->formatStateUsing(strFormat())
                     ->toggleable(isToggledHiddenByDefault:true),
             ])
+            ->recordAction(false)
+            ->recordUrl(null)
             ->actions([
-                 Tables\Actions\ActionGroup::make([
-                    Tables\Actions\Action::make('process-entry')
-                        ->label('Process Return Entry')
-                        ->disabled(fn($record)=>$record->status == 'approved')
-                        ->form(function($record){
+                Tables\Actions\Action::make('process-entry')
+                    ->label('Process')
+                    ->disabled(fn($record)=>$record->status == 'approved')
+                    ->form(function($record){
 
-                            if($record->returnedItem->sum('value_difference') > 0){
-                               return [
-                                    Section::make('Additional Payment')->schema([
-                                        // Select::make('customer')
-                                        //     ->placeholder('Select Customer')
-                                        //     ->createOptionForm([
-                                        //         Section::make('New Customer')->schema([
-                                        //             TextInput::make('name')
-                                        //                 ->label('Customer Name')
-                                        //                 ->required(),
-                                        //             TextInput::make('contact_number')
-                                        //                 ->label('Contact Number'),
-                                        //             TextInput::make('address')
-                                        //                 ->label('Address'),
-                                        //         ]),
-                                        //     ])
-                                        //     ->createOptionUsing(function (array $data): int {
-                                        //         $customer = Customer::create($data);
-                                        //         return $customer->getKey();
-                                        //     })
-                                        //     ->required()
-                                        //     ->searchable()
-                                        //     ->allowHtml()
-                                        //     ->options(Customer::getOptionsArray()),
-
-                                        Select::make('payment_method')
-                                            ->options([
-                                                'g-cash' => 'G-Cash',
-                                                'cash'  => 'Cash',
-                                            ])
-                                            ->default('g-cash')
-                                            ->live(),
-
-                                        Split::make([
-                                            TextInput::make('reference_no')
-                                                ->visible(fn ($get) => $get('payment_method') === 'g-cash')
-                                                ->label('Reference No.')
-                                                ->required(),
-                                            TextInput::make('amount')
-                                                ->label('Amount')
-                                                ->afterStateHydrated(function ($record,$set) {
-                                                    $set('amount',$record->returnedItem->sum('value_difference'));
-                                                })
-                                                ->disabled()
-                                                ->dehydrated()
-                                                ->mask(RawJs::make('$money($input)'))
-                                                ->stripCharacters(',')
-                                                ->numeric()
-                                                ->minValue(1)
-                                                ->inputMode('decimal')
-                                                ->required(),
-                                        ]),
-                                    ]),
-                                ];
-                            }
-
+                        if($record->returnedItem->sum('value_difference') > 0){
                             return [
-                                Placeholder::make('No Payment Required')
+                                Section::make('Additional Payment')->schema([
+                                    // Select::make('customer')
+                                    //     ->placeholder('Select Customer')
+                                    //     ->createOptionForm([
+                                    //         Section::make('New Customer')->schema([
+                                    //             TextInput::make('name')
+                                    //                 ->label('Customer Name')
+                                    //                 ->required(),
+                                    //             TextInput::make('contact_number')
+                                    //                 ->label('Contact Number'),
+                                    //             TextInput::make('address')
+                                    //                 ->label('Address'),
+                                    //         ]),
+                                    //     ])
+                                    //     ->createOptionUsing(function (array $data): int {
+                                    //         $customer = Customer::create($data);
+                                    //         return $customer->getKey();
+                                    //     })
+                                    //     ->required()
+                                    //     ->searchable()
+                                    //     ->allowHtml()
+                                    //     ->options(Customer::getOptionsArray()),
+
+                                    Select::make('payment_method')
+                                        ->options([
+                                            'g-cash' => 'G-Cash',
+                                            'cash'  => 'Cash',
+                                        ])
+                                        ->default('g-cash')
+                                        ->live(),
+
+                                    Split::make([
+                                        TextInput::make('reference_no')
+                                            ->visible(fn ($get) => $get('payment_method') === 'g-cash')
+                                            ->label('Reference No.')
+                                            ->required(),
+                                        TextInput::make('amount')
+                                            ->label('Amount')
+                                            ->afterStateHydrated(function ($record,$set) {
+                                                $set('amount',$record->returnedItem->sum('value_difference'));
+                                            })
+                                            ->disabled()
+                                            ->dehydrated()
+                                            ->mask(RawJs::make('$money($input)'))
+                                            ->stripCharacters(',')
+                                            ->numeric()
+                                            ->minValue(1)
+                                            ->inputMode('decimal')
+                                            ->required(),
+                                    ]),
+                                ]),
                             ];
-                        })
-                        ->action(function($record,$data){
+                        }
 
-                            if($data){
-                                $record->recordPayment($data);
-                            };
-                            $record->approveReturn();
+                        return [
+                            Placeholder::make('No Payment Required')
+                        ];
+                    })
+                    ->action(function($record,$data){
+
+                        if($data){
+                            $record->recordPayment($data);
+                        };
+                        $record->approveReturn();
 
 
-                        })
-                        ->modalSubmitActionLabel('Approved')
-                        ->icon('heroicon-o-clipboard-document-check'),
-                ])
+                    })
+                    ->modalSubmitActionLabel('Approved')
+                    ->icon('heroicon-o-clipboard-document-check'),
 
-            ],ActionsPosition::BeforeColumns);
+            ]);
     }
 
     public static function getRelations(): array
