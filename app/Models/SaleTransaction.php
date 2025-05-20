@@ -24,12 +24,12 @@ class SaleTransaction extends Model
         return $this->belongsTo(Employee::class,'processed_by');
     }
 
-    public static function getOptionsArray($html = true,$customer = false): array
+    public static function getOptionsArray($html = true,$customer = false,$paid = false): array
     {
-        $query = self::query();
+        $query = self::query()->when($paid,fn($q)=>$q->where('status','paid'));
 
-        if(!auth()->user()->hasRole(['admin'])){
-            $query = $query->where('branch_id',auth()->user()->employee->branch()->first()->branch_id);
+        if(!auth_user()->hasRole(['admin'])){
+            $query = $query->where('branch_id',auth_user()->employee->branch()->first()->branch_id);
         }
 
         if(!$html){

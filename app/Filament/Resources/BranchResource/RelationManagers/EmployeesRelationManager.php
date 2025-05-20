@@ -66,6 +66,7 @@ class EmployeesRelationManager extends RelationManager
                 Tables\Actions\Action::make('assign-manager')
                     ->color('warning')
                     ->label('Assign Manager')
+                    ->visible(fn()=>auth_user()->hasRole(['admin']))
                     ->form([
                         Forms\Components\Select::make('employee_id')
                             ->label('Employee')
@@ -91,6 +92,7 @@ class EmployeesRelationManager extends RelationManager
                         ->label('View Detail')
                         ->action(fn($record)=>redirect(route('filament.admin.resources.employees.edit',['record'=>$record->employee_id]))),
                     Tables\Actions\DeleteAction::make('Remove')
+                        ->hidden(fn($record)=>auth_user()->hasRole(['manager']) && $record->employee->user->hasRole(['manager']))
                         ->label('Remove')
                         ->requiresConfirmation(),
                 ])
@@ -98,6 +100,7 @@ class EmployeesRelationManager extends RelationManager
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
                     Tables\Actions\DeleteBulkAction::make()
+                        ->visible(fn()=>auth_user()->hasRole(['admin']))
                         ->requiresConfirmation(),
                 ]),
             ]);

@@ -109,8 +109,12 @@ class EmployeeResource extends Resource
                             ->where('model_has_roles.model_type', '=', \App\Models\User::class);
                     })
                     ->leftJoin('roles', 'model_has_roles.role_id', '=', 'roles.id')
+                    ->leftJoin('branch_employees','branch_employees.employee_id','employees.id')
                     ->whereNot('roles.name','super-admin')
-                    ->whereNot('users.id',auth()->user()->id)
+                    ->whereNot('users.id',auth_user()->id)
+                    ->when(!auth_user()->hasRole(['admin','super-admin']), function ($query) {
+                        $query->whereIn('branch_employees.branch_id', auth_user()->employee->branch()->pluck('branch_id'));
+                    })
                     ->select('employees.*') 
                     ->orderByRaw("CASE WHEN roles.name = 'admin' THEN 0 ELSE 1 END")
                     ->orderBy('last_name');

@@ -168,6 +168,17 @@ class SaleResource extends Resource
                     ->modalSubmitActionLabel('Submit Payment')
                     ->disabled(fn($record)=>$record->status == 'paid')
                     ->color('success')
+                    ->mountUsing(function($action,$form,$record){
+                        if(!auth_user()->hasRole(['cashier'])){
+                            Notification::make()
+                                ->title('Payment Processing are only allowed for Cashier')
+                                ->warning()
+                                ->send();
+                            $action->cancel();
+                        }
+
+                        $form->fill($record->toArray());
+                    })
                     ->action(function(CreateSalePayment $createSalePayment,$record,$data){
 
                         $createSalePayment->handle(
@@ -176,7 +187,7 @@ class SaleResource extends Resource
                             $record->branch_id,
                             $data['payment_method'],
                             $data['reference_number'] ?? null,
-                            $data['amount'],
+                            $data['total_amount'],
                         );
 
                         $record->update([
@@ -203,7 +214,7 @@ class SaleResource extends Resource
                 ->schema([
                     TextInput::make('id')
                         ->label('Transaction No.')
-                        ->default('TX - ' . $record->id)
+                        ->formatStateUsing(fn()=>'TX - ' . $record->id)
                         ->nullable()
                         ->disabled()
                         ->dehydrated()
@@ -212,7 +223,6 @@ class SaleResource extends Resource
                     Forms\Components\DatePicker::make('transaction_date')
                         ->label('Transaction Date')
                         ->disabled()
-                        ->default($record->transaction_date)
                         ->dehydrated()
                         ->required(),
                 ])
@@ -233,9 +243,8 @@ class SaleResource extends Resource
                         ->label('Reference No.')
                         ->required(),
 
-                    TextInput::make('amount')
+                    TextInput::make('total_amount')
                         ->label('Amount')
-                        ->default($record->total_amount)
                         ->disabled()
                         ->dehydrated()
                         ->mask(RawJs::make('$money($input)'))

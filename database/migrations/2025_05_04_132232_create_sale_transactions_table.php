@@ -39,7 +39,7 @@ return new class extends Migration
             $table->foreignId('branch_id')->constrained('branches');
             $table->foreignId('processed_by')->constrained('employees');
             $table->string('payment_method');
-            $table->string('payment_reference');
+            $table->string('payment_reference')->nullable();
             $table->date('date_paid');
             $table->decimal('amount_paid',16,2)->default(0);
             $table->timestamps();

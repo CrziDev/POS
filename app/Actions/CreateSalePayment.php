@@ -11,7 +11,7 @@ class CreateSalePayment
         int $processedBy,
         string $branchId,
         string $paymentMethod,
-        string $paymentReference,
+        null|string $paymentReference,
         float $amountPaid,        
     ){
         SalePayment::create([

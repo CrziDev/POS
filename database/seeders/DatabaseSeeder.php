@@ -24,7 +24,7 @@ class DatabaseSeeder extends Seeder
         Branch::factory(2)
             ->create();
 
-        for ($i = 0; $i < 10; $i++) {
+        for ($i = 0; $i < 5; $i++) {
             $employeeData = Employee::factory()->make([
             ]); 
         
@@ -40,6 +40,19 @@ class DatabaseSeeder extends Seeder
             $randomRole = Arr::random(['sales-clerk', 'cashier']);
             $user->assignRole($randomRole);
         }
+
+        $employeeData = Employee::factory()->make([
+        ]); 
+    
+        $user = User::create([
+            'name' => $employeeData->first_name . ' ' . $employeeData->last_name,
+            'email' => $employeeData->email, 
+            'password' => Hash::make('password'), 
+        ]);
+    
+        $user->employee()->create($employeeData->toArray()); 
+        
+        $user->assignRole('manager');
 
         Employee::all()->each(function ($item) {
             BranchEmployee::create([

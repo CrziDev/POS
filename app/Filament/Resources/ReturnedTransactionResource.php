@@ -52,7 +52,9 @@ class ReturnedTransactionResource extends Resource
             Section::make('Sales Transaction')->schema([
                 Select::make('sale_transaction_id')
                     ->label('Transaction #')
-                    ->options(fn () => SaleTransaction::getOptionsArray(true))
+                    ->options(fn () => SaleTransaction::getOptionsArray(html:true,paid:true))
+                    ->searchable()
+                    ->helperText('Only Paid Transaction Can be selected')
                     ->allowHtml()
                     ->required()
                     ->live()
