@@ -40,9 +40,10 @@ return new class extends Migration
         Schema::create('replacement_payments', function (Blueprint $table) {
             $table->id();
             $table->foreignId('returned_transaction_id')->constrained('returned_transactions')->onDelete('cascade');
-            $table->decimal('amount', 16, 2);
+            $table->decimal('amount_paid', 16, 2);
             $table->string('payment_method'); 
             $table->string('reference_no')->nullable(); 
+            $table->string('date_paid')->nullable(); 
             $table->foreignId('received_by')->constrained('users');
             $table->timestamps();
         });

@@ -13,6 +13,7 @@ use App\Models\{
     SaleTransactionItem,
     Stock
 };
+use DateTime;
 use Filament\Forms\Components\{
     DatePicker,
     Fieldset,
@@ -48,7 +49,7 @@ class ReturnedTransactionResource extends Resource
 
     public static function getNavigationBadge(): ?string
     {
-        return SaleTransaction::where('status', 'pending')->count();
+        return ReturnedTransaction::where('status', 'pending')->count();
     }
 
     public static function getNavigationBadgeColor(): string | array | null
@@ -329,12 +330,14 @@ class ReturnedTransactionResource extends Resource
                                         ->default('g-cash')
                                         ->live(),
 
+                                    DatePicker::make('date_paid'),
+
                                     Split::make([
                                         TextInput::make('reference_no')
                                             ->visible(fn ($get) => $get('payment_method') === 'g-cash')
                                             ->label('Reference No.')
                                             ->required(),
-                                        TextInput::make('amount')
+                                        TextInput::make('amount_paid')
                                             ->label('Amount')
                                             ->afterStateHydrated(function ($record,$set) {
                                                 $set('amount',$record->returnedItem->sum('value_difference'));

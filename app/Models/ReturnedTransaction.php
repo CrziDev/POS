@@ -66,8 +66,9 @@ class ReturnedTransaction extends Model
     public function recordPayment($data){
         $this->replacementPayment()->create([
             'returned_transaction_id' => $this->id,
-            'amount'            => $data['amount'],
+            'amount_paid'            => $data['amount'],
             'payment_method'    => $data['payment_method'],
+            'date_paid'         => $data['date_paid'],
             'reference_no'      => $data['reference_no'],
             'received_by'       => auth()->user()->id,
         ]);
