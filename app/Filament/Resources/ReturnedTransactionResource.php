@@ -46,6 +46,17 @@ class ReturnedTransactionResource extends Resource
     protected static ?string $navigationGroup = 'Sales';
     protected static ?int $navigationSort = 2;
 
+    public static function getNavigationBadge(): ?string
+    {
+        return SaleTransaction::where('status', 'pending')->count();
+    }
+
+    public static function getNavigationBadgeColor(): string | array | null
+    {
+        return 'warning';
+    }
+
+
     public static function form(Form $form): Form
     {
         return $form->schema([
@@ -92,11 +103,12 @@ class ReturnedTransactionResource extends Resource
             Repeater::make('return_item')
                 ->visible(fn($operation,$get)=>$operation == 'create' && $get('sale_transaction_id'))
                 ->label('Returned Items')
-                ->afterStateHydrated(fn($set)=>$set('return_item',[]))
+                // ->afterStateHydrated(fn($set)=>$set('return_item',[]))
                 ->schema([
                     Split::make([
                         Fieldset::make()->schema([
                             Select::make('returned_item')
+                                ->required()
                                 ->label('Item to Return')
                                 ->live()
                                 ->allowHtml()
