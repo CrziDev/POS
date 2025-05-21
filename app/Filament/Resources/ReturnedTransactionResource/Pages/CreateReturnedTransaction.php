@@ -10,6 +10,7 @@ use Illuminate\Database\Eloquent\Model;
 class CreateReturnedTransaction extends CreateRecord
 {
     protected static string $resource = ReturnedTransactionResource::class;
+     protected static bool $canCreateAnother = false;
 
     protected function handleRecordCreation(array $data): Model
     {
