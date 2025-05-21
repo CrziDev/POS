@@ -18,8 +18,12 @@ enum RolesEnum: string
         if($excludeAdmin){
             unset($cases[0]);
             unset($cases[1]);
-
         }
+
+        if(auth_user()->hasRole(['manager'])){
+            unset($cases[3]);
+        }
+        
         return array_combine(
             array_map(fn($case) => $case->value, $cases),
             array_map(fn($case) => Str::Headline($case->value), $cases)

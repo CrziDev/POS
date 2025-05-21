@@ -14,7 +14,8 @@ class ListBranches extends ListRecords
     {
         return [
             Actions\CreateAction::make()
-                ->icon('heroicon-m-plus'),
+                ->icon('heroicon-m-plus')
+                ->visible(auth_user()->hasRole(['admin','super-admin'])),
         ];
     }
 }

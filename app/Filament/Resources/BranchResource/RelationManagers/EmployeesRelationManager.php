@@ -90,7 +90,13 @@ class EmployeesRelationManager extends RelationManager
                     Tables\Actions\Action::make('view_detail')
                         ->icon('heroicon-m-eye')
                         ->label('View Detail')
-                        ->action(fn($record)=>redirect(route('filament.admin.resources.employees.edit',['record'=>$record->employee_id]))),
+                        ->action(function($record){
+                             if(auth_user()->hasRole(['manager'])){
+                                return redirect(route('filament.admin.resources.employees.view',['record'=>$record->employee_id]));
+                            }else{
+                                return redirect(route('filament.admin.resources.employees.edit',['record'=>$record->employee_id]));
+                            }
+                        }),
                     Tables\Actions\DeleteAction::make('Remove')
                         ->hidden(fn($record)=>auth_user()->hasRole(['manager']) && $record->employee->user->hasRole(['manager']))
                         ->label('Remove')

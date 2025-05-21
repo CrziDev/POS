@@ -191,6 +191,13 @@ class EmployeeResource extends Resource
                     ->placeholder('All Roles'),
                 
             ])
+            ->recordUrl(function($record){
+                if(auth_user()->hasRole(['manager'])){
+                    return route('filament.admin.resources.employees.view',['record'=>$record->id]);
+                }else{
+                    return route('filament.admin.resources.employees.edit',['record'=>$record->id]);
+                }
+            })
             ->actions([
                 CustomImpersonate::make()
             ])
@@ -211,6 +218,7 @@ class EmployeeResource extends Resource
             'index' => Pages\ListEmployees::route('/'),
             'create' => Pages\CreateEmployee::route('/create'),
             'edit' => Pages\EditEmployee::route('/{record}/edit'),
+            'view' => Pages\ViewEmployee::route('/{record}/view'),
         ];
     }
 }
