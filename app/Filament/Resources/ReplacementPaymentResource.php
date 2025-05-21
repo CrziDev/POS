@@ -10,6 +10,7 @@ use Filament\Forms\Form;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
+use Illuminate\Contracts\Database\Eloquent\Builder as EloquentBuilder;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 
@@ -34,30 +35,31 @@ class ReplacementPaymentResource extends Resource
     public static function table(Table $table): Table
     {
         return $table
-            //   ->modifyQueryUsing(function (Builder $query) {
-            //     if (auth()->user()->hasRole(['admin','super-admin'])) {
-            //         return $query;
-            //     }else{
-            //         return $query->whereIn('returnedTransaction.branch_id', auth()->user()->employee->branch()->pluck('branch_id'));
-            //     }
-            // })
+              ->modifyQueryUsing(function (Builder $query) {
+                if (auth()->user()->hasRole(['admin','super-admin'])) {
+                    return $query;
+                }else{
+                    return $query->whereHas('returnedTransaction',function(EloquentBuilder $q){
+                        $q->whereIn('branch_id', auth()->user()->employee->branch()->pluck('branch_id'));
+                    });
+                }
+            })
             ->columns([
                  Tables\Columns\TextColumn::make('returned_transaction_id')
                     ->label('Returned No.')
                     ->sortable()
                     ->formatStateUsing(fn($state) => 'R - ' . $state),
-                Tables\Columns\TextColumn::make('date_paid')
-                    ->label('Date recorded')
-                    ->date(),
-                Tables\Columns\TextColumn::make('payment_method')
-                    ->formatStateUsing(fn($state)=>ucfirst($state)),
-                Tables\Columns\TextColumn::make('payment_reference'),
-                Tables\Columns\TextColumn::make('reference_no'),
-                Tables\Columns\TextColumn::make('processedBy.full_name'),
                 Tables\Columns\TextColumn::make('amount_paid')
                     ->color('success')
                     ->money('PHP')
                     ->badge(),
+                Tables\Columns\TextColumn::make('payment_method')
+                    ->formatStateUsing(fn($state)=>ucfirst($state)),
+                Tables\Columns\TextColumn::make('reference_no'),
+                Tables\Columns\TextColumn::make('date_paid')
+                    ->label('Date Paid')
+                    ->date(),
+                Tables\Columns\TextColumn::make('processedBy.full_name'),
             ])
             ->filters([
                 //

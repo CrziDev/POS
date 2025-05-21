@@ -28,7 +28,7 @@ class SaleTransaction extends Model
     {
         $query = self::query()->when($paid,fn($q)=>$q->where('status','paid'));
 
-        if(!auth_user()->hasRole(['admin'])){
+        if(!auth_user()->hasRole(['admin','super-admin'])){
             $query = $query->where('branch_id',auth_user()->employee->branch()->first()->branch_id);
         }
 

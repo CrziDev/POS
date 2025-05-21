@@ -171,16 +171,21 @@ class ReturnedTransactionResource extends Resource
                                 ->searchable()
                                 ->live()
                                 ->options(Stock::getOptionsArray())
-                                ->afterStateUpdated(function($state,$set){
+                                ->afterStateUpdated(function($state,$set,$get){
                                     $stock = Stock::find($state);
 
                                     if($stock){
                                         $retailPrice  = $stock->supply->price;
                                         $set('replacement_item_price',$retailPrice);
-                                        $set('Quantity',1);
+                                        $set('qty_replaced',1);
+
+                                        if($get('qty_replaced') > 0){
+                                            $totalAmount = $get('qty_replaced') * moneyToNumber($get('replacement_item_price'));
+                                            $set('total_amount',$totalAmount);
+                                        }
                                     }else{
                                         $set('replacement_item_price',null);
-                                        $set('Quantity',null);
+                                        $set('qty_replaced',null);
 
                                     }
                                 }),
@@ -189,19 +194,23 @@ class ReturnedTransactionResource extends Resource
                                 TextInput::make('replacement_item_price')
                                     ->live()
                                     ->afterStateUpdated(function($get,$set){
-                                        $totalAmount = $get('qty_replaced') * moneyToNumber($get('replacement_item_price'));
-                                        $set('total_amount',$totalAmount);
-                                        
+                                      if($get('qty_replaced') > 0){
+                                            $totalAmount = $get('qty_replaced') * moneyToNumber($get('replacement_item_price'));
+                                            $set('total_amount',$totalAmount);
+                                        }
                                     })
                                     ->label('Price'),
 
                                 TextInput::make('qty_replaced')
                                     ->live()
                                     ->label('Quantity')
-                                    ->maxValue(1)
+                                    ->minValue(1)
                                     ->afterStateUpdated(function($get,$set){
-                                        $totalAmount = $get('qty_replaced') * moneyToNumber($get('replacement_item_price'));
-                                        $set('total_amount',$totalAmount);
+
+                                        if($get('qty_replaced') > 0){
+                                            $totalAmount = $get('qty_replaced') * moneyToNumber($get('replacement_item_price'));
+                                            $set('total_amount',$totalAmount);
+                                        }
                                     })
                                     ->numeric(),
                                     
@@ -327,10 +336,12 @@ class ReturnedTransactionResource extends Resource
                                             'g-cash' => 'G-Cash',
                                             'cash'  => 'Cash',
                                         ])
+                                        ->required()
                                         ->default('g-cash')
                                         ->live(),
 
-                                    DatePicker::make('date_paid'),
+                                    DatePicker::make('date_paid')
+                                        ->required(),
 
                                     Split::make([
                                         TextInput::make('reference_no')
@@ -340,7 +351,7 @@ class ReturnedTransactionResource extends Resource
                                         TextInput::make('amount_paid')
                                             ->label('Amount')
                                             ->afterStateHydrated(function ($record,$set) {
-                                                $set('amount',$record->returnedItem->sum('value_difference'));
+                                                $set('amount_paid',$record->returnedItem->sum('value_difference'));
                                             })
                                             ->disabled()
                                             ->dehydrated()
@@ -370,6 +381,8 @@ class ReturnedTransactionResource extends Resource
                     })
                     ->modalSubmitActionLabel('Approved')
                     ->icon('heroicon-o-clipboard-document-check'),
+                Tables\Actions\ViewAction::make()
+
 
             ]);
     }
