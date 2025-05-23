@@ -44,16 +44,22 @@ class ReturnedItemRelationManager extends RelationManager
                     ->label("Original Price")
                     ->money('PHP'),
                     
-                Tables\Columns\TextColumn::make('replacementItem.name')
-                    ->label('Replacement Item')
-                    ->formatStateUsing(function ($record, $state) {
-                        return Str::headline($state) . " ({$record->qty_replaced} pcs)";
-                    }),
-                    
-                Tables\Columns\TextColumn::make('replacement_item_price')
-                    ->label("Replacement Price")
-                    ->money('PHP'),
-                    
+                Tables\Columns\TextColumn::make('replacementItems')
+                    ->label('Replacement Items')
+                    ->bulleted()
+                    ->getStateUsing(function ($record) {
+                        return $record->replacementItems
+                            ->map(function ($item) {
+                                $name = Str::headline($item->item->name);
+                                $qty = $item->qty_replaced;
+                                $price = number_format($item->replacement_item_price, 2); // Formats to 2 decimal places
+                                return "{$name} ({$qty} pcs) - ₱{$price}";
+                            })
+                            ->toArray();
+                    })
+                    ->wrap(),
+
+
                 Tables\Columns\TextColumn::make('value_difference')
                     ->label("Amount to Pay / Refund")
                     ->money('PHP'),

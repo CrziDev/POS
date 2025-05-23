@@ -41,6 +41,7 @@ class DatabaseSeeder extends Seeder
             $user->assignRole($randomRole);
         }
 
+        ##  
         $employeeData = Employee::factory()->make([
         ]); 
     
@@ -49,11 +50,23 @@ class DatabaseSeeder extends Seeder
             'email' => $employeeData->email, 
             'password' => Hash::make('password'), 
         ]);
-    
         $user->employee()->create($employeeData->toArray()); 
-        
         $user->assignRole('manager');
 
+        ##  
+        $employeeData = Employee::factory()->make([
+            'email' => 'admin@gmail.com'
+        ]); 
+    
+        $user = User::create([
+            'name' => $employeeData->first_name . ' ' . $employeeData->last_name,
+            'email' => $employeeData->email, 
+            'password' => Hash::make('password'), 
+        ]);
+        $user->employee()->create($employeeData->toArray()); 
+        $user->assignRole('admin');
+
+        ##
         Employee::all()->each(function ($item) {
             BranchEmployee::create([
                 'branch_id'     => Branch::inRandomOrder()->first()->id,

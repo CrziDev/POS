@@ -28,7 +28,7 @@ class Stock extends Model
 
     }
 
-    public static function getOptionsArray(): array
+    public static function getOptionsArray($includePrice = false): array
     {
         $query = self::query()->with(['supply','branch']);
 

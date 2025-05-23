@@ -39,6 +39,7 @@ class SaleTransactionItem extends Model
                     "<span> <b>Item:</b> " . $item->supply->name . "</span>". "<br>".
                     "<small>" .
                         "<span> Branch:". $item->saleTransaction->branch->name."<span>"."<br>".
+                        "<span> Price: ".  numberToMoney($item->price_amount)."<span>"."<br>".
                         "<span> Remaining: ". $item->quantity - $item->returned_quantity ."<span>" .
                     "<small>" 
             ]
