@@ -16,6 +16,7 @@ class StockPolicy
         return $user->hasRole([
             RolesEnum::ADMIN->value,
             RolesEnum::SUPERADMIN->value,
+            RolesEnum::MANAGER->value,
             RolesEnum::SALESCLERK->value,
         ]);
 
@@ -29,6 +30,8 @@ class StockPolicy
         return $user->hasRole([
             RolesEnum::ADMIN->value,
             RolesEnum::SUPERADMIN->value,
+            RolesEnum::MANAGER->value,
+
             RolesEnum::SALESCLERK->value,
         ]);
 
@@ -42,6 +45,8 @@ class StockPolicy
         return $user->hasRole([
             RolesEnum::ADMIN->value,
             RolesEnum::SUPERADMIN->value,
+            RolesEnum::MANAGER->value,
+
             RolesEnum::SALESCLERK->value,
         ]);
 
@@ -55,6 +60,8 @@ class StockPolicy
         return $user->hasRole([
                RolesEnum::ADMIN->value,
             RolesEnum::SUPERADMIN->value,
+            RolesEnum::MANAGER->value,
+
             RolesEnum::SALESCLERK->value,
         ]);
 
@@ -68,6 +75,8 @@ class StockPolicy
         return $user->hasRole([
        RolesEnum::ADMIN->value,
             RolesEnum::SUPERADMIN->value,
+            RolesEnum::MANAGER->value,
+
             RolesEnum::SALESCLERK->value,
         ]);
 
@@ -81,6 +90,8 @@ class StockPolicy
         return $user->hasRole([
                  RolesEnum::ADMIN->value,
             RolesEnum::SUPERADMIN->value,
+            RolesEnum::MANAGER->value,
+
             RolesEnum::SALESCLERK->value,
         ]);
     }
@@ -93,6 +104,8 @@ class StockPolicy
         return $user->hasRole([
             RolesEnum::ADMIN->value,
             RolesEnum::SUPERADMIN->value,
+            RolesEnum::MANAGER->value,
+
             RolesEnum::SALESCLERK->value,
         ]);
     }
