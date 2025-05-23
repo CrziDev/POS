@@ -101,6 +101,8 @@ class ReturnedTransactionResource extends Resource
                     ->visible(fn ($get) => $get('sale_transaction_id')),
             ]),
 
+            // ...self::summarySection(),
+
             ...self::returnedItemSection()
         ]);
     }
@@ -241,7 +243,29 @@ class ReturnedTransactionResource extends Resource
             ]);
     }
 
-     public static function returnedItemSection(){
+    public static function summarySection(){
+        return [
+            Section::make('summary')
+                ->make([
+                    Split::make([
+                        TextInput::make('total_returned')
+                            ->label('Total Returned')
+                            ->numeric()
+                            ->inputMode('decimal')
+                            ->default(0)
+                            ->readOnly(),
+                        TextInput::make('total_replaced_item')
+                            ->label('Total Replaced')
+                            ->numeric()
+                            ->default(0)
+                            ->minValue(fn($get)=>$get('total_returned'))
+                            ->readOnly(),
+                    ])
+                ]),
+        ];
+    }
+
+    public static function returnedItemSection(){
         
         return [
             Repeater::make('return_item')
@@ -250,50 +274,52 @@ class ReturnedTransactionResource extends Resource
                 ->schema([
                     Split::make([
                         Fieldset::make()->schema([
-                            // Split::make([
                                 
-                                Select::make('returned_item')
-                                    ->required()
-                                    ->label('Item to Return')
-                                    ->live()
-                                    ->allowHtml()
-                                    ->searchable()
-                                    ->options(fn($get)=>SaleTransactionItem::getOptionsArray($get('../../sale_transaction_id'),html:true))
-                                    ->afterStateUpdated(function($state,$set){  
-                                        $transactionItem = SaleTransactionItem::find($state);
+                            Select::make('returned_item')
+                                ->required()
+                                ->label('Item to Return')
+                                ->live()
+                                ->allowHtml()
+                                ->searchable()
+                                ->options(fn($get)=>SaleTransactionItem::getOptionsArray($get('../../sale_transaction_id'),html:true))
+                                ->afterStateUpdated(function($set,$state,$get){
+                                    $saleItem = SaleTransactionItem::find($state);
 
-                                        if($transactionItem){
+                                    if($saleItem){
+                                        $set('returned_price',$saleItem->price_amount);
+                                        $set('qty_returned',1);
+                                    }else{
+                                        $set('returned_price',0);
+                                        $set('qty_returned',1);
+                                    }
+                                    self::recalculateSummary($get,$set);
+                                })
+                                ->columnSpanFull(),
 
-                                            $soldPrice  = $transactionItem->original_price;
-                                            $remainingQuantity = $transactionItem->quantity - $transactionItem->returned_quantity;
+                            TextInput::make('qty_returned')
+                                ->label('Quantity')
+                                ->minValue(1)
+                                ->numeric()
+                                ->live()
+                                ->afterStateUpdated(function($get,$set){
+                                    self::recalculateSummary($get,$set);
+                                })
+                                ->required(),
 
-                                            // $set('original_item_price',$soldPrice);
-                                            // $set('available_quantity',$remainingQuantity);
-                                        }else{
-                                            // $set('original_item_price',null);
-                                            // $set('available_quantity',null);
-                                        }
-                                    })->columnSpanFull(),
-
-                                TextInput::make('qty_returned')
-                                    ->label('Quantity')
-                                    // ->maxValue(fn($get)=>$get('available_quantity'))
-                                    ->minValue(1)
-                                    ->numeric()
-                                    ->required(),
-
-                            // ])->columnSpanFull(),
+                            Hidden::make('returned_price'),
 
                             Toggle::make('is_saleble')
                                 ->label('Re-sellable')
                                 ->extraAlpineAttributes(['class'=>'mt-1'])
                                 ->inline(false),
-                                // ->columnSpanFull(),
 
                             Textarea::make('issue')
                                 ->label('Issue/Remarks')
                                 ->required()
                                 ->columnSpanFull(),
+
+                            ...self::summarySection(),
+
                         ]),
 
                         ...self::replacementItemSection()
@@ -303,6 +329,7 @@ class ReturnedTransactionResource extends Resource
                 ->reorderable(false)
                 ->addActionLabel('Return More Item')
                 ->columnSpanFull(),
+                
         ];
     }
 
@@ -334,44 +361,74 @@ class ReturnedTransactionResource extends Resource
                                     $set('total_amount',$totalAmount);
                                 }
                             }else{
-                                $set('replacement_item_price',null);
-                                $set('qty_replaced',null);
-    
+                                $set('replacement_item_price',0);
+                                $set('qty_replaced',0);
+                                $set('total_amount',0);
+
                             }
+                            self::recalculateSummary($get,$set,true);
                         }),
                         
                     Split::make([
                         TextInput::make('replacement_item_price')
                             ->live()
                             ->afterStateUpdated(function($get,$set){
-                            if($get('qty_replaced') > 0){
-                                    $totalAmount = $get('qty_replaced') * moneyToNumber($get('replacement_item_price'));
-                                    $set('total_amount',$totalAmount);
-                                }
-                            })
+                                if($get('qty_replaced') > 0){
+                                        $totalAmount = $get('qty_replaced') * moneyToNumber($get('replacement_item_price'));
+                                        $set('total_amount',$totalAmount);
+                                    }
+                                    self::recalculateSummary($get,$set,true);
+                                })
+
+                            ->required()
                             ->label('Price'),
     
                         TextInput::make('qty_replaced')
                             ->live()
                             ->label('Quantity')
                             ->minValue(1)
+                            ->required()
                             ->afterStateUpdated(function($get,$set){
     
                                 if($get('qty_replaced') > 0){
                                     $totalAmount = $get('qty_replaced') * moneyToNumber($get('replacement_item_price'));
                                     $set('total_amount',$totalAmount);
                                 }
+
+                                self::recalculateSummary($get,$set,true);
                             })
                             ->numeric(),
                             
                         TextInput::make('total_amount')
                             ->label('Total Amount')
+                            ->readOnly()
                             ->numeric(),
     
                     ])->columnSpanFull(),
-                ])
+                ]),
+
 
         ];
+    }
+
+
+    public static function recalculateSummary($get, $set, $inner = false)
+    {
+        $path = ($inner) ? '../../../../' : '../../';
+
+        $returItemCollection = $get($path . 'return_item');
+
+        foreach ($returItemCollection as $index => $item) {
+            $totalReturned = moneyToNumber($item['returned_price']) * moneyToNumber($item['qty_returned']);
+
+            $totalReplacement = 0;
+            foreach ($item['replacement_items'] as $replacement) {
+                $totalReplacement += $replacement['total_amount'];
+            }
+
+            $set($path . "return_item.{$index}.total_returned", number_format($totalReturned, 2));
+            $set($path . "return_item.{$index}.total_replaced_item", number_format($totalReplacement, 2));
+        }
     }
 
 

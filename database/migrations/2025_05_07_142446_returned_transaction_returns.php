@@ -26,14 +26,21 @@ return new class extends Migration
             $table->id();
             $table->foreignId('returned_transaction_id')->constrained('returned_transactions')->onDelete('cascade');
             $table->foreignId('original_item_id')->constrained('sale_transaction_items');
-            $table->foreignId('replacement_item_id')->nullable()->constrained('supplies');
             $table->integer('qty_returned');
-            $table->integer('qty_replaced');
             $table->decimal('original_item_price', 16, 2);
-            $table->decimal('replacement_item_price', 16, 2)->nullable();
             $table->decimal('value_difference', 16, 2);
             $table->string('issue');
             $table->boolean('is_saleble');
+            $table->timestamps();
+        });
+
+
+         Schema::create('replacement_items', function (Blueprint $table) {
+            $table->id();
+            $table->foreignId('return_item_id')->constrained('return_items')->onDelete('cascade');
+            $table->foreignId('replacement_item_id')->nullable()->constrained('supplies');
+            $table->integer('qty_replaced');
+            $table->decimal('replacement_item_price', 16, 2)->nullable();
             $table->timestamps();
         });
 

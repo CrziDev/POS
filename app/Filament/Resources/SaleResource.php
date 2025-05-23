@@ -140,6 +140,7 @@ class SaleResource extends Resource
             ->filters([
                 SelectFilter::make('payment_method')
                     ->placeholder('All Method')
+                    ->required()
                     ->options([
                         'Cash' => 'Cash',
                         'g-cash' => 'GCash',

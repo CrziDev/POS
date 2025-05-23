@@ -30,26 +30,18 @@ class ReturnedTransaction extends Model
 
             $saleTransactionItem = $item->saleTransactionItem;
 
-            
             if($item->is_saleble){
                 $stock = Stock::where('supply_id', $saleTransactionItem->supply_id)
                     ->where('branch_id', $this->branch_id)
                     ->first();
         
                 if ($stock) {
-                    $stock->quantity += $item['qty'];
+                    $stock->quantity += $item['qty_returned'];
                     $stock->save();
                 }
             }
 
-              $returnedItem = Stock::where('supply_id', $item->replacement_item_price)
-                    ->where('branch_id', $this->branch_id)
-                    ->first();
-        
-                if ($returnedItem) {
-                    $returnedItem->quantity -= $item['qty'];
-                    $returnedItem->save();
-                }
+            self::processedReturnedItems($item);
             
             $saleTransactionItem->update([
                 'returned_quantity' => $saleTransactionItem->returned_quantity + $item->qty_returned
@@ -63,14 +55,30 @@ class ReturnedTransaction extends Model
 
     }
 
+    public function processedReturnedItems($returnedItem){
+
+         $returnedItem->replacementItems()->each(function($replacement){
+
+            $replacementItem = Stock::where('supply_id', $replacement->replacement_item_id)
+                ->where('branch_id', $this->branch_id)
+                ->first();
+    
+            if ($replacementItem) {
+                $replacementItem->quantity -= $replacement['qty_replaced'];
+                $replacementItem->save();
+            }
+         });
+         
+    }
+
     public function recordPayment($data){
         $this->replacementPayment()->create([
             'returned_transaction_id' => $this->id,
-            'amount_paid'            => $data['amount_paid'],
-            'payment_method'    => $data['payment_method'],
-            'date_paid'         => $data['date_paid'],
-            'reference_no'      => $data['reference_no'],
-            'received_by'       => auth()->user()->id,
+            'amount_paid'             => $data['amount_paid'],
+            'payment_method'          => $data['payment_method'],
+            'date_paid'               => $data['date_paid'],
+            'reference_no'            => $data['reference_no'],
+            'received_by'             => auth_user()->id,
         ]);
 
         Notification::make()

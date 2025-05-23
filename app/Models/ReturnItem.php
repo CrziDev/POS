@@ -12,7 +12,8 @@ class ReturnItem extends Model
         return $this->belongsTo(SaleTransactionItem::class,'original_item_id');
     }
     
-    public function replacementItem(){
-        return $this->belongsTo(Supply::class,'replacement_item_id');
+    public function replacementItems(){
+        return $this->hasMany(ReplacementItem::class,'return_item_id');
     }
+    
 }
