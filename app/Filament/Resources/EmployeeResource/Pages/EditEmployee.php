@@ -40,6 +40,7 @@ class EditEmployee extends EditRecord
     {
         $data['user_id'] = $record->user->id;
 
+
         $record->update($data);
         $record->user->syncRoles($data['role']);
 
@@ -59,7 +60,7 @@ class EditEmployee extends EditRecord
 
         $record->branch()->delete();
 
-        if($branches){
+        if(!is_int($branches) && $branches != null){
             foreach($branches as $branch){
                 $record->branch()->create([
                     'branch_id'   => $branch,

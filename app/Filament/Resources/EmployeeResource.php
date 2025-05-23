@@ -21,7 +21,6 @@ use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Enums\ActionsPosition;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
-use STS\FilamentImpersonate\Tables\Actions\Impersonate;
 
 class EmployeeResource extends Resource
 {
@@ -78,7 +77,10 @@ class EmployeeResource extends Resource
                                 Forms\Components\Select::make('role')  
                                     ->label('Position')
                                     ->multiple()
-                                    ->options(RolesEnum::toArray(excludeAdmin:true))
+                                    ->options(function($state){
+                                        $options = RolesEnum::toArray(excludeAdmin:true);
+                                        return $options;
+                                    })
                                     ->required()
                                     ->live()
                                     ->columnSpanFull(),
@@ -115,8 +117,9 @@ class EmployeeResource extends Resource
                     ->when(!auth_user()->hasRole(['admin','super-admin']), function ($query) {
                         $query->whereIn('branch_employees.branch_id', auth_user()->employee->branch()->pluck('branch_id'));
                     })
-                    ->select('employees.*') 
-                    ->orderByRaw("CASE WHEN roles.name = 'admin' THEN 0 ELSE 1 END")
+                    ->select('employees.*', \DB::raw("MIN(roles.name) as role_name"))
+                    ->groupBy('employees.id')
+                    ->orderByRaw("CASE WHEN MIN(roles.name) = 'admin' THEN 0 ELSE 1 END")
                     ->orderBy('last_name');
 
             })
