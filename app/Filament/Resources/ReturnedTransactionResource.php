@@ -401,6 +401,7 @@ class ReturnedTransactionResource extends Resource
                             
                         TextInput::make('total_amount')
                             ->label('Total Amount')
+                            ->readOnly()
                             ->numeric(),
     
                     ])->columnSpanFull(),
