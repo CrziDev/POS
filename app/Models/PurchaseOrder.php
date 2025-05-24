@@ -2,12 +2,27 @@
 
 namespace App\Models;
 
+use App\Actions\Notifications\PurchaseOrderCreated;
 use App\Enums\PurchaseOrderStatusEnums;
 use Illuminate\Database\Eloquent\Model;
 
 class PurchaseOrder extends Model
 {
     protected $guarded = [];
+
+    public static function booted():void
+    {
+        static::created(function ($model){
+            $notification = new PurchaseOrderCreated(
+                branchName: $model->branch->name,
+                userName: $model->preparedBy->employee->full_name,
+                route: route('filament.admin.resources.purchase-orders.view',['record',$model->id]),
+                roles: 'admin'
+            );
+
+            $notification->handle();
+        });
+    }
 
     public function approvePurchaseOrder()
     {

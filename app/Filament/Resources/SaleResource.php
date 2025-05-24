@@ -37,8 +37,13 @@ class SaleResource extends Resource
 
     public static function getNavigationBadge(): ?string
     {
-        return SaleTransaction::where('status', 'pending')
-            ->whereIn('branch_id', auth_user()->employee->branch()->pluck('branch_id'))->count();
+
+          if (auth_user()->hasRole(['admin','super-admin'])) {
+                return SaleTransaction::where('status', 'pending')->count();
+            }else{
+                return SaleTransaction::where('status', 'pending')
+                        ->whereIn('branch_id', auth_user()->employee->branch()->pluck('branch_id'))->count();
+            }
     }
 
     public static function getNavigationBadgeColor(): string | array | null
@@ -141,7 +146,6 @@ class SaleResource extends Resource
             ->filters([
                 SelectFilter::make('payment_method')
                     ->placeholder('All Method')
-                    ->required()
                     ->options([
                         'Cash' => 'Cash',
                         'g-cash' => 'GCash',

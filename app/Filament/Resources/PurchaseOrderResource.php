@@ -32,8 +32,13 @@ class PurchaseOrderResource extends Resource
 
     public static function getNavigationBadge(): ?string
     {
-        return PurchaseOrder::where('status', 'pending')
-            ->whereIn('branch_id', auth_user()->employee->branch()->pluck('branch_id'))->count();
+
+         if (auth_user()->hasRole(['admin','super-admin'])) {
+                return  PurchaseOrder::where('status', 'pending')->count();
+            }else{
+                return  PurchaseOrder::where('status', 'pending')
+                        ->whereIn('branch_id', auth_user()->employee->branch()->pluck('branch_id'))->count();
+            }
     }
 
     public static function form(Form $form): Form

@@ -49,8 +49,12 @@ class ReturnedTransactionResource extends Resource
 
     public static function getNavigationBadge(): ?string
     {
-        return ReturnedTransaction::where('status', 'pending')
-            ->whereIn('branch_id', auth_user()->employee->branch()->pluck('branch_id'))->count();
+          if (auth_user()->hasRole(['admin','super-admin'])) {
+                return ReturnedTransaction::where('status', 'pending')->count();
+            }else{
+                return ReturnedTransaction::where('status', 'pending')
+                        ->whereIn('branch_id', auth_user()->employee->branch()->pluck('branch_id'))->count();
+            }
     }
 
     public static function getNavigationBadgeColor(): string | array | null
