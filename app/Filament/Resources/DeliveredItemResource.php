@@ -27,7 +27,9 @@ class DeliveredItemResource extends Resource
                     return $query->where('status','delivered');
                 }else{
                     return $query
-                        ->whereIn('po.branch_id', auth_user()->employee->branch()->pluck('branch_id'))
+                        ->whereHas('po',function(Builder $query){
+                            $query->whereIn('branch_id', auth_user()->employee->branch()->pluck('branch_id'));
+                        })
                         ->where('status','delivered');
                 }
             })
