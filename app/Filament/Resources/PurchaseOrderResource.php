@@ -19,6 +19,7 @@ use Filament\Tables;
 use Filament\Tables\Table;
 use Filament\Tables\Enums\ActionsPosition;
 use Filament\Tables\Filters\SelectFilter;
+use Illuminate\Contracts\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 
 class PurchaseOrderResource extends Resource
@@ -28,6 +29,12 @@ class PurchaseOrderResource extends Resource
     protected static ?string $navigationIcon = 'heroicon-o-clipboard-document-check';
     protected static ?string $navigationGroup = 'Inventory';
     protected static ?int $navigationSort = 3;
+
+    public static function getNavigationBadge(): ?string
+    {
+        return PurchaseOrder::where('status', 'pending')
+            ->whereIn('branch_id', auth_user()->employee->branch()->pluck('branch_id'))->count();
+    }
 
     public static function form(Form $form): Form
     {
@@ -79,6 +86,13 @@ class PurchaseOrderResource extends Resource
     public static function table(Table $table): Table
     {
         return $table
+            ->modifyQueryUsing(function (Builder $query) {
+                if (auth_user()->hasRole(['admin','super-admin'])) {
+                    return $query;
+                }else{
+                    return $query->whereIn('branch_id', auth_user()->employee->branch()->pluck('branch_id'));
+                }
+            })
             ->columns([
                 Tables\Columns\TextColumn::make('id')
                     ->label('PO Number')
@@ -145,6 +159,13 @@ class PurchaseOrderResource extends Resource
                     ->label('Status')
                     ->options(PurchaseOrderStatusEnums::options()),
             ])
+            ->recordUrl(function($record){
+                if(isRole('manager')){
+                    return route('filament.admin.resources.purchase-orders.edit',['record'=>$record->id]);
+                }else{
+                    return route('filament.admin.resources.purchase-orders.view',['record'=>$record->id]);
+                }
+            })
             ->actions([
                 Tables\Actions\ActionGroup::make([
                     Tables\Actions\EditAction::make()
@@ -153,6 +174,8 @@ class PurchaseOrderResource extends Resource
                         ->color('warning')
                         ->visible(fn ($record) =>
                             !in_array($record->status, [PurchaseOrderStatusEnums::DELIVERED->value,PurchaseOrderStatusEnums::DELIVERYINPROGRESS->value])
+                            &&
+                            isRole('manager')
                         ),
 
                     Tables\Actions\ViewAction::make()
