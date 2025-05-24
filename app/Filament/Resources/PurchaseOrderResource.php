@@ -173,7 +173,7 @@ class PurchaseOrderResource extends Resource
                         ->icon('heroicon-o-pencil-square')
                         ->color('warning')
                         ->visible(fn ($record) =>
-                            !in_array($record->status, [PurchaseOrderStatusEnums::DELIVERED->value,PurchaseOrderStatusEnums::DELIVERYINPROGRESS->value])
+                            in_array($record->status, [PurchaseOrderStatusEnums::PENDING->value])
                             &&
                             isRole('manager')
                         ),
@@ -201,7 +201,7 @@ class PurchaseOrderResource extends Resource
                         ->visible(fn ($record) =>
                             $record->status === PurchaseOrderStatusEnums::PENDING->value
                             &&
-                            auth()->user()->hasRole([RolesEnum::ADMIN->value])
+                            isRole('manager')
                         ),
 
                     Tables\Actions\Action::make('create-delivery')
@@ -219,7 +219,7 @@ class PurchaseOrderResource extends Resource
                         ->visible(fn ($record) =>
                             $record->status === PurchaseOrderStatusEnums::APPROVED->value
                             &&
-                            auth()->user()->hasRole([RolesEnum::ADMIN->value])
+                            isRole('manager')
                         ),
 
                     Tables\Actions\Action::make('accept-delivery')
@@ -237,7 +237,7 @@ class PurchaseOrderResource extends Resource
                         ->visible(fn ($record) =>
                             $record->status === PurchaseOrderStatusEnums::DELIVERYINPROGRESS->value
                             &&
-                            auth()->user()->hasRole([RolesEnum::ADMIN->value])
+                            isRole('manager')
                         ),
                 ])
             ], ActionsPosition::BeforeColumns)

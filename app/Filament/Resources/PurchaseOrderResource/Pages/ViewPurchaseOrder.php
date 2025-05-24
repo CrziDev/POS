@@ -14,4 +14,27 @@ class ViewPurchaseOrder extends ViewRecord
 {
     protected static string $resource = PurchaseOrderResource::class;
 
+    protected function getHeaderActions(): array
+    {
+        return [
+
+            Action::make('approve-delivery')
+                ->label('Approve Purchase Order')
+                ->icon('heroicon-o-check-circle')
+                ->color('success')
+                ->requiresConfirmation()
+                ->modalHeading('Approve Purchase Order')
+                ->modalDescription('Are you sure you want to approve this purchase order? This action cannot be undone.')
+                ->modalSubmitActionLabel('Yes, Approve')
+                ->action(function (Model $record) {
+                    $record->approvePurchaseOrder();
+                    notification('The purchase order has been successfully approved.');
+                })
+                ->visible(fn ($record) =>
+                     $record->status == PurchaseOrderStatusEnums::PENDING->value
+                     &&
+                     isRole('admin')
+                ),
+            ];
+    }
 }

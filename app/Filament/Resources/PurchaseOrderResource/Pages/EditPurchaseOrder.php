@@ -58,7 +58,7 @@ class EditPurchaseOrder extends EditRecord
                 ->visible(fn ($record) => 
                     $record->status == PurchaseOrderStatusEnums::APPROVED->value
                     &&
-                    auth()->user()->hasRole([RolesEnum::ADMIN->value])
+                    isRole('manager')
                 ),
             
                 Action::make('accept-delivery')
@@ -99,7 +99,7 @@ class EditPurchaseOrder extends EditRecord
                 ->visible(fn ($record) => 
                     $record->status === PurchaseOrderStatusEnums::DELIVERYINPROGRESS->value
                     &&
-                    auth()->user()->hasRole([RolesEnum::ADMIN->value])
+                    isRole('manager')
                 ),
             
         ];
@@ -110,7 +110,11 @@ class EditPurchaseOrder extends EditRecord
     {
         return parent::getSaveFormAction()
             ->hidden(function (): bool {
-                return ($this->record->status == PurchaseOrderStatusEnums::DELIVERYINPROGRESS->value)?true:false;
+                return (in_array($this->record->status,[
+                        PurchaseOrderStatusEnums::DELIVERYINPROGRESS->value,
+                        PurchaseOrderStatusEnums::APPROVED->value
+                    ]))
+                    ?true:false;
             });
     }
 
@@ -118,7 +122,11 @@ class EditPurchaseOrder extends EditRecord
     {
         return parent::getCancelFormAction()
             ->hidden(function (): bool {
-                return ($this->record->status == PurchaseOrderStatusEnums::DELIVERYINPROGRESS->value)?true:false;
+                return (in_array($this->record->status,[
+                        PurchaseOrderStatusEnums::DELIVERYINPROGRESS->value,
+                        PurchaseOrderStatusEnums::APPROVED->value
+                    ]))
+                    ?true:false;
             });
     }
 }

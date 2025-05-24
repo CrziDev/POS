@@ -22,6 +22,15 @@ class DeliveredItemResource extends Resource
     public static function table(Table $table): Table
     {
         return $table
+            ->modifyQueryUsing(function (Builder $query) {
+                if (isRole('admin','super-admin')) {
+                    return $query->where('status','delivered');
+                }else{
+                    return $query
+                        ->whereIn('po.branch_id', auth_user()->employee->branch()->pluck('branch_id'))
+                        ->where('status','delivered');
+                }
+            })
             ->columns([
                 Tables\Columns\TextColumn::make('po.supplier.name')
                     ->label('Supplier')
