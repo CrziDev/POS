@@ -190,10 +190,7 @@ class PurchaseOrderResource extends Resource
                     Tables\Actions\ViewAction::make()
                         ->label('View Purchase Order')
                         ->icon('heroicon-o-eye')
-                        ->color('info')
-                        ->visible(fn ($record) =>
-                            in_array($record->status, [PurchaseOrderStatusEnums::DELIVERED->value])
-                        ),
+                        ->color('info'),
 
                     Tables\Actions\Action::make('approve-delivery')
                         ->label('Approve Purchase Order')
