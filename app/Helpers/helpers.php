@@ -15,6 +15,12 @@ if (! function_exists('statusColor')) {
     }
 }
 
+if (! function_exists('isRole')) {
+    function isRole($roles) {
+        return auth_user()->hasRole([$roles]);
+    }
+}
+
 /**
  * @return \App\Models\User|null
  */

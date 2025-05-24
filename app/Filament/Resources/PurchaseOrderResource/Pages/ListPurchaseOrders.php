@@ -15,6 +15,7 @@ class ListPurchaseOrders extends ListRecords
     {
         return [
             Actions\CreateAction::make()
+                ->visible(isRole('manager'))
                 ->icon('heroicon-o-plus')
                 ->label('Create Purchase Order')
                 ->successNotificationTitle('Created Purchase Order Successfully')
