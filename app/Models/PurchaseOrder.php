@@ -16,12 +16,13 @@ class PurchaseOrder extends Model
             $notification = new PurchaseOrderCreated(
                 branchName: $model->branch->name,
                 userName: $model->preparedBy->employee->full_name,
-                route: route('filament.admin.resources.purchase-orders.view',['record',$model->id]),
-                roles: 'admin'
+                route: route('filament.admin.resources.purchase-orders.view',['record'=>$model->id]),
+                roles: ['admin','super-admin']
             );
 
             $notification->handle();
         });
+
     }
 
     public function approvePurchaseOrder()

@@ -6,7 +6,7 @@ use App\Models\User;
 use Filament\Notifications\Notification;
 use Filament\Notifications\Actions\Action;
 
-class PurchaseOrderCreated
+class PurchaseOrderApproved
 {
     protected string $branchName;
     protected string $userName;
@@ -29,7 +29,7 @@ class PurchaseOrderCreated
         })->get();
 
         Notification::make()
-            ->title('Purchase Order Created')
+            ->title('Purchase Order Approved')
             ->body($this->bodyMessage())
             ->actions([
                 Action::make('View')
@@ -42,6 +42,6 @@ class PurchaseOrderCreated
 
     protected function bodyMessage(): string
     {
-        return "A purchase order was created on Branch {$this->branchName} by {$this->userName}.";
+        return "A purchase order was Approved For Branch {$this->branchName} by {$this->userName}.";
     }
 }

@@ -2,6 +2,8 @@
 
 namespace App\Filament\Resources;
 
+use App\Actions\Notifications\PurchaseOrderApproved;
+use App\Actions\Notifications\PurchaseOrderCreated;
 use App\Enums\PurchaseOrderStatusEnums;
 use App\Enums\RolesEnum;
 use App\Filament\Resources\PurchaseOrderResource\Pages;
@@ -197,23 +199,32 @@ class PurchaseOrderResource extends Resource
                         ->icon('heroicon-o-eye')
                         ->color('info'),
 
-                    Tables\Actions\Action::make('approve-delivery')
-                        ->label('Approve Purchase Order')
-                        ->icon('heroicon-o-check-circle')
-                        ->color('success')
-                        ->requiresConfirmation()
-                        ->modalHeading('Approve Purchase Order')
-                        ->modalDescription('Are you sure you want to approve this purchase order? This action cannot be undone.')
-                        ->modalSubmitActionLabel('Yes, Approve')
-                        ->action(function (Model $record) {
-                            $record->approvePurchaseOrder();
-                            notification('The purchase order has been successfully approved.');
-                        })
-                        ->visible(fn ($record) =>
-                            $record->status === PurchaseOrderStatusEnums::PENDING->value
-                            &&
-                            isRole('manager')
-                        ),
+                    // Tables\Actions\Action::make('approve-delivery')
+                    //     ->label('Approve Purchase Order')
+                    //     ->icon('heroicon-o-check-circle')
+                    //     ->color('success')
+                    //     ->requiresConfirmation()
+                    //     ->modalHeading('Approve Purchase Order')
+                    //     ->modalDescription('Are you sure you want to approve this purchase order? This action cannot be undone.')
+                    //     ->modalSubmitActionLabel('Yes, Approve')
+                    //     ->action(function (Model $record) {
+                    //         $record->approvePurchaseOrder();
+                    //         notification('The purchase order has been successfully approved.');
+
+                    //         $notification = new PurchaseOrderApproved(
+                    //             branchName: $record->branch->name,
+                    //             userName: auth_user(),
+                    //             route: route('filament.admin.resources.purchase-orders.edit',['record',$record->id]),
+                    //             roles: ['manager']
+                    //         );
+
+                    //         $notification->handle();
+                    //     })
+                    //     ->visible(fn ($record) =>
+                    //         $record->status === PurchaseOrderStatusEnums::PENDING->value
+                    //         &&
+                    //         isRole('manager')
+                    //     ),
 
                     Tables\Actions\Action::make('create-delivery')
                         ->label('Initiate Delivery Process')

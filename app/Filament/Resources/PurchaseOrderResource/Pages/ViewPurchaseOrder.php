@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources\PurchaseOrderResource\Pages;
 
+use App\Actions\Notifications\PurchaseOrderApproved;
 use App\Enums\PurchaseOrderStatusEnums;
 use App\Filament\Resources\PurchaseOrderResource;
 use Filament\Actions\Action;
@@ -29,6 +30,15 @@ class ViewPurchaseOrder extends ViewRecord
                 ->action(function (Model $record) {
                     $record->approvePurchaseOrder();
                     notification('The purchase order has been successfully approved.');
+
+                     $notification = new PurchaseOrderApproved(
+                        branchName: $record->branch->name,
+                        userName: auth_user()->employee->full_name,
+                        route: route('filament.admin.resources.purchase-orders.edit',['record'=>$record->id]),
+                        roles: ['manager']
+                    );
+
+                    $notification->handle();
                 })
                 ->visible(fn ($record) =>
                      $record->status == PurchaseOrderStatusEnums::PENDING->value
