@@ -45,22 +45,23 @@ class DeliveredItemResource extends Resource
                     ->searchable(),
 
                 Tables\Columns\TextColumn::make('quantity')
-                    ->label('Qty')
-                    ->alignCenter()
+                    ->label('Quantity')
                     ->sortable()
                     ->extraAttributes(['class' => 'max-w-[120px]']),
 
                 Tables\Columns\TextColumn::make('price')
                     ->label('Unit Price')
                     ->money('PHP')
-                    ->alignRight()
                     ->sortable()
+                    ->badge()
+                    ->color('gray')
                     ->extraAttributes(['class' => 'max-w-[140px]']),
 
                 Tables\Columns\TextColumn::make('total_amount')
                     ->label('Total Amount')
                     ->money('PHP')
-                    ->alignRight()
+                    ->badge()
+                    ->color('success')
                     ->sortable(),
 
                 Tables\Columns\TextColumn::make('created_at')

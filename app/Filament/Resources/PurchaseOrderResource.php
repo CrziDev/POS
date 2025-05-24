@@ -111,8 +111,17 @@ class PurchaseOrderResource extends Resource
                     ->searchable(),
 
                 Tables\Columns\TextColumn::make('total_amount')
-                    ->label('Total Amount')
+                    ->label('Po Amount')
                     ->money('PHP', true)
+                    ->badge()
+                    ->color('gray')
+                    ->sortable(),
+                    
+                Tables\Columns\TextColumn::make('delivered_amount')
+                    ->label('Delivered Amount')
+                    ->money('PHP', true)
+                    ->badge()
+                    ->color('success')
                     ->sortable(),
 
                 Tables\Columns\TextColumn::make('preparedBy.name')

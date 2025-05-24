@@ -41,7 +41,10 @@ class PurchaseOrder extends Model
             );
         });
     }
-    
+
+    public function getDeliveredAmountAttribute(){
+        return $this->deliveredItems()->where('status','delivered')->sum('total_amount');
+    }
     
     public function orderedItems(){
         return $this->hasMany(PurchaseOrderItem::class,'purchase_order_id');
