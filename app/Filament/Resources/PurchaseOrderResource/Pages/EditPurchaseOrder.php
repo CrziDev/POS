@@ -108,7 +108,7 @@ class EditPurchaseOrder extends EditRecord
                     $notification = new PurchaseOrderDelivered(
                         branchName: $record->branch->name,
                         userName: auth_user()->employee->full_name,
-                        route: route('filament.admin.resources.purchase-orders.edit',['record'=>$record->id]),
+                        route: route('filament.admin.resources.purchase-orders.view',['record'=>$record->id]),
                         roles: ['admin','super-admin']
                     );
 
