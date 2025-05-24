@@ -31,7 +31,7 @@ class ViewPurchaseOrder extends ViewRecord
                     $record->approvePurchaseOrder();
                     notification('The purchase order has been successfully approved.');
 
-                     $notification = new PurchaseOrderApproved(
+                    $notification = new PurchaseOrderApproved(
                         branchName: $record->branch->name,
                         userName: auth_user()->employee->full_name,
                         route: route('filament.admin.resources.purchase-orders.edit',['record'=>$record->id]),

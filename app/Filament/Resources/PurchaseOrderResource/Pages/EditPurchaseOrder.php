@@ -3,6 +3,7 @@
 namespace App\Filament\Resources\PurchaseOrderResource\Pages;
 
 use App\Actions\Notifications\PurchaseOrderApproved;
+use App\Actions\Notifications\PurchaseOrderDelivered;
 use App\Enums\PurchaseOrderStatusEnums;
 use App\Enums\RolesEnum;
 use App\Filament\Resources\PurchaseOrderResource;
@@ -103,6 +104,15 @@ class EditPurchaseOrder extends EditRecord
                         ->body('The delivery has been successfully confirmed. Stocks Has Been Updated')
                         ->success()
                         ->send();
+
+                    $notification = new PurchaseOrderDelivered(
+                        branchName: $record->branch->name,
+                        userName: auth_user()->employee->full_name,
+                        route: route('filament.admin.resources.purchase-orders.edit',['record'=>$record->id]),
+                        roles: ['admin','super-admin']
+                    );
+
+                    $notification->handle();
 
                     return redirect(route('filament.admin.resources.purchase-orders.index'));
                 })
