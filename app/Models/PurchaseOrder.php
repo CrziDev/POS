@@ -21,7 +21,9 @@ class PurchaseOrder extends Model
 
     public function acceptDelivery()
     {
-        $this->update(['status'=>PurchaseOrderStatusEnums::DELIVERED->value]);
+        $this->update([
+            'status'=>PurchaseOrderStatusEnums::DELIVERED->value
+        ]);
     }
 
     public function addPendingDeliveryItems()

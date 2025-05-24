@@ -27,27 +27,29 @@ class OrderedItemsRelationManager extends RelationManager
                 ->columnSpanFull()
                 ->options(Supply::getOptionsArray()),
 
-            Forms\Components\Toggle::make('is_price_set')
-                ->live()
-                ->label('Specify price at delivery')
-                ->helperText('Toggle if the price will be specified upon delivery.')
-                ->columnSpanFull(),
+            // Forms\Components\Toggle::make('is_price_set')
+            //     ->live()
+            //     ->label('Specify price at delivery')
+            //     ->helperText('Toggle if the price will be specified upon delivery.')
+            //     ->columnSpanFull(),
 
             Forms\Components\Split::make([
                 Forms\Components\TextInput::make('price')
                     ->label('Unit Price')
                     ->mask(RawJs::make('$money($input)'))
                     ->stripCharacters(',')
+                    ->required()
+                    ->default(1)
                     ->numeric()
                     ->minValue(1)
                     ->inputMode('decimal')
                     ->live(debounce:500)
                     ->afterStateUpdated(function ($get, $set) {
                         $total = moneyToNumber($get('quantity')) * moneyToNumber($get('price'));
-                        $set('total_amount',$total);
+                        $set('total_amount',number_format($total));
 
-                    })
-                    ->visible(fn ($get) => !$get('is_price_set')),
+                    }),
+                    // ->visible(fn ($get) => !$get('is_price_set')),
 
                 Forms\Components\TextInput::make('quantity')
                     ->label('Quantity')
@@ -68,11 +70,11 @@ class OrderedItemsRelationManager extends RelationManager
                 ->label('Total Amount')
                 ->disabled()
                 ->dehydrated()
-                ->required(fn ($get) => !$get('is_price_set'))
+                // ->required(fn ($get) => !$get('is_price_set'))
                 ->stripCharacters(',')
                 ->minValue(1)
-                ->columnSpanFull()
-                ->visible(fn ($get) => !$get('is_price_set')),
+                ->columnSpanFull(),
+                // ->visible(fn ($get) => !$get('is_price_set')),
         ]);
     }
 
@@ -83,19 +85,17 @@ class OrderedItemsRelationManager extends RelationManager
                 Tables\Columns\TextColumn::make('supply.name')
                     ->label('Supply')
                     ->sortable()
+                    ->formatStateUsing(strFormat())
                     ->searchable(),
 
-                Tables\Columns\IconColumn::make('is_price_set')
-                    ->label('Set at Delivery')
-                    ->boolean()
-                    ->falseIcon('heroicon-o-minus-circle') 
-                    ->trueIcon('heroicon-o-check-circle')
-                    ->falseColor('gray')
-                    ->trueColor('success'),
+                // Tables\Columns\IconColumn::make('is_price_set')
+                //     ->label('Set at Delivery')
+                //     ->boolean()
+                //     ->falseIcon('heroicon-o-minus-circle') 
+                //     ->trueIcon('heroicon-o-check-circle')
+                //     ->falseColor('gray')
+                //     ->trueColor('success'),
 
-                Tables\Columns\TextColumn::make('quantity')
-                    ->label('Qty')
-                    ->extraAttributes(['class'=>'max-w-[200px]']),
 
                 Tables\Columns\TextColumn::make('price')
                     ->label('Unit Price')
@@ -106,11 +106,21 @@ class OrderedItemsRelationManager extends RelationManager
                         }
                         return '₱' . number_format($record->total_amount, 2);
                     })
+                    ->badge()
+                    ->color('gray')
+                    ->extraAttributes(['class'=>'max-w-[200px]']),
+
+                Tables\Columns\TextColumn::make('quantity')
+                    ->label('Quantity')
+                    ->badge()
+                    ->color('gray')
                     ->extraAttributes(['class'=>'max-w-[200px]']),
                 
                 Tables\Columns\TextColumn::make('total_amount')
                     ->label('Total Amount')
                     ->sortable()
+                    ->badge()
+                    ->color('success')
                     ->formatStateUsing(function ($record) {
                         if($record->is_price_set && ($record->price == 0)){
                             return '-';
@@ -124,7 +134,11 @@ class OrderedItemsRelationManager extends RelationManager
                     ->icon('heroicon-o-plus')
                     ->color('info')
                     ->hidden(function (): bool {
-                        return ($this->getOwnerRecord()->status == PurchaseOrderStatusEnums::DELIVERYINPROGRESS->value)?true:false;
+                        return (
+                            in_array($this->getOwnerRecord()->status,
+                                [PurchaseOrderStatusEnums::DELIVERYINPROGRESS->value,PurchaseOrderStatusEnums::APPROVED->value])
+                                ?true:false
+                        );
                     }),
             ])
             ->actions([
@@ -134,14 +148,22 @@ class OrderedItemsRelationManager extends RelationManager
                         ->icon('heroicon-o-pencil')
                         ->color('warning')
                         ->hidden(function (): bool {
-                            return ($this->getOwnerRecord()->status == PurchaseOrderStatusEnums::DELIVERYINPROGRESS->value)?true:false;
+                            return (
+                                in_array($this->getOwnerRecord()->status,
+                                    [PurchaseOrderStatusEnums::DELIVERYINPROGRESS->value,PurchaseOrderStatusEnums::APPROVED->value])
+                                    ?true:false
+                            );
                         }),
                     Tables\Actions\DeleteAction::make()
                         ->label('Remove Ordered Item')
                         ->icon('heroicon-o-trash')
                         ->color('danger')
                         ->hidden(function (): bool {
-                            return ($this->getOwnerRecord()->status == PurchaseOrderStatusEnums::DELIVERYINPROGRESS->value)?true:false;
+                            return (
+                                in_array($this->getOwnerRecord()->status,
+                                    [PurchaseOrderStatusEnums::DELIVERYINPROGRESS->value,PurchaseOrderStatusEnums::APPROVED->value])
+                                    ?true:false
+                            );
                         })
                         ->requiresConfirmation(),
                 ]),

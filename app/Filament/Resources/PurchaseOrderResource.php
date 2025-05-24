@@ -253,7 +253,6 @@ class PurchaseOrderResource extends Resource
         return [
             OrderedItemsRelationManager::class,
             DeliveredItemsRelationManager::class,
-
         ];
     }
 

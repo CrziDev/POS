@@ -24,12 +24,12 @@ class PurchaseOrderItem extends Model
             $model->total_amount = $totalAmount;
         });
 
-        static::updated(function ($model){
-            $totalAmount = $model->po->orderedItems()->sum('total_amount');
-            $model->po->update([
-                'total_amount' => $totalAmount
-            ]);
-        });
+        // static::updated(function ($model){
+        //     $totalAmount = $model->po->orderedItems()->sum('total_amount');
+        //     $model->po->update([
+        //         'total_amount' => $totalAmount
+        //     ]);
+        // });
 
         static::deleted(function ($model){
             $totalAmount = $model->po->orderedItems()->sum('total_amount');
