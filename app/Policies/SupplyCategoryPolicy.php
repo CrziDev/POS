@@ -17,7 +17,7 @@ class SupplyCategoryPolicy
             RolesEnum::ADMIN->value,
             RolesEnum::SUPERADMIN->value,
             RolesEnum::MANAGER->value,
-            RolesEnum::SALESCLERK->value,
+            
         ]);
 
     }
@@ -31,7 +31,7 @@ class SupplyCategoryPolicy
             RolesEnum::ADMIN->value,
             RolesEnum::SUPERADMIN->value,
             RolesEnum::MANAGER->value,
-            RolesEnum::SALESCLERK->value,
+            
         ]);
 
     }
@@ -45,7 +45,7 @@ class SupplyCategoryPolicy
             RolesEnum::ADMIN->value,
             RolesEnum::SUPERADMIN->value,
             RolesEnum::MANAGER->value,
-            RolesEnum::SALESCLERK->value,
+            
         ]);
 
     }
@@ -59,7 +59,7 @@ class SupplyCategoryPolicy
             RolesEnum::ADMIN->value,
             RolesEnum::SUPERADMIN->value,
             RolesEnum::MANAGER->value,
-            RolesEnum::SALESCLERK->value,
+            
         ]);
 
     }
@@ -73,7 +73,7 @@ class SupplyCategoryPolicy
             RolesEnum::ADMIN->value,
             RolesEnum::SUPERADMIN->value,
             RolesEnum::MANAGER->value,
-            RolesEnum::SALESCLERK->value,
+            
         ]);
 
     }
@@ -87,7 +87,7 @@ class SupplyCategoryPolicy
             RolesEnum::ADMIN->value,
             RolesEnum::SUPERADMIN->value,
             RolesEnum::MANAGER->value,
-            RolesEnum::SALESCLERK->value,
+            
         ]);
     }
 
@@ -100,7 +100,7 @@ class SupplyCategoryPolicy
             RolesEnum::ADMIN->value,
             RolesEnum::SUPERADMIN->value,
             RolesEnum::MANAGER->value,
-            RolesEnum::SALESCLERK->value,
+            
         ]);
     }
 }

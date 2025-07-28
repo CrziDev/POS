@@ -14,10 +14,11 @@ class SupplyUnitPolicy
     public function viewAny(User $user): bool
     {
         return $user->hasRole([
+            
             RolesEnum::ADMIN->value,
             RolesEnum::SUPERADMIN->value,
             RolesEnum::MANAGER->value,
-            RolesEnum::SALESCLERK->value,
+            
         ]);
 
     }
@@ -28,10 +29,11 @@ class SupplyUnitPolicy
     public function view(User $user): bool
     {
         return $user->hasRole([
+
             RolesEnum::ADMIN->value,
             RolesEnum::SUPERADMIN->value,
             RolesEnum::MANAGER->value,
-            RolesEnum::SALESCLERK->value,
+            
         ]);
 
     }
@@ -42,10 +44,11 @@ class SupplyUnitPolicy
     public function create(User $user): bool
     {
         return $user->hasRole([
+
             RolesEnum::ADMIN->value,
             RolesEnum::SUPERADMIN->value,
             RolesEnum::MANAGER->value,
-            RolesEnum::SALESCLERK->value,
+            
         ]);
 
     }
@@ -56,10 +59,11 @@ class SupplyUnitPolicy
     public function update(User $user): bool
     {
         return $user->hasRole([
+            
             RolesEnum::ADMIN->value,
             RolesEnum::SUPERADMIN->value,
             RolesEnum::MANAGER->value,
-            RolesEnum::SALESCLERK->value,
+            
         ]);
 
     }
@@ -73,7 +77,7 @@ class SupplyUnitPolicy
             RolesEnum::ADMIN->value,
             RolesEnum::SUPERADMIN->value,
             RolesEnum::MANAGER->value,
-            RolesEnum::SALESCLERK->value,
+            
         ]);
 
     }
@@ -87,7 +91,7 @@ class SupplyUnitPolicy
             RolesEnum::ADMIN->value,
             RolesEnum::SUPERADMIN->value,
             RolesEnum::MANAGER->value,
-            RolesEnum::SALESCLERK->value,
+            
         ]);
     }
 
@@ -100,7 +104,7 @@ class SupplyUnitPolicy
             RolesEnum::ADMIN->value,
             RolesEnum::SUPERADMIN->value,
             RolesEnum::MANAGER->value,
-            RolesEnum::SALESCLERK->value,
+            
         ]);
     }
 }

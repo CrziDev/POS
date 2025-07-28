@@ -6,7 +6,7 @@ use App\Enums\RolesEnum;
 use App\Models\User;
 use Illuminate\Auth\Access\Response;
 
-class PurchaseOrderPolicy
+class SaleTransactionPolicy
 {
     /**
      * Determine whether the user can view any models.
@@ -14,11 +14,10 @@ class PurchaseOrderPolicy
     public function viewAny(User $user): bool
     {
         return $user->hasRole([
-            
             RolesEnum::ADMIN->value,
             RolesEnum::SUPERADMIN->value,
             RolesEnum::MANAGER->value,
-
+            RolesEnum::CASHIER->value,
         ]);
 
     }
@@ -29,10 +28,12 @@ class PurchaseOrderPolicy
     public function view(User $user): bool
     {
         return $user->hasRole([
-
             RolesEnum::ADMIN->value,
             RolesEnum::SUPERADMIN->value,
             RolesEnum::MANAGER->value,
+            RolesEnum::CASHIER->value,
+
+            // 
 
         ]);
 
@@ -44,11 +45,11 @@ class PurchaseOrderPolicy
     public function create(User $user): bool
     {
         return $user->hasRole([
-
             RolesEnum::ADMIN->value,
             RolesEnum::SUPERADMIN->value,
             RolesEnum::MANAGER->value,
-
+            RolesEnum::CASHIER->value,
+            // 
         ]);
 
     }
@@ -59,11 +60,11 @@ class PurchaseOrderPolicy
     public function update(User $user): bool
     {
         return $user->hasRole([
-
             RolesEnum::ADMIN->value,
             RolesEnum::SUPERADMIN->value,
             RolesEnum::MANAGER->value,
-
+            RolesEnum::CASHIER->value,
+            // 
         ]);
 
     }
@@ -74,11 +75,11 @@ class PurchaseOrderPolicy
     public function delete(User $user): bool
     {
         return $user->hasRole([
-            
             RolesEnum::ADMIN->value,
             RolesEnum::SUPERADMIN->value,
             RolesEnum::MANAGER->value,
- 
+            RolesEnum::CASHIER->value,
+            // 
         ]);
 
     }
@@ -92,6 +93,7 @@ class PurchaseOrderPolicy
             RolesEnum::ADMIN->value,
             RolesEnum::SUPERADMIN->value,
             RolesEnum::MANAGER->value,
+            RolesEnum::CASHIER->value,
 
             // 
         ]);
@@ -106,6 +108,7 @@ class PurchaseOrderPolicy
             RolesEnum::ADMIN->value,
             RolesEnum::SUPERADMIN->value,
             RolesEnum::MANAGER->value,
+            RolesEnum::CASHIER->value,
             // 
         ]);
     }

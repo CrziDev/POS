@@ -15,7 +15,6 @@ class DeliveredItemPolicy
         return $user->hasRole([
             RolesEnum::ADMIN->value,
             RolesEnum::MANAGER->value,
-            RolesEnum::SALESCLERK->value,
         ]);
 
     }
@@ -29,7 +28,6 @@ class DeliveredItemPolicy
             RolesEnum::ADMIN->value,
             RolesEnum::SUPERADMIN->value,
             RolesEnum::MANAGER->value,
-            RolesEnum::SALESCLERK->value,
         ]);
 
     }
@@ -43,7 +41,6 @@ class DeliveredItemPolicy
             RolesEnum::ADMIN->value,
             RolesEnum::SUPERADMIN->value,
             RolesEnum::MANAGER->value,
-            RolesEnum::SALESCLERK->value,
         ]);
 
     }
@@ -57,7 +54,6 @@ class DeliveredItemPolicy
             RolesEnum::ADMIN->value,
             RolesEnum::SUPERADMIN->value,
             RolesEnum::MANAGER->value,
-            RolesEnum::SALESCLERK->value,
         ]);
 
     }
@@ -71,7 +67,6 @@ class DeliveredItemPolicy
             RolesEnum::ADMIN->value,
             RolesEnum::SUPERADMIN->value,
             RolesEnum::MANAGER->value,
-            RolesEnum::SALESCLERK->value,
         ]);
 
     }
@@ -82,10 +77,11 @@ class DeliveredItemPolicy
     public function restore(User $user): bool
     {
         return $user->hasRole([
+
             RolesEnum::ADMIN->value,
             RolesEnum::SUPERADMIN->value,
             RolesEnum::MANAGER->value,
-            RolesEnum::SALESCLERK->value,
+            
         ]);
     }
 
@@ -98,7 +94,6 @@ class DeliveredItemPolicy
             RolesEnum::ADMIN->value,
             RolesEnum::SUPERADMIN->value,
             RolesEnum::MANAGER->value,
-            RolesEnum::SALESCLERK->value,
         ]);
     }
 }

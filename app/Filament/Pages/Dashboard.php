@@ -2,6 +2,7 @@
 
 namespace App\Filament\Pages;
 
+use App\Enums\RolesEnum;
 use App\Filament\Widgets\SalesByBranchChartWidget;
 use App\Filament\Widgets\SalesByProductCategoryWidget;
 use App\Filament\Widgets\SalesChartWidget;
@@ -63,6 +64,11 @@ class Dashboard extends BaseDashboard
                     ])
                     ->columns(4),
             ]);
+    }
+
+    public static function canAccess(): bool
+    {
+        return !auth()->user()->role([RolesEnum::SALESCLERK->value]);
     }
 
     public function getWidgets(): array

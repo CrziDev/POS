@@ -16,7 +16,6 @@ class StockMovementPolicy
         return $user->hasRole([
             RolesEnum::ADMIN->value,
             RolesEnum::SUPERADMIN->value,
-            
         ]);
 
     }

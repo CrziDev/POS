@@ -17,7 +17,6 @@ class StockPolicy
             RolesEnum::ADMIN->value,
             RolesEnum::SUPERADMIN->value,
             RolesEnum::MANAGER->value,
-            RolesEnum::SALESCLERK->value,
         ]);
 
     }
@@ -32,7 +31,6 @@ class StockPolicy
             RolesEnum::SUPERADMIN->value,
             RolesEnum::MANAGER->value,
 
-            RolesEnum::SALESCLERK->value,
         ]);
 
     }
@@ -47,7 +45,6 @@ class StockPolicy
             RolesEnum::SUPERADMIN->value,
             RolesEnum::MANAGER->value,
 
-            RolesEnum::SALESCLERK->value,
         ]);
 
     }
@@ -62,7 +59,7 @@ class StockPolicy
             RolesEnum::SUPERADMIN->value,
             RolesEnum::MANAGER->value,
 
-            RolesEnum::SALESCLERK->value,
+            
         ]);
 
     }
@@ -73,11 +70,10 @@ class StockPolicy
     public function delete(User $user): bool
     {
         return $user->hasRole([
-       RolesEnum::ADMIN->value,
+            RolesEnum::ADMIN->value,
             RolesEnum::SUPERADMIN->value,
             RolesEnum::MANAGER->value,
 
-            RolesEnum::SALESCLERK->value,
         ]);
 
     }
@@ -88,11 +84,11 @@ class StockPolicy
     public function restore(User $user): bool
     {
         return $user->hasRole([
-                 RolesEnum::ADMIN->value,
+            RolesEnum::ADMIN->value,
             RolesEnum::SUPERADMIN->value,
             RolesEnum::MANAGER->value,
 
-            RolesEnum::SALESCLERK->value,
+            
         ]);
     }
 
@@ -106,7 +102,7 @@ class StockPolicy
             RolesEnum::SUPERADMIN->value,
             RolesEnum::MANAGER->value,
 
-            RolesEnum::SALESCLERK->value,
+            
         ]);
     }
 }
