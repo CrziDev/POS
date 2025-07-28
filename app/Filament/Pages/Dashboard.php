@@ -67,8 +67,11 @@ class Dashboard extends BaseDashboard
     }
 
     public static function canAccess(): bool
-    {
-        return !auth()->user()->role([RolesEnum::SALESCLERK->value]);
+    {   
+        if(auth()->user()->hasRole([RolesEnum::CASHIER->value])){
+            return false;
+        }
+        return true;
     }
 
     public function getWidgets(): array
