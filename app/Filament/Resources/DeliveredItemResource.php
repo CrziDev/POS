@@ -46,10 +46,13 @@ class DeliveredItemResource extends Resource
                     ->sortable()
                     ->searchable(),
 
-                Tables\Columns\TextColumn::make('quantity')
-                    ->label('Quantity')
+                 Tables\Columns\TextColumn::make('supply.price')
+                    ->label('SRP')
+                    ->money('PHP')
                     ->sortable()
-                    ->extraAttributes(['class' => 'max-w-[120px]']),
+                    ->badge()
+                    ->color('gray')
+                    ->extraAttributes(['class' => 'max-w-[140px]']),
 
                 Tables\Columns\TextColumn::make('price')
                     ->label('Unit Price')
@@ -58,6 +61,11 @@ class DeliveredItemResource extends Resource
                     ->badge()
                     ->color('gray')
                     ->extraAttributes(['class' => 'max-w-[140px]']),
+                    
+                Tables\Columns\TextColumn::make('quantity')
+                    ->label('Quantity')
+                    ->sortable()
+                    ->extraAttributes(['class' => 'max-w-[120px]']),
 
                 Tables\Columns\TextColumn::make('total_amount')
                     ->label('Total Amount')

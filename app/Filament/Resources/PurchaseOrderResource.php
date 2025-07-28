@@ -209,6 +209,8 @@ class PurchaseOrderResource extends Resource
                         ->modalSubmitActionLabel('Yes, Proceed')
                         ->action(function (Model $record) {
                             $record->initiateDelivery();
+                            $record->addPendingDeliveryItems();
+
                             notification('Delivery has been initiated for this purchase order.');
                         })
                         ->visible(fn ($record) =>
