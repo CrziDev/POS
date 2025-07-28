@@ -34,16 +34,22 @@ class SupplyResource extends Resource
     {
         return $form->schema([
             Forms\Components\Section::make([
+
+                Forms\Components\TextInput::make('sku')
+                    ->label('Sku')
+                    ->hint('Must Be Unique')
+                    ->unique(ignoreRecord:true)
+                    ->required(),
+
                 Forms\Components\TextInput::make('name')
                     ->label('Supply Name')
                     ->unique(ignoreRecord:true)
                     ->required(),
         
-                Forms\Components\Grid::make(2) // 2 columns layout
+                Forms\Components\Grid::make(2) 
                     ->schema([
                         Forms\Components\TextInput::make('sku')
                             ->label('Item Code')
-                            ->unique(ignoreRecord:true)
                             ->required(),
         
                         Forms\Components\TextInput::make('price')
@@ -56,7 +62,7 @@ class SupplyResource extends Resource
                             ->live(debounce:500),
                     ]),
         
-                Forms\Components\Grid::make(2) // another 2-column section
+                Forms\Components\Grid::make(2) 
                     ->schema([
                         Forms\Components\Select::make('category_id')
                             ->label('Category')
@@ -79,6 +85,11 @@ class SupplyResource extends Resource
     {
         return $table
             ->columns([
+                 TextInputColumn::make('sku')
+                    ->label('SKU')
+                    ->searchable()
+                    ->default('-')
+                    ->extraAttributes(['style' => 'max-width:120px']),
                 TextColumn::make('name')
                     ->label('Item')
                     ->weight(FontWeight::Bold)
@@ -88,7 +99,7 @@ class SupplyResource extends Resource
                     ->label('Retail Price')
                     ->money('PHP')
                     ->sortable(),
-                TextInputColumn::make('sku')
+                TextInputColumn::make('item_code')
                     ->label('Item Code')
                     ->searchable()
                     ->default('-')
@@ -97,6 +108,7 @@ class SupplyResource extends Resource
                     ->label('Unit')
                     ->options(SupplyUnit::all()->pluck('name', 'id'))
                     ->searchable(),
+
                 SelectColumn::make('category_id')
                     ->label('Category')
                     ->options(SupplyCategory::all()->pluck('name', 'id'))

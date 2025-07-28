@@ -37,6 +37,11 @@ class ListSupplies extends ListRecords
                 ->label('Export Stocks'), 
     
             Actions\CreateAction::make()
+                ->modalSubmitActionLabel('Save')
+                ->extraModalFooterActions(fn (Actions\CreateAction $action): array => [
+                    $action->makeModalSubmitAction('createAnother', arguments: ['another' => true])
+                        ->label('Save & add another'),
+                ])
                 ->label('New Supply')
                 ->icon('heroicon-m-plus') 
         ];

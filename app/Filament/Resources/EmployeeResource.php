@@ -21,6 +21,7 @@ use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Enums\ActionsPosition;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Support\Facades\DB;
 
 class EmployeeResource extends Resource
 {
@@ -117,7 +118,7 @@ class EmployeeResource extends Resource
                     ->when(!auth_user()->hasRole(['admin','super-admin']), function ($query) {
                         $query->whereIn('branch_employees.branch_id', auth_user()->employee->branch()->pluck('branch_id'));
                     })
-                    ->select('employees.*', \DB::raw("MIN(roles.name) as role_name"))
+                    ->select('employees.*', DB::raw("MIN(roles.name) as role_name"))
                     ->groupBy('employees.id')
                     ->orderByRaw("CASE WHEN MIN(roles.name) = 'admin' THEN 0 ELSE 1 END")
                     ->orderBy('last_name');
