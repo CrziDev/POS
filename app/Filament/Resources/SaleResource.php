@@ -8,10 +8,12 @@ use App\Filament\Resources\SaleResource\Pages\CreateSale;
 use App\Filament\Resources\SaleResource\RelationManagers;
 use App\Models\Branch;
 use App\Models\SaleTransaction;
+use App\Models\Stock;
 use Filament\Forms;
 use Filament\Forms\Components\Section;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Split;
+use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Form;
 use Filament\Notifications\Notification;
@@ -95,123 +97,164 @@ class SaleResource extends Resource
     }
 
     public static function table(Table $table): Table
-    {
-        return $table
-            ->modifyQueryUsing(function (Builder $query) {
-                if (auth_user()->hasRole(['admin','super-admin'])) {
-                    return $query;
-                }else{
-                    return $query->whereIn('branch_id', auth_user()->employee->branch()->pluck('branch_id'));
-                }
-            })
-            ->columns([
-                Tables\Columns\TextColumn::make('status')
-                    ->formatStateUsing(strFormat())
-                    ->badge()
-                    ->colors([
-                        'gray' => 'pending',
-                        'danger' => 'voided',
-                        'success' => 'paid',
-                    ]),
-                Tables\Columns\TextColumn::make('id')
-                    ->label('Transaction No.')
-                    ->sortable()
-                    ->formatStateUsing(fn($state) => 'TX - ' . $state),
-                Tables\Columns\TextColumn::make('transaction_date')
-                    ->label('Date Transaction')
-                    ->date(),
-                Tables\Columns\TextColumn::make('employee.fullName')
-                    ->label('Processed By')
-                    ->searchable(query: function (Builder $query, string $search): Builder {
-                        return $query->whereHas('employee', function (Builder $sq) use ($search) {
-                            $sq->whereRaw("CONCAT(first_name, ' ', last_name) LIKE ?", ["%{$search}%"]);
-                        });
-                    })
-                    ->sortable(),
-                Tables\Columns\TextColumn::make('branch.name')
-                    ->label('Branch')
-                    ->searchable()
-                    ->sortable()
-                    ->toggleable(isToggledHiddenByDefault: true),
-                Tables\Columns\TextColumn::make('total_amount')
-                    ->badge()
-                    ->money('PHP')
-                    ->sortable(),
-                Tables\Columns\TextColumn::make('discount_value')
-                    ->badge()
-                    ->color('warning')
-                    ->label('Discount')
-                    ->money('PHP'),
-            ])
-            ->filters([
-                SelectFilter::make('payment_method')
-                    ->placeholder('All Method')
-                    ->options([
-                        'Cash' => 'Cash',
-                        'g-cash' => 'GCash',
-                    ])
-                    ->label('Payment Method'),
+{
+    return $table
+        ->modifyQueryUsing(function (Builder $query) {
+            if (auth_user()->hasRole(['admin','super-admin'])) {
+                return $query;
+            } else {
+                return $query->whereIn('branch_id', auth_user()->employee->branch()->pluck('branch_id'));
+            }
+        })
+        ->columns([
+            Tables\Columns\TextColumn::make('status')
+                ->formatStateUsing(strFormat())
+                ->badge()
+                ->colors([
+                    'gray' => 'pending',
+                    'danger' => 'voided',
+                    'success' => 'paid',
+                ]),
+            Tables\Columns\TextColumn::make('id')
+                ->label('Transaction No.')
+                ->sortable()
+                ->formatStateUsing(fn($state) => 'TX - ' . $state),
+            Tables\Columns\TextColumn::make('transaction_date')
+                ->label('Date Transaction')
+                ->date(),
+            Tables\Columns\TextColumn::make('employee.fullName')
+                ->label('Processed By')
+                ->searchable(query: function (Builder $query, string $search): Builder {
+                    return $query->whereHas('employee', function (Builder $sq) use ($search) {
+                        $sq->whereRaw("CONCAT(first_name, ' ', last_name) LIKE ?", ["%{$search}%"]);
+                    });
+                })
+                ->sortable(),
+            Tables\Columns\TextColumn::make('branch.name')
+                ->label('Branch')
+                ->searchable()
+                ->sortable()
+                ->toggleable(isToggledHiddenByDefault: true),
+            Tables\Columns\TextColumn::make('total_amount')
+                ->badge()
+                ->money('PHP')
+                ->sortable(),
+            Tables\Columns\TextColumn::make('discount_value')
+                ->badge()
+                ->color('warning')
+                ->label('Discount')
+                ->money('PHP'),
+             Tables\Columns\TextColumn::make('remarks')
+                ->label('Remarks')
+                ->placeholder('None')
+                ->sortable(),
+        ])
+        ->filters([
+            SelectFilter::make('payment_method')
+                ->placeholder('All Method')
+                ->options([
+                    'Cash' => 'Cash',
+                    'g-cash' => 'GCash',
+                ])
+                ->label('Payment Method'),
 
-                SelectFilter::make('status')
-                    ->placeholder('All Status')
-                    ->options([
-                        'Paid' => 'Paid',
-                        'Voided' => 'Voided',
-                    ]),
+            SelectFilter::make('status')
+                ->placeholder('All Status')
+                ->options([
+                    'Paid' => 'Paid',
+                    'Voided' => 'Voided',
+                ]),
 
-                SelectFilter::make('branch')
-                    ->placeholder('All Branch')
-                    ->options(Branch::getOptionsArray(false)),
-            ])
-            ->recordAction(false)
-            ->recordUrl(null)
-            ->actions([
-                Tables\Actions\Action::make('payment')
-                    ->icon('heroicon-m-credit-card')
-                    ->label('Pay')
-                    ->form(fn ($record) => self::paymentForm($record))
-                    ->modalHeading('Record Payment')
-                    ->modalSubmitActionLabel('Submit Payment')
-                    ->disabled(fn($record)=>$record->status == 'paid')
-                    ->color('success')
-                    ->mountUsing(function($action,$form,$record){
-                        if(!auth_user()->hasRole(['cashier'])){
-                            Notification::make()
-                                ->title('Payment Processing are only allowed for Cashier')
-                                ->warning()
-                                ->send();
-                            $action->cancel();
+            SelectFilter::make('branch')
+                ->placeholder('All Branch')
+                ->options(Branch::getOptionsArray(false)),
+        ])
+        ->recordAction(false)
+        ->recordUrl(null)
+        ->actions([
+            Tables\Actions\Action::make('payment')
+                ->icon('heroicon-m-credit-card')
+                ->label('Pay')
+                ->form(fn ($record) => self::paymentForm($record))
+                ->modalHeading('Record Payment')
+                ->modalSubmitActionLabel('Submit Payment')
+                ->disabled(fn($record) => $record->status == 'voided' || $record->status == 'paid')
+                ->color('success')
+                ->mountUsing(function($action, $form, $record) {
+                    if (!auth_user()->hasRole(['cashier'])) {
+                        Notification::make()
+                            ->title('Payment Processing are only allowed for Cashier')
+                            ->warning()
+                            ->send();
+                        $action->cancel();
+                    }
+
+                    $form->fill($record->toArray());
+                })
+                ->action(function(CreateSalePayment $createSalePayment, $record, $data) {
+                    $createSalePayment->handle(
+                        $record->id,
+                        auth_user()->id,
+                        $record->branch_id,
+                        $data['payment_method'],
+                        $data['reference_number'] ?? null,
+                        $data['total_amount'],
+                    );
+
+                    $record->update([
+                        'status' => 'paid'
+                    ]);
+
+                    Notification::make()
+                        ->title('Payment successfully Recorded')
+                        ->success()
+                        ->send();
+                }),
+
+            Tables\Actions\Action::make('void')
+                ->icon('heroicon-m-x-circle')
+                ->label('Void')
+                ->requiresConfirmation()
+                ->modalHeading('Void Transaction')
+                ->modalDescription('Are you sure you want to void this transaction? This action cannot be undone.')
+                ->modalSubmitActionLabel('Confirm Void')
+                ->disabled(fn($record) => $record->status == 'voided' || $record->status == 'paid')
+                ->form([
+                    Textarea::make('remarks')
+                        ->required()
+                ])
+                ->color('danger')
+                ->action(function($record,$data) {
+
+                    $record->update([
+                        'status' => 'voided',
+                        'remarks' => $data['remarks']
+                    ]);
+                    
+                    $record->items()->each(function($item) use ($record){
+                        
+                        $stock = Stock::where('supply_id', $item->supply_id)
+                            ->where('branch_id', $record->branch_id)
+                            ->first();
+
+                        if ($stock) {
+                            $stock->quantity += $item->quantity;
+                            $stock->save();
                         }
 
-                        $form->fill($record->toArray());
-                    })
-                    ->action(function(CreateSalePayment $createSalePayment,$record,$data){
+                    });
+                    Notification::make()
+                        ->title('Transaction successfully voided')
+                        ->success()
+                        ->send();
+                }),
 
-                        $createSalePayment->handle(
-                            $record->id,
-                            auth_user()->id,
-                            $record->branch_id,
-                            $data['payment_method'],
-                            $data['reference_number'] ?? null,
-                            $data['total_amount'],
-                        );
-
-                        $record->update([
-                            'status' => 'paid'
-                        ]);
-
-                        Notification::make()
-                            ->title('Payment successfully Recorded')
-                            ->success()
-                            ->send();
-                    }),
-                Tables\Actions\ViewAction::make()
-                    ->icon('heroicon-m-eye')
-                    ->label('View'),
-
-            ])
-            ->bulkActions([]);
-    }
+            Tables\Actions\ViewAction::make()
+                ->icon('heroicon-m-eye')
+                ->label('View'),
+        ])
+        ->bulkActions([]);
+    }       
 
     public static function paymentForm($record)
     {
