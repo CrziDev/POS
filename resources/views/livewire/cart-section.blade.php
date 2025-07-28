@@ -11,7 +11,7 @@
     @if(count($cart) > 0)
         <!-- Column Labels -->
         <div class="flex items-center justify-between text-[11px] font-semibold px-3 text-gray-500 dark:text-gray-400 uppercase pr-4">
-            <span class="w-1/2 truncate">Item</span>
+            <span class="w-[40%] truncate">Item</span>
             <span class="w-[120px] text-center">Qty</span>
             <span class="w-[90px] text-center">Price</span>
             <span class="w-[90px] text-right">Discount</span>
@@ -41,25 +41,25 @@
                 >
                     ✕
                 </button>
-                <div class="text-gray-800 dark:text-gray-200 truncate w-1/2">{{ $item['name'] }}</div>
+                <div class="text-gray-800 dark:text-gray-200 truncate w-[40%]">{{ $item['name'] }}</div>
 
-                <div class="flex items-center space-x-1 mx-4 w-[100px] justify-center">
+                <div class="flex items-center space-x-1 mx-4 w-[120px] justify-center">
                     <button 
-                        class="text-[9px] bg-gray-300 dark:bg-gray-700 hover:bg-gray-400 dark:hover:bg-gray-600 rounded px-2"
+                        class="text-[8px] bg-gray-300 dark:bg-gray-700 hover:bg-gray-400 dark:hover:bg-gray-600 rounded px-2"
                         wire:click="decreaseItem({{ $item['id'] }})"
                     >
                         &lt;
                     </button>
-                    <span class="text-xs text-gray-600 dark:text-gray-400 min-w-[1.5rem] text-center">{{ $item['qty'] }}</span>
+                    <span class="text-xs text-gray-600 dark:text-gray-400 min-w-[1.2rem] text-center">{{ $item['qty'] }}</span>
                     <button 
-                        class="text-[9px] bg-gray-300 dark:bg-gray-700 hover:bg-gray-400 dark:hover:bg-gray-600 rounded px-2"
+                        class="text-[8px] bg-gray-300 dark:bg-gray-700 hover:bg-gray-400 dark:hover:bg-gray-600 rounded px-2"
                         wire:click="increaseItem({{ $item['id'] }})"
                     >
                         &gt;
                     </button>
                 </div>
 
-                <div class="text-gray-600 dark:text-gray-400 text-center w-[90px] leading-tight">
+                <div class="text-gray-600 dark:text-gray-400 text-center w-[100px] leading-tight flex items-center justify-center space-x-1">
                     <div class="{{ $item['retail_price'] !== $item['price'] ? 'line-through text-red-400 text-[11px]' : '' }}">
                         ₱{{ number_format($item['retail_price'], 2) }}
                     </div>
@@ -67,6 +67,22 @@
                         <div class="text-[12px] font-semibold text-gray-800 dark:text-gray-200">
                             ₱{{ number_format($item['price'], 2) }}
                         </div>
+                    @endif
+                    <button 
+                        wire:click="editPrice({{ $item['id'] }})"
+                        class="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200"
+                        title="Edit price"
+                    >
+                        ✎
+                    </button>
+                    @if($editingPrice === $item['id'])
+                        <input 
+                            type="number" 
+                            wire:model="newPrice" 
+                            wire:keydown.enter="updatePrice({{ $item['id'] }})"
+                            class="w-16 text-xs border rounded px-1 py-0.5 text-gray-800 dark:text-gray-200 dark:bg-gray-800"
+                            placeholder="{{ $item['price'] }}"
+                        />
                     @endif
                 </div>
 

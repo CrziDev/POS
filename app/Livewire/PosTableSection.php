@@ -51,7 +51,24 @@ class PosTableSection extends Component implements HasActions,HasForms
         $this->selectedCategory = $category;
     }
 
-    public function selectItem($id)
+    // public function selectItem($id)
+    // {
+    //     $this->selectedSupply = Stock::with('supply')->find($id);
+        
+    //     $this->setPrice =  $this->selectedSupply->supply->price;
+                            
+    //     if($this->selectedSupply->quantity == 0){
+    //         Notification::make()
+    //             ->title('No Available Stock For this Product')
+    //             ->danger()
+    //             ->send();
+    //         return;
+    //     };
+
+    //     $this->dispatch('open-modal', id: 'select-item');
+    // }
+
+    public function addToCart($id)
     {
         $this->selectedSupply = Stock::with('supply')->find($id);
         
@@ -65,16 +82,11 @@ class PosTableSection extends Component implements HasActions,HasForms
             return;
         };
 
-        $this->dispatch('open-modal', id: 'select-item');
-    }
-
-    public function addToCart()
-    {
-        $maxPrice = $this->selectedSupply?->supply->price ?? 0;
+        // $maxPrice = $this->selectedSupply?->supply->price ?? 0;
         $maxQty = $this->selectedSupply?->quantity ?? 0;
     
         $this->validate([
-            'setPrice' => ['required', 'numeric', 'min:0.01', "max:$maxPrice"],
+            // 'setPrice' => ['required', 'numeric', 'min:0.01', "max:$maxPrice"],
             'setQuantity' => ['required', 'integer', 'min:1', "max:$maxQty"],
         ]);
 

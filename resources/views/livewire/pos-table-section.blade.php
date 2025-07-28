@@ -41,28 +41,9 @@
     >
 </div>
 
-    <!-- Category Selection as Pills -->
-    <div  class="p-5 h-full w-[10%] overflow-auto fi-section rounded-xl bg-white shadow-sm ring-1 ring-gray-950/5 dark:bg-gray-900 dark:ring-white/10 sm:w-60">
-        <div class="space-y-2">
-                @foreach($categoryList as $key => $category)
-                    <button
-                        type="button"
-                        wire:click="updateCategory('{{$key}}')"
-                        class="w-full text-left px-3 py-1.5 rounded-lg text-xs border transition 
-                                text-gray-700 dark:text-gray-200 
-                                border-gray-300 dark:border-gray-700 
-                                hover:bg-blue-100 dark:hover:bg-white/10 
-                                focus:outline-none 
-                                {{$selectedCategory == $key ? 'bg-blue-500 text-white dark:text-white border-blue-500 ': '' }}" 
-                            >
-                            {{$category}}
-                    </button>
-                @endforeach
-            </div>
-    </div>
 
     <!-- Table Section -->
-    <div class="hideScroll pb-5 h-full w-[90%] overflow-auto fi-section rounded-xl bg-white shadow-sm ring-1 ring-gray-950/5 dark:bg-gray-900 dark:ring-white/10">
+    <div class="hideScroll pb-5 h-full w-[100%] overflow-auto fi-section rounded-xl bg-white shadow-sm ring-1 ring-gray-950/5 dark:bg-gray-900 dark:ring-white/10">
         
         <div class="sticky px-5 pt-5 top-0 z-10 bg-white dark:bg-gray-900 pb-3   mb-4">
             <div class="flex items-center justify-between">
@@ -75,7 +56,7 @@
                        wire:model.live="search"
                         type="text" 
                         wire:model.debounce.300ms="search" 
-                        placeholder="Search supply..." 
+                        placeholder="Search SKU..." 
                         class="w-full px-3 py-2 rounded-lg border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800 text-sm text-gray-900 dark:text-gray-100 shadow-sm focus:ring-blue-500 focus:border-blue-500"
                     />
                 </div>
@@ -97,11 +78,12 @@
                     } elseif ($quantity <= $reorderLevel) {
                         $borderClass = 'border-orange-400';
                         $textClass = 'text-orange-400';
+
                     }
                 @endphp
 
                 <div 
-                    wire:click="selectItem({{ $stock->id }})"
+                    wire:click="addToCart({{ $stock->id }})"
                     class="relative h-[100px] bg-white dark:bg-gray-900 hover:bg-gray-50 dark:hover:bg-white/10 
                         rounded-xl shadow-sm ring-1 ring-gray-950/5 dark:ring-white/10 border-b-4 {{ $borderClass }} 
                         flex flex-col items-center justify-center text-center px-2">

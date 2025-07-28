@@ -24,22 +24,18 @@ use Filament\Support\RawJs;
 use Illuminate\Support\HtmlString;
 use Livewire\Attributes\On;
 use Livewire\Component;
-use Livewire\Features\SupportEvents\BaseOn;
 
-use function Pest\Laravel\options;
-
-class CartSection extends Component implements HasActions,HasForms
+class CartSection extends Component implements HasActions, HasForms
 {
-
     use InteractsWithActions;
     use InteractsWithForms;
 
     public $currentBranch = null;
-
     public $cart = [];
     public $totalAmount = 0;
     public $grandTotal = 0;
-
+    public $editingPrice = null; // Track which item is being edited
+    public $newPrice = null; // Store the new price input
 
     public function mount()
     {
@@ -47,17 +43,25 @@ class CartSection extends Component implements HasActions,HasForms
     }
 
     #[On('add-to-cart')] 
-    public function updatePostList($itemId,$price,$quantity,$stock)
+    public function updatePostList($itemId, $price, $quantity, $stock)
     {   
         $product = Supply::find($itemId);
 
         if (!$product) return;
 
-        $exists = collect($this->cart)->firstWhere('id',$itemId);
+        $exists = collect($this->cart)->firstWhere('id', $itemId);
 
         if ($exists) {
-            foreach ($this->cart as &$cartItem){
+            foreach ($this->cart as &$cartItem) {
                 if ($cartItem['id'] === $itemId) {
+                    if ($cartItem['stock'] == $cartItem['qty']) {
+                        Notification::make()
+                            ->title('No More Available Stocks')
+                            ->danger()
+                            ->send();
+                        break;
+                    }
+    
                     $cartItem['qty'] += 1;
                     break;
                 }
@@ -73,12 +77,17 @@ class CartSection extends Component implements HasActions,HasForms
             ];
         }
 
-        $this->dispatch('close-modal',id: 'select-item');
+        $this->dispatch('close-modal', id: 'select-item');
     }
 
-    public function increaseItem($itemId){
-        foreach ($this->cart as &$cartItem){
-            if($cartItem['stock'] == $cartItem['qty'] ){
+    public function increaseItem($itemId)
+    {
+        foreach ($this->cart as &$cartItem) {
+            if ($cartItem['stock'] == $cartItem['qty']) {
+                Notification::make()
+                    ->title('No More Available Stocks')
+                    ->danger()
+                    ->send();
                 break;
             }
 
@@ -89,10 +98,11 @@ class CartSection extends Component implements HasActions,HasForms
         }
     }
 
-    public function decreaseItem($itemId){
-        foreach ($this->cart as &$cartItem){
+    public function decreaseItem($itemId)
+    {
+        foreach ($this->cart as &$cartItem) {
             if ($cartItem['id'] === $itemId) {
-                if( $cartItem['qty'] == 0){
+                if ($cartItem['qty'] == 0) {
                     break;
                 }
                 $cartItem['qty'] -= 1;
@@ -107,25 +117,55 @@ class CartSection extends Component implements HasActions,HasForms
             ->reject(fn ($item) => $item['id'] === $itemId)
             ->values()
             ->all();
+        $this->editingPrice = null; // Reset editing state
+    }
+
+    public function editPrice($itemId)
+    {
+        $this->editingPrice = $itemId;
+        $item = collect($this->cart)->firstWhere('id', $itemId);
+        $this->newPrice = $item['price']; 
+    }
+
+    public function updatePrice($itemId)
+    {
+        if ($this->newPrice === null || $this->newPrice < 0) {
+            Notification::make()
+                ->title('Invalid Price')
+                ->body('Please enter a valid price.')
+                ->danger()
+                ->send();
+            return;
+        }
+
+        foreach ($this->cart as &$cartItem) {
+            if ($cartItem['id'] === $itemId) {
+                $cartItem['price'] = (float) $this->newPrice;
+                break;
+            }
+        }
+
+        $this->editingPrice = null; // Exit editing mode
+        $this->newPrice = null; // Clear input
+        Notification::make()
+            ->title('Price Updated')
+            ->success()
+            ->send();
     }
 
     public function checkOut(): Action
     {
-
         return Action::make('checkOut')
             ->label('Purchase Information')
             ->modalWidth(MaxWidth::SevenExtraLarge)
-            ->mountUsing(function($action){
-
-                if(count($this->cart) == 0){
-                    
+            ->mountUsing(function($action) {
+                if (count($this->cart) == 0) {
                     Notification::make()
-                    ->title('Cart Is empty Please Select Items')
-                    ->danger()
-                    ->send();
-                    
+                        ->title('Cart Is Empty. Please Select Items')
+                        ->danger()
+                        ->send();
                     $action->cancel();
-                };
+                }
             })
             ->form([
                 Split::make([
@@ -140,7 +180,7 @@ class CartSection extends Component implements HasActions,HasForms
                                 $grandTotal = 0;
                                 $totalDiscount = 0;
                     
-                                $rows = collect($this->cart)->map(function ($item) use (&$totalDiscount,&$grandTotal) {
+                                $rows = collect($this->cart)->map(function ($item) use (&$totalDiscount, &$grandTotal) {
                                     $qty = (float) $item['qty'];
                                     $retail = (float) $item['retail_price'];
                                     $price = (float) $item['price'];
@@ -192,20 +232,17 @@ class CartSection extends Component implements HasActions,HasForms
                                     </div>
                                 ');
                             })
-
                     ]),
                 ]),
             ])
-            ->action(function($data){
+            ->action(function($data) {
                 $this->checkForStockAvailability($data);
             })
-            ->modalSubmitActionLabel('Procceed');
+            ->modalSubmitActionLabel('Proceed');
     }
 
     protected function checkForStockAvailability($data)
     {
-
-
         $insufficient = [];
     
         foreach ($this->cart as $cartItem) {
@@ -285,6 +322,8 @@ class CartSection extends Component implements HasActions,HasForms
         }
     
         $this->cart = [];
+        $this->editingPrice = null; // Reset editing state
+        $this->newPrice = null; // Clear input
     
         Notification::make()
             ->title('Checkout Complete')
