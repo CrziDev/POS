@@ -49,7 +49,7 @@ class EditPurchaseOrder extends EditRecord
                 ->visible(fn ($record) =>
                      $record->status == PurchaseOrderStatusEnums::PENDING->value
                      &&
-                     auth()->user()->hasRole([RolesEnum::ADMIN->value]) 
+                     auth()->user()->hasRole([RolesEnum::OWNER->value]) 
                 ),
             
             Action::make('create-delivery')
@@ -109,7 +109,7 @@ class EditPurchaseOrder extends EditRecord
                         branchName: $record->branch->name,
                         userName: auth_user()->employee->full_name,
                         route: route('filament.admin.resources.purchase-orders.view',['record'=>$record->id]),
-                        roles: ['admin','super-admin']
+                        roles: ['owner','super-admin']
                     );
 
                     $notification->handle();

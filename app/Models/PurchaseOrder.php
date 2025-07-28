@@ -17,7 +17,7 @@ class PurchaseOrder extends Model
                 branchName: $model->branch->name,
                 userName: $model->preparedBy->employee->full_name,
                 route: route('filament.admin.resources.purchase-orders.view',['record'=>$model->id]),
-                roles: ['admin','super-admin']
+                roles: ['owner','super-admin']
             );
 
             $notification->handle();

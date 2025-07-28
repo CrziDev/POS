@@ -45,7 +45,7 @@ class BranchResource extends Resource
     {
         return $table
             ->modifyQueryUsing(function (Builder $query) {
-                if (auth_user()->hasRole(['admin','super-admin'])) {
+                if (auth_user()->hasRole(['owner','super-admin'])) {
                     return $query;
                 }else{
                     return $query->whereIn('id', auth_user()->employee->branch()->pluck('branch_id'));

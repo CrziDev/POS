@@ -14,7 +14,7 @@ class StockMovementPolicy
     public function viewAny(User $user): bool
     {
         return $user->hasRole([
-            RolesEnum::ADMIN->value,
+            RolesEnum::OWNER->value,
             RolesEnum::SUPERADMIN->value,
         ]);
 
@@ -26,7 +26,7 @@ class StockMovementPolicy
     public function view(User $user): bool
     {
         return $user->hasRole([
-            RolesEnum::ADMIN->value,
+            RolesEnum::OWNER->value,
             RolesEnum::SUPERADMIN->value,
 
         ]);
@@ -39,7 +39,7 @@ class StockMovementPolicy
     public function create(User $user): bool
     {
         return $user->hasRole([
-            RolesEnum::ADMIN->value,
+            RolesEnum::OWNER->value,
             RolesEnum::SUPERADMIN->value,
 
         ]);
@@ -52,7 +52,7 @@ class StockMovementPolicy
     public function update(User $user): bool
     {
         return $user->hasRole([
-            RolesEnum::ADMIN->value,
+            RolesEnum::OWNER->value,
             RolesEnum::SUPERADMIN->value,
 
         ]);
@@ -65,7 +65,7 @@ class StockMovementPolicy
     public function delete(User $user): bool
     {
         return $user->hasRole([
-            RolesEnum::ADMIN->value,
+            RolesEnum::OWNER->value,
             RolesEnum::SUPERADMIN->value,
 
         ]);
@@ -78,7 +78,7 @@ class StockMovementPolicy
     public function restore(User $user): bool
     {
         return $user->hasRole([
-            RolesEnum::ADMIN->value,
+            RolesEnum::OWNER->value,
             RolesEnum::SUPERADMIN->value,
 
         ]);
@@ -90,7 +90,7 @@ class StockMovementPolicy
     public function forceDelete(User $user): bool
     {
         return $user->hasRole([
-            RolesEnum::ADMIN->value,
+            RolesEnum::OWNER->value,
             RolesEnum::SUPERADMIN->value,
 
         ]);

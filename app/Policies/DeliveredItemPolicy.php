@@ -13,7 +13,7 @@ class DeliveredItemPolicy
     public function viewAny(User $user): bool
     {
         return $user->hasRole([
-            RolesEnum::ADMIN->value,
+            RolesEnum::OWNER->value,
             RolesEnum::MANAGER->value,
         ]);
 
@@ -25,7 +25,7 @@ class DeliveredItemPolicy
     public function view(User $user): bool
     {
         return $user->hasRole([
-            RolesEnum::ADMIN->value,
+            RolesEnum::OWNER->value,
             RolesEnum::SUPERADMIN->value,
             RolesEnum::MANAGER->value,
         ]);
@@ -38,7 +38,7 @@ class DeliveredItemPolicy
     public function create(User $user): bool
     {
         return $user->hasRole([
-            RolesEnum::ADMIN->value,
+            RolesEnum::OWNER->value,
             RolesEnum::SUPERADMIN->value,
             RolesEnum::MANAGER->value,
         ]);
@@ -51,7 +51,7 @@ class DeliveredItemPolicy
     public function update(User $user): bool
     {
         return $user->hasRole([
-            RolesEnum::ADMIN->value,
+            RolesEnum::OWNER->value,
             RolesEnum::SUPERADMIN->value,
             RolesEnum::MANAGER->value,
         ]);
@@ -64,7 +64,7 @@ class DeliveredItemPolicy
     public function delete(User $user): bool
     {
         return $user->hasRole([
-            RolesEnum::ADMIN->value,
+            RolesEnum::OWNER->value,
             RolesEnum::SUPERADMIN->value,
             RolesEnum::MANAGER->value,
         ]);
@@ -78,7 +78,7 @@ class DeliveredItemPolicy
     {
         return $user->hasRole([
 
-            RolesEnum::ADMIN->value,
+            RolesEnum::OWNER->value,
             RolesEnum::SUPERADMIN->value,
             RolesEnum::MANAGER->value,
             
@@ -91,7 +91,7 @@ class DeliveredItemPolicy
     public function forceDelete(User $user): bool
     {
         return $user->hasRole([
-            RolesEnum::ADMIN->value,
+            RolesEnum::OWNER->value,
             RolesEnum::SUPERADMIN->value,
             RolesEnum::MANAGER->value,
         ]);

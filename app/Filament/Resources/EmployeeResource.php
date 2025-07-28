@@ -79,7 +79,7 @@ class EmployeeResource extends Resource
                                     ->label('Position')
                                     ->multiple()
                                     ->options(function($state){
-                                        $options = RolesEnum::toArray(excludeAdmin:true);
+                                        $options = RolesEnum::toArray(excludeOwner:true);
                                         return $options;
                                     })
                                     ->required()
@@ -115,12 +115,12 @@ class EmployeeResource extends Resource
                     ->leftJoin('branch_employees','branch_employees.employee_id','employees.id')
                     ->whereNot('roles.name','super-admin')
                     ->whereNot('users.id',auth_user()->id)
-                    ->when(!auth_user()->hasRole(['admin','super-admin']), function ($query) {
+                    ->when(!auth_user()->hasRole(['owner','super-admin']), function ($query) {
                         $query->whereIn('branch_employees.branch_id', auth_user()->employee->branch()->pluck('branch_id'));
                     })
                     ->select('employees.*', DB::raw("MIN(roles.name) as role_name"))
                     ->groupBy('employees.id')
-                    ->orderByRaw("CASE WHEN MIN(roles.name) = 'admin' THEN 0 ELSE 1 END")
+                    ->orderByRaw("CASE WHEN MIN(roles.name) = 'owner' THEN 0 ELSE 1 END")
                     ->orderBy('last_name');
 
             })
@@ -144,7 +144,7 @@ class EmployeeResource extends Resource
                         ->listWithLineBreaks()
                         ->description(function($record){
 
-                            if($record->user->hasRole(['admin'])){
+                            if($record->user->hasRole(['owner'])){
                                 return 'All Access';
                             }
 
@@ -154,7 +154,7 @@ class EmployeeResource extends Resource
                         ->icon(fn ($state) => $state ? null : 'heroicon-m-exclamation-triangle')
                         ->weight(FontWeight::Bold)
                         ->searchable()
-                        ->default(fn($record)=>$record->user->hasRole(['admin'])?'':'-'),
+                        ->default(fn($record)=>$record->user->hasRole(['owner'])?'':'-'),
 
                     TextColumn::make('user.roles.name')
                         ->formatStateUsing(strFormat())

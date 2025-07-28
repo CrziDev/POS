@@ -28,7 +28,7 @@ class SalePaymentResource extends Resource
     {
         return $table
              ->modifyQueryUsing(function (Builder $query) {
-                if (auth()->user()->hasRole(['admin','super-admin'])) {
+                if (auth()->user()->hasRole(['owner','super-admin'])) {
                     return $query;
                 }else{
                     return $query->whereIn('branch_id', auth()->user()->employee->branch()->pluck('branch_id'));

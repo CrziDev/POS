@@ -55,7 +55,7 @@ class DatabaseSeeder extends Seeder
 
         ##  
         $employeeData = Employee::factory()->make([
-            'email' => 'admin@gmail.com'
+            'email' => 'Owner@gmail.com'
         ]); 
     
         $user = User::create([
@@ -64,7 +64,7 @@ class DatabaseSeeder extends Seeder
             'password' => Hash::make('password'), 
         ]);
         $user->employee()->create($employeeData->toArray()); 
-        $user->assignRole('admin');
+        $user->assignRole('owner');
 
         ##
         Employee::all()->each(function ($item) {

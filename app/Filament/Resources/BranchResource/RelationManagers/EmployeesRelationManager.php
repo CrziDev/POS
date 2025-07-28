@@ -66,7 +66,7 @@ class EmployeesRelationManager extends RelationManager
                 Tables\Actions\Action::make('assign-manager')
                     ->color('warning')
                     ->label('Assign Manager')
-                    ->visible(fn()=>auth_user()->hasRole(['admin']))
+                    ->visible(fn()=>auth_user()->hasRole(['owner']))
                     ->form([
                         Forms\Components\Select::make('employee_id')
                             ->label('Employee')
@@ -106,7 +106,7 @@ class EmployeesRelationManager extends RelationManager
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
                     Tables\Actions\DeleteBulkAction::make()
-                        ->visible(fn()=>auth_user()->hasRole(['admin']))
+                        ->visible(fn()=>auth_user()->hasRole(['owner']))
                         ->requiresConfirmation(),
                 ]),
             ]);

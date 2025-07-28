@@ -15,7 +15,7 @@ class PurchaseOrderPolicy
     {
         return $user->hasRole([
             
-            RolesEnum::ADMIN->value,
+            RolesEnum::OWNER->value,
             RolesEnum::SUPERADMIN->value,
             RolesEnum::MANAGER->value,
 
@@ -30,7 +30,7 @@ class PurchaseOrderPolicy
     {
         return $user->hasRole([
 
-            RolesEnum::ADMIN->value,
+            RolesEnum::OWNER->value,
             RolesEnum::SUPERADMIN->value,
             RolesEnum::MANAGER->value,
 
@@ -45,7 +45,7 @@ class PurchaseOrderPolicy
     {
         return $user->hasRole([
 
-            RolesEnum::ADMIN->value,
+            RolesEnum::OWNER->value,
             RolesEnum::SUPERADMIN->value,
             RolesEnum::MANAGER->value,
 
@@ -60,7 +60,7 @@ class PurchaseOrderPolicy
     {
         return $user->hasRole([
 
-            RolesEnum::ADMIN->value,
+            RolesEnum::OWNER->value,
             RolesEnum::SUPERADMIN->value,
             RolesEnum::MANAGER->value,
 
@@ -75,7 +75,7 @@ class PurchaseOrderPolicy
     {
         return $user->hasRole([
             
-            RolesEnum::ADMIN->value,
+            RolesEnum::OWNER->value,
             RolesEnum::SUPERADMIN->value,
             RolesEnum::MANAGER->value,
  
@@ -89,7 +89,7 @@ class PurchaseOrderPolicy
     public function restore(User $user): bool
     {
         return $user->hasRole([
-            RolesEnum::ADMIN->value,
+            RolesEnum::OWNER->value,
             RolesEnum::SUPERADMIN->value,
             RolesEnum::MANAGER->value,
 
@@ -103,7 +103,7 @@ class PurchaseOrderPolicy
     public function forceDelete(User $user): bool
     {
         return $user->hasRole([
-            RolesEnum::ADMIN->value,
+            RolesEnum::OWNER->value,
             RolesEnum::SUPERADMIN->value,
             RolesEnum::MANAGER->value,
             // 

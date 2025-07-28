@@ -23,7 +23,7 @@ class DeliveredItemResource extends Resource
     {
         return $table
             ->modifyQueryUsing(function (Builder $query) {
-                if (isRole('admin','super-admin')) {
+                if (isRole('owner','super-admin')) {
                     return $query->where('status','delivered');
                 }else{
                     return $query

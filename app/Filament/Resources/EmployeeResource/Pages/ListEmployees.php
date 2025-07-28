@@ -15,7 +15,7 @@ class ListEmployees extends ListRecords
         return [
             Actions\CreateAction::make()
                 ->icon('heroicon-m-plus')
-                ->visible(auth_user()->hasRole(['admin','super-admin'])),
+                ->visible(auth_user()->hasRole(['owner','super-admin'])),
         ];
     }
 }

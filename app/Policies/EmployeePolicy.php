@@ -14,7 +14,7 @@ class EmployeePolicy
     public function viewAny(User $user): bool
     {
         return $user->hasRole([
-            RolesEnum::ADMIN->value,
+            RolesEnum::OWNER->value,
             RolesEnum::SUPERADMIN->value,
             RolesEnum::MANAGER->value,
 
@@ -28,7 +28,7 @@ class EmployeePolicy
     public function view(User $user): bool
     {
         return $user->hasRole([
-            RolesEnum::ADMIN->value,
+            RolesEnum::OWNER->value,
             RolesEnum::SUPERADMIN->value,
             RolesEnum::MANAGER->value,
 
@@ -41,7 +41,7 @@ class EmployeePolicy
     public function create(User $user): bool
     {
         return $user->hasRole([
-            RolesEnum::ADMIN->value,
+            RolesEnum::OWNER->value,
             RolesEnum::SUPERADMIN->value,
             RolesEnum::MANAGER->value,
 
@@ -54,7 +54,7 @@ class EmployeePolicy
     public function update(User $user): bool
     {
         return $user->hasRole([
-            RolesEnum::ADMIN->value,
+            RolesEnum::OWNER->value,
             RolesEnum::SUPERADMIN->value,
             RolesEnum::MANAGER->value,
 
@@ -68,7 +68,7 @@ class EmployeePolicy
     {
 
          return $user->hasRole([
-            RolesEnum::ADMIN->value,
+            RolesEnum::OWNER->value,
             RolesEnum::SUPERADMIN->value,
             RolesEnum::MANAGER->value,
 
@@ -81,7 +81,7 @@ class EmployeePolicy
     public function restore(User $user): bool
     {
          return $user->hasRole([
-            RolesEnum::ADMIN->value,
+            RolesEnum::OWNER->value,
             RolesEnum::SUPERADMIN->value,
             RolesEnum::MANAGER->value,
 
@@ -94,7 +94,7 @@ class EmployeePolicy
     public function forceDelete(User $user): bool
     {
          return $user->hasRole([
-            RolesEnum::ADMIN->value,
+            RolesEnum::OWNER->value,
             RolesEnum::SUPERADMIN->value,
             RolesEnum::MANAGER->value,
 

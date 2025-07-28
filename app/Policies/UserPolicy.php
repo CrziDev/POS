@@ -15,7 +15,7 @@ class UserPolicy
     {
         return false;
         return $user->hasRole([
-            RolesEnum::ADMIN->value,
+            RolesEnum::OWNER->value,
             RolesEnum::SUPERADMIN->value,
         ]);
 
@@ -27,7 +27,7 @@ class UserPolicy
     public function view(User $user): bool
     {
         return false;
-        return $user->hasRole([RolesEnum::ADMIN->value]);
+        return $user->hasRole([RolesEnum::OWNER->value]);
 
     }
 
@@ -36,7 +36,7 @@ class UserPolicy
      */
     public function create(User $user): bool
     {
-        return $user->hasRole([RolesEnum::ADMIN->value]);
+        return $user->hasRole([RolesEnum::OWNER->value]);
 
     }
 
@@ -45,7 +45,7 @@ class UserPolicy
      */
     public function update(User $user): bool
     {
-        return $user->hasRole([RolesEnum::ADMIN->value]);
+        return $user->hasRole([RolesEnum::OWNER->value]);
 
     }
 
@@ -54,7 +54,7 @@ class UserPolicy
      */
     public function delete(User $user): bool
     {
-        return $user->hasRole([RolesEnum::ADMIN->value]);
+        return $user->hasRole([RolesEnum::OWNER->value]);
 
     }
 
@@ -63,7 +63,7 @@ class UserPolicy
      */
     public function restore(User $user): bool
     {
-        return $user->hasRole([RolesEnum::ADMIN->value]);
+        return $user->hasRole([RolesEnum::OWNER->value]);
     }
 
     /**
@@ -71,7 +71,7 @@ class UserPolicy
      */
     public function forceDelete(User $user): bool
     {
-        return $user->hasRole([RolesEnum::ADMIN->value]);
+        return $user->hasRole([RolesEnum::OWNER->value]);
 
     }
 }

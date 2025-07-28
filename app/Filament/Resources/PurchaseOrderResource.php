@@ -35,7 +35,7 @@ class PurchaseOrderResource extends Resource
     public static function getNavigationBadge(): ?string
     {
 
-         if (auth_user()->hasRole(['admin','super-admin'])) {
+         if (auth_user()->hasRole(['owner','super-admin'])) {
                 return  PurchaseOrder::where('status', 'pending')->count();
             }else{
                 return  PurchaseOrder::where('status', 'pending')
@@ -94,7 +94,7 @@ class PurchaseOrderResource extends Resource
     {
         return $table
             ->modifyQueryUsing(function (Builder $query) {
-                if (auth_user()->hasRole(['admin','super-admin'])) {
+                if (auth_user()->hasRole(['owner','super-admin'])) {
                     return $query;
                 }else{
                     return $query->whereIn('branch_id', auth_user()->employee->branch()->pluck('branch_id'));

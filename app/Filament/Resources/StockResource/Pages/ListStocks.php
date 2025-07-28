@@ -17,7 +17,7 @@ class ListStocks extends ListRecords
         return [
             Actions\Action::make('transfer-item')
                 ->label('Transfer Stocks')
-                ->visible(fn()=>auth()->user()->hasRole('admin'))
+                ->visible(fn()=>auth()->user()->hasRole('owner'))
                 ->icon('heroicon-m-arrow-right-on-rectangle'), 
             
             Actions\Action::make('export-stocks')
@@ -30,7 +30,7 @@ class ListStocks extends ListRecords
 
     public function getTabs(): array
     {
-         if (auth_user()->hasRole(['admin','super-admin'])) {
+         if (auth_user()->hasRole(['owner','super-admin'])) {
             $branches = Branch::all();
         }else{
             $branches = Branch::whereIn('id',auth_user()->employee->branch()->pluck('branch_id'))->get();

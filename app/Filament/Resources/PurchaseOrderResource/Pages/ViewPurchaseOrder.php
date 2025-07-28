@@ -43,7 +43,7 @@ class ViewPurchaseOrder extends ViewRecord
                 ->visible(fn ($record) =>
                      $record->status == PurchaseOrderStatusEnums::PENDING->value
                      &&
-                     isRole('admin')
+                     isRole('owner')
                 ),
             ];
     }
