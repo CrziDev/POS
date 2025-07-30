@@ -37,7 +37,7 @@ class DatabaseSeeder extends Seeder
             $user->employee()->create($employeeData->toArray()); 
             
 
-            $randomRole = Arr::random(['sales-clerk', 'cashier']);
+            $randomRole = Arr::random(['cashier']);
             $user->assignRole($randomRole);
         }
 
