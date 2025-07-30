@@ -4,6 +4,7 @@ namespace App\Filament\Resources\PurchaseOrdersResource\RelationManagers;
 
 use App\Enums\PurchaseOrderStatusEnums;
 use App\Models\Supply;
+use Filament\Actions\CreateAction;
 use Filament\Forms;
 use Filament\Forms\Form;
 use Filament\Resources\RelationManagers\RelationManager;
@@ -133,6 +134,11 @@ class OrderedItemsRelationManager extends RelationManager
                     ->label('Add Ordered Item')
                     ->icon('heroicon-o-plus')
                     ->color('info')
+                    ->modalSubmitActionLabel('Save')
+                    ->extraModalFooterActions(fn (CreateAction $action): array => [
+                        $action->makeModalSubmitAction('createAnother', arguments: ['another' => true])
+                            ->label('Add new'),
+                    ])
                     ->hidden(function (): bool {
                         return (
                             in_array($this->getOwnerRecord()->status,

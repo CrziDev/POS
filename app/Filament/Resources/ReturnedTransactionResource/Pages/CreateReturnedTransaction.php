@@ -6,11 +6,13 @@ use App\Filament\Resources\ReturnedTransactionResource;
 use App\Models\RelacementItem;
 use App\Models\ReplacementItem;
 use App\Models\ReturnItem;
+use App\Traits\CreateActionLabel;
 use Filament\Resources\Pages\CreateRecord;
 use Illuminate\Database\Eloquent\Model;
 
 class CreateReturnedTransaction extends CreateRecord
 {
+    use CreateActionLabel;
     protected static string $resource = ReturnedTransactionResource::class;
     protected static bool $canCreateAnother = false;
 

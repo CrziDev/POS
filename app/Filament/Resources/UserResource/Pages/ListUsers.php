@@ -15,6 +15,11 @@ class ListUsers extends ListRecords
         return [
             Actions\CreateAction::make()
                 ->icon('heroicon-m-plus')
+                ->modalSubmitActionLabel('Save')
+                ->extraModalFooterActions(fn (Actions\CreateAction $action): array => [
+                    $action->makeModalSubmitAction('createAnother', arguments: ['another' => true])
+                        ->label('Add new'),
+                ])
                 ->mutateFormDataUsing(function (array $data): array {
                     $data['password'] = bcrypt('default_password_here'); 
                     

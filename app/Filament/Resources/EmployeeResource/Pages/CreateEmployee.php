@@ -5,11 +5,14 @@ namespace App\Filament\Resources\EmployeeResource\Pages;
 use App\Enums\RolesEnum;
 use App\Filament\Resources\EmployeeResource;
 use App\Models\User;
+use App\Traits\CreateActionLabel;
 use Filament\Resources\Pages\CreateRecord;
 use Illuminate\Database\Eloquent\Model;
 
 class CreateEmployee extends CreateRecord
 {
+    use CreateActionLabel;
+    
     protected static string $resource = EmployeeResource::class;
 
     protected function handleRecordCreation(array $data): Model

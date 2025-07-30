@@ -22,6 +22,11 @@ class ListPurchaseOrders extends ListRecords
                 ->successRedirectUrl(fn (Model $record): string => route('filament.admin.resources.purchase-orders.edit', [
                     'record' => $record,
                 ]))
+                 ->modalSubmitActionLabel('Save')
+                ->extraModalFooterActions(fn (Actions\CreateAction $action): array => [
+                    $action->makeModalSubmitAction('createAnother', arguments: ['another' => true])
+                        ->label('Add new'),
+                ])
         ];
     }
 }

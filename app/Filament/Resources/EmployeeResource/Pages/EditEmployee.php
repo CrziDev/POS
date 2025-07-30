@@ -5,6 +5,7 @@ namespace App\Filament\Resources\EmployeeResource\Pages;
 use App\Enums\RolesEnum;
 use App\Filament\Resources\EmployeeResource;
 use App\Models\Employee;
+use App\Traits\CreateActionLabel;
 use App\Traits\HasBackUrl;
 use Filament\Resources\Pages\EditRecord;
 use Illuminate\Database\Eloquent\Model;
@@ -12,6 +13,7 @@ use Illuminate\Database\Eloquent\Model;
 class EditEmployee extends EditRecord
 {
     use HasBackUrl;
+
 
     protected static string $resource = EmployeeResource::class;
 

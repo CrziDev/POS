@@ -5,6 +5,7 @@ namespace App\Filament\Resources\BranchResource\RelationManagers;
 use App\Enums\EmployeeStatusEnum;
 use App\Enums\RolesEnum;
 use App\Models\Employee;
+use Filament\Actions\CreateAction;
 use Filament\Forms;
 use Filament\Forms\Form;
 use Filament\Resources\RelationManagers\RelationManager;
@@ -83,6 +84,11 @@ class EmployeesRelationManager extends RelationManager
                         ]);
                     }),
                     Tables\Actions\CreateAction::make()
+                        ->modalSubmitActionLabel('Save')
+                        ->extraModalFooterActions(fn (CreateAction $action): array => [
+                            $action->makeModalSubmitAction('createAnother', arguments: ['another' => true])
+                                ->label('Add new'),
+                        ])
                         ->label('Add Employee'),
             ])
             ->actions([

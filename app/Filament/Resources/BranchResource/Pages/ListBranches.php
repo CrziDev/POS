@@ -15,6 +15,11 @@ class ListBranches extends ListRecords
         return [
             Actions\CreateAction::make()
                 ->icon('heroicon-m-plus')
+                ->modalSubmitActionLabel('Save')
+                ->extraModalFooterActions(fn (Actions\CreateAction $action): array => [
+                    $action->makeModalSubmitAction('createAnother', arguments: ['another' => true])
+                        ->label('Add new'),
+                ])
                 ->visible(auth_user()->hasRole(['owner','super-admin'])),
         ];
     }

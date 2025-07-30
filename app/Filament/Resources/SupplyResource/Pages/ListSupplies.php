@@ -14,7 +14,6 @@ class ListSupplies extends ListRecords
 {
     protected static string $resource = SupplyResource::class;
 
-    
     protected function getHeaderActions(): array
     {
         return [
@@ -41,6 +40,11 @@ class ListSupplies extends ListRecords
                 ->extraModalFooterActions(fn (Actions\CreateAction $action): array => [
                     $action->makeModalSubmitAction('createAnother', arguments: ['another' => true])
                         ->label('Save & add another'),
+                ])
+                 ->modalSubmitActionLabel('Save')
+                ->extraModalFooterActions(fn (Actions\CreateAction $action): array => [
+                    $action->makeModalSubmitAction('createAnother', arguments: ['another' => true])
+                        ->label('Add new'),
                 ])
                 ->label('New Supply')
                 ->icon('heroicon-m-plus') 

@@ -15,6 +15,11 @@ class ListSupplyUnits extends ListRecords
         return [
             Actions\CreateAction::make()
                 ->label('Add Unit')
+                 ->modalSubmitActionLabel('Save')
+                ->extraModalFooterActions(fn (Actions\CreateAction $action): array => [
+                    $action->makeModalSubmitAction('createAnother', arguments: ['another' => true])
+                        ->label('Add new'),
+                ])
                 ->icon('heroicon-m-plus'),
         ];
     }

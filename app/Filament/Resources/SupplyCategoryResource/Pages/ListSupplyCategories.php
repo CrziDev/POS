@@ -15,6 +15,11 @@ class ListSupplyCategories extends ListRecords
         return [
             Actions\CreateAction::make()
                 ->label('Add Category')
+                 ->modalSubmitActionLabel('Save')
+                ->extraModalFooterActions(fn (Actions\CreateAction $action): array => [
+                    $action->makeModalSubmitAction('createAnother', arguments: ['another' => true])
+                        ->label('Add new'),
+                ])
                 ->icon('heroicon-m-plus'),
         ];
     }
