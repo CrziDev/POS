@@ -1,0 +1,146 @@
+<!-- <div class="flex items-center justify-between mb-6">
+        @if ($currentFolderId)
+            <x-filament::button wire:click="goBack" icon="heroicon-o-arrow-left">
+                Back
+            </x-filament::button>
+        @endif
+
+        <div class="flex gap-2">
+            <x-filament::button x-on:click="folderModal = true" icon="heroicon-o-plus-circle">
+                Create Folder
+            </x-filament::button>
+
+            <x-filament::button x-on:click="fileModal = true" icon="heroicon-o-arrow-up-tray">
+                Upload File
+            </x-filament::button>
+        </div>
+    </div> -->
+
+    <!-- Modals -->
+    <!-- <div x-data="{ folderModal: false, fileModal: false }">
+
+        <x-filament::modal x-show="folderModal" x-on:keydown.escape.window="folderModal = false" x-cloak>
+            <x-slot name="header">
+                Create New Folder
+            </x-slot>
+
+            <div class="space-y-4">
+                <label for="newFolderName" class="text-sm font-medium text-gray-700">Folder Name</label>
+                <input id="newFolderName" wire:model.defer="newFolderName" type="text" class="filament-input w-full" />
+            </div>
+
+            <x-slot name="footer">
+                <x-filament::button wire:click="createFolder" wire:loading.attr="disabled"
+                    x-on:click="folderModal = false">
+                    Create
+                </x-filament::button>
+                <x-filament::button color="gray" x-on:click="folderModal = false">
+                    Cancel
+                </x-filament::button>
+            </x-slot>
+        </x-filament::modal>
+
+    </div> -->
+
+    <!-- Upload File Modal -->
+    <!-- <x-filament::modal x-show="fileModal" x-on:keydown.escape.window="fileModal = false" x-cloak>
+        <x-slot name="header">
+            Upload File
+        </x-slot>
+
+        <div class="space-y-4">
+            <label for="fileUpload" class="text-sm font-medium text-gray-700">Select File</label>
+            <input id="fileUpload" type="file" wire:model="fileUpload" class="filament-input w-full" />
+        </div>
+
+        <x-slot name="footer">
+            <x-filament::button wire:click="uploadFile" wire:loading.attr="disabled"
+                x-on:click="fileModal = false">
+                Upload
+            </x-filament::button>
+            <x-filament::button color="gray" x-on:click="fileModal = false">
+                Cancel
+            </x-filament::button>
+        </x-slot>
+    </x-filament::modal> -->
+
+    <!-- Folder/File Grid -->
+    <!-- <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-5">
+        @foreach ($this->folders as $folder)
+            <div
+                class="p-4 bg-white border rounded-xl shadow-sm hover:shadow-md cursor-pointer transition-all duration-200"
+                wire:click="openFolder({{ $folder->id }})"
+            >
+                <div class="flex items-center gap-3">
+                    <x-heroicon-o-folder class="w-6 h-6 text-yellow-500" />
+                    <div class="font-medium text-gray-800 truncate">{{ $folder->name }}</div>
+                </div>
+            </div>
+        @endforeach
+
+        @foreach ($this->files as $file)
+            <div class="p-4 bg-white border rounded-xl shadow-sm hover:shadow-md transition-all duration-200">
+                <div class="flex items-center gap-3 mb-2">
+                    <x-heroicon-o-document class="w-6 h-6 text-blue-500" />
+                    <div class="font-medium text-gray-800 truncate">{{ $file->name }}</div>
+                </div>
+                <a href="{{ Storage::url($file->path) }}" target="_blank" class="text-sm text-blue-600 underline">
+                    View File
+                </a>
+            </div>
+        @endforeach
+    </div> -->
+
+
+    <x-filament::page>
+  <div class="bg-gray-50 text-gray-800 p-6">
+
+    <!-- Header like table controls -->
+    <div class="flex justify-between items-center mb-4">
+      <div class="flex items-center gap-3">
+        <h1 class="text-xl font-semibold">Media Library</h1>
+        <span class="text-sm text-gray-500">Folders and Assets Management</span>
+      </div>
+      <div class="flex gap-2 items-center">
+        <input 
+          type="text" 
+          placeholder="Search" 
+          class="border border-gray-300 rounded px-2 py-1 text-sm focus:ring-2 focus:ring-blue-300"
+        >
+        <button class="bg-blue-600 text-white px-3 py-1.5 text-sm rounded hover:bg-blue-700">
+          + Add Folder
+        </button>
+        <button class="bg-purple-600 text-white px-3 py-1.5 text-sm rounded hover:bg-purple-700">
+          + Add Asset
+        </button>
+      </div>
+    </div>
+
+    <!-- Table Section -->
+    <table class="w-full bg-white shadow-sm rounded-lg overflow-hidden">
+      <thead>
+        <tr class="bg-gray-100">
+          <th class="p-4 text-left text-sm font-semibold text-gray-600">Status</th>
+          <th class="p-4 text-left text-sm font-semibold text-gray-600">Message</th>
+          <th class="p-4 text-left text-sm font-semibold text-gray-600">Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr class="border-t">
+          <td class="p-4 text-center">
+            <span class="inline-flex items-center justify-center w-8 h-8 rounded-full bg-gray-200 text-gray-500">
+              <span class="text-xl">✖</span>
+            </span>
+          </td>
+          <td class="p-4 text-sm text-gray-800">No returned transactions</td>
+          <td class="p-4 text-center">
+            <button class="text-gray-500 hover:text-gray-700">
+              <span class="text-xl">⋮</span>
+            </button>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+
+  </div>
+</x-filament::page>
